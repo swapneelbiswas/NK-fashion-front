@@ -59,7 +59,7 @@
           <span class="slide-subtitle">{{ slide.subtitle }}</span>
           <h1 class="slide-title">{{ slide.title }}</h1>
           <p class="slide-desc">{{ slide.description }}</p>
-          <button class="slide-cta-btn" type="button">SHOP NOW</button>
+          <button class="slide-cta-btn" type="button" (click)="scrollToCatalog()">SHOP NOW</button>
         </div>
       </div>
     </div>
@@ -88,28 +88,28 @@
       <span class="section-sub">Carefully curated luxury collections</span>
     </div>
     <div class="categories-grid">
-      <div class="category-card">
+      <div class="category-card" (click)="selectCategoryAndScroll('Saree')">
         <img src="/assets/images/hospital_staff.png" alt="Sarees Collection" />
         <div class="category-overlay">
           <h3>Saree Collection</h3>
           <span class="category-link">EXPLORE</span>
         </div>
       </div>
-      <div class="category-card">
+      <div class="category-card" (click)="selectCategoryAndScroll('Men')">
         <img src="/assets/images/admin_staff.webp" alt="Dhoti-Kurtas" />
         <div class="category-overlay">
           <h3>Groom's Dhoti-Kurtas</h3>
           <span class="category-link">EXPLORE</span>
         </div>
       </div>
-      <div class="category-card">
+      <div class="category-card" (click)="selectCategoryAndScroll('Couple')">
         <img src="/assets/images/head_offices.png" alt="Couple Collections" />
         <div class="category-overlay">
           <h3>Couple Matching Sets</h3>
           <span class="category-link">EXPLORE</span>
         </div>
       </div>
-      <div class="category-card">
+      <div class="category-card" (click)="selectCategoryAndScroll('Jewelry')">
         <img src="/assets/images/logo.png" alt="Accessories" />
         <div class="category-overlay">
           <h3>Fashion Jewelry</h3>
@@ -120,10 +120,10 @@
   </section>
 
   <!-- Bestsellers Showcase -->
-  <section class="products-section">
+  <section id="products-catalog" class="products-section">
     <div class="section-header">
       <h2 class="section-title">Bestselling Outfits</h2>
-      <span class="section-sub">Trending traditional handcrafts</span>
+      <span class="section-sub">Trending traditional handcrafts ({{ selectedCategory }})</span>
     </div>
     
     <div class="products-grid">
@@ -159,10 +159,10 @@
       <div class="campaign-overlay"></div>
     </div>
     <div class="campaign-caption">
-      <span class="campaign-tag">NK FASHIONS x RAW NATION</span>
+      <span class="campaign-tag">NK FASHIONS x AUSTRALIA</span>
       <h2 class="campaign-title">CASUAL CONFIDENCE</h2>
       <p class="campaign-desc">Express your individuality with premium minimal essentials designed for everyday luxury.</p>
-      <button class="campaign-btn" type="button">DISCOVER NOW</button>
+      <button class="campaign-btn" type="button" (click)="selectCategoryAndScroll('Men')">DISCOVER NOW</button>
     </div>
   </section>
 
@@ -204,16 +204,32 @@
   <div class="footer-container">
     <div class="footer-col brand-col">
       <h3>NK FASHIONS</h3>
-      <p>Your premier destination for traditional designer ethnic wear, handcrafted in traditional style hubs.</p>
+      <p>Your premier destination for traditional designer ethnic wear, handcrafted in traditional style hubs with Australian boutique standards.</p>
+      <div class="footer-badges">
+        <span class="badge-item"><i class="material-icons">verified</i> Silk Mark Certified</span>
+        <span class="badge-item"><i class="material-icons">local_shipping</i> Express Dispatch</span>
+      </div>
     </div>
     
     <div class="footer-col link-col">
       <h4>Collections</h4>
       <ul>
-        <li><a>Festive Sarees</a></li>
-        <li><a>Designer Dhoti-Kurtas</a></li>
-        <li><a>Couple Sets</a></li>
-        <li><a>Ethnic Jewelry</a></li>
+        <li><a (click)="selectCategoryAndScroll('All')">All Collections</a></li>
+        <li><a (click)="selectCategoryAndScroll('Saree')">Festive Sarees</a></li>
+        <li><a (click)="selectCategoryAndScroll('Men')">Designer Dhoti-Kurtas</a></li>
+        <li><a (click)="selectCategoryAndScroll('Couple')">Couple Matching Sets</a></li>
+        <li><a (click)="selectCategoryAndScroll('Jewelry')">Ethnic Jewelry</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col link-col">
+      <h4>Customer Care</h4>
+      <ul>
+        <li><a [routerLink]="'/customer'">Track My Order</a></li>
+        <li><a (click)="openInfoModal('stores')">Boutique Locations</a></li>
+        <li><a (click)="openInfoModal('shipping')">Shipping & Delivery</a></li>
+        <li><a (click)="openInfoModal('returns')">Returns & Exchanges</a></li>
+        <li><a (click)="openInfoModal('silk')">Silk Mark Guarantee</a></li>
       </ul>
     </div>
     
@@ -227,19 +243,118 @@
     </div>
     
     <div class="footer-col newsletter-col">
-      <h4>Newsletter</h4>
-      <p>Subscribe to receive product drops and event invites.</p>
-      <form class="newsletter-form">
-        <input type="email" placeholder="Your email address" aria-label="Newsletter email" />
+      <h4>VIP Newsletter</h4>
+      <p>Subscribe to receive VIP product drops, festival edits, and private previews.</p>
+      <form class="newsletter-form" (submit)="onSubscribeNewsletter($event)">
+        <input 
+          type="email" 
+          [(ngModel)]="newsletterEmail" 
+          name="newsletterEmail" 
+          placeholder="Your email address" 
+          aria-label="Newsletter email" 
+          required 
+        />
         <button type="submit" aria-label="Subscribe">JOIN</button>
       </form>
+
+      <div class="newsletter-feedback success" *ngIf="newsletterSuccess">
+        <i class="material-icons">check_circle</i>
+        <span>✨ Welcome! You are now subscribed to the VIP circle.</span>
+      </div>
+      <div class="newsletter-feedback error" *ngIf="newsletterError">
+        <i class="material-icons">error_outline</i>
+        <span>{{ newsletterError }}</span>
+      </div>
     </div>
   </div>
   
   <div class="footer-bottom">
-    <span class="copyright">© 2026 NK Fashions. All rights reserved.</span>
+    <span class="copyright">© 2026 NK Fashions Australia. All rights reserved.</span>
+    <div class="footer-extra-links">
+      <a (click)="openInfoModal('shipping')">Shipping Info</a>
+      <span class="sep">•</span>
+      <a (click)="openInfoModal('returns')">Return Policy</a>
+      <span class="sep">•</span>
+      <a (click)="openInfoModal('stores')">Store Locations</a>
+    </div>
   </div>
 </footer>
+
+<!-- Information Modals Popup -->
+<div class="info-modal-backdrop" *ngIf="activeModal" (click)="closeInfoModal()">
+  <div class="info-modal-card" (click)="$event.stopPropagation()">
+    <button class="info-modal-close" (click)="closeInfoModal()" aria-label="Close Modal">
+      <i class="material-icons">close</i>
+    </button>
+
+    <!-- Shipping Modal -->
+    <div class="modal-body" *ngIf="activeModal === 'shipping'">
+      <div class="modal-icon-badge"><i class="material-icons">local_shipping</i></div>
+      <h3 class="modal-title">Shipping & Express Delivery</h3>
+      <div class="modal-content-text">
+        <p>We provide insured Australia-wide express shipping and tracked worldwide dispatch directly from our curated boutique hubs.</p>
+        <ul class="modal-bullet-list">
+          <li><strong>Australia Express:</strong> 2 - 4 business days (Free on orders above $150 AUD)</li>
+          <li><strong>Standard Delivery:</strong> 4 - 7 business days ($10 AUD flat rate)</li>
+          <li><strong>International Courier:</strong> Express air courier with full end-to-end tracking</li>
+        </ul>
+        <p class="modal-note">All garments are shipped in protective dust covers with verified Silk Mark authenticity tags.</p>
+      </div>
+      <button class="modal-action-btn" (click)="closeInfoModal()">GOT IT</button>
+    </div>
+
+    <!-- Returns Modal -->
+    <div class="modal-body" *ngIf="activeModal === 'returns'">
+      <div class="modal-icon-badge"><i class="material-icons">assignment_return</i></div>
+      <h3 class="modal-title">14-Day Returns & Exchanges</h3>
+      <div class="modal-content-text">
+        <p>Your complete satisfaction is our priority. We offer a 14-day boutique exchange guarantee on all unworn items.</p>
+        <ul class="modal-bullet-list">
+          <li>Garments must have original designer tags and security seals intact.</li>
+          <li>Items can be exchanged online or returned at any flagship boutique.</li>
+          <li>Direct refund or boutique store credit processed within 24 hours of inspection.</li>
+        </ul>
+      </div>
+      <button class="modal-action-btn" (click)="closeInfoModal()">UNDERSTOOD</button>
+    </div>
+
+    <!-- Store Locations Modal -->
+    <div class="modal-body" *ngIf="activeModal === 'stores'">
+      <div class="modal-icon-badge"><i class="material-icons">storefront</i></div>
+      <h3 class="modal-title">NK Fashions Flagship Boutiques</h3>
+      <div class="modal-content-text store-list">
+        <div class="store-entry">
+          <h4>Sydney Flagship Boutique</h4>
+          <p>Pitt Street Mall, Sydney NSW 2000</p>
+          <span>Open: Mon - Sun, 10:00 AM - 7:00 PM</span>
+        </div>
+        <div class="store-entry">
+          <h4>Melbourne Heritage Store</h4>
+          <p>Collins Street, Melbourne VIC 3000</p>
+          <span>Open: Mon - Sat, 10:00 AM - 6:30 PM</span>
+        </div>
+        <div class="store-entry">
+          <h4>Brisbane Boutique</h4>
+          <p>Queen Street Mall, Brisbane QLD 4000</p>
+          <span>Open: Mon - Sat, 10:00 AM - 6:00 PM</span>
+        </div>
+      </div>
+      <button class="modal-action-btn" (click)="closeInfoModal()">CLOSE</button>
+    </div>
+
+    <!-- Silk Mark Modal -->
+    <div class="modal-body" *ngIf="activeModal === 'silk'">
+      <div class="modal-icon-badge"><i class="material-icons">verified</i></div>
+      <h3 class="modal-title">Silk Mark Certified Authentic</h3>
+      <div class="modal-content-text">
+        <p>NK Fashions is an authorized and certified distributor of genuine 100% natural silk apparel.</p>
+        <p>Every hand-woven saree and kurta is stamped with an official Silk Mark hologram certifying the purity of the natural fibers.</p>
+      </div>
+      <button class="modal-action-btn" (click)="closeInfoModal()">EXCELLENT</button>
+    </div>
+  </div>
+</div>
+
 
 <!-- Sliding Cart Drawer Panel -->
 <div class="cart-drawer-overlay" [class.active]="showCartDrawer" (click)="toggleCartDrawer()"></div>

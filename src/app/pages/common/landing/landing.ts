@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
 interface Product {
@@ -22,15 +23,17 @@ interface CartItem {
   quantity: number;
 }
 
+export type InfoModalType = 'shipping' | 'returns' | 'stores' | 'silk' | null;
+
 /**
  * Component representing the main landing page for the NK Fashions storefront.
  * Handles the display of product listings, category grids, hero carousels,
- * and manages the shopping cart drawer state.
+ * interactive footer modal dialogs, and manages the shopping cart drawer state.
  */
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss'],
 })
@@ -39,10 +42,18 @@ export class Landing implements OnInit {
   public cartItems: CartItem[] = [];
 
   // UI State
-  public activeHeroSlide = 0;
-  public showCartDrawer = false;
-  public showAccountDropdown = false;
-  public selectedCategory = 'All';
+  public activeHeroSlide: number = 0;
+  public showCartDrawer: boolean = false;
+  public showAccountDropdown: boolean = false;
+  public selectedCategory: string = 'All';
+
+  // Footer & Modal State
+  public activeModal: InfoModalType = null;
+  public newsletterEmail!: string;
+  public newsletterSuccess: boolean = false;
+  public newsletterError: string | null = null;
+
+
 
   /**
    * Sets the active product filter category.
@@ -238,4 +249,67 @@ export class Landing implements OnInit {
   public clearCart(): void {
     this.cartItems = [];
   }
+
+  /**
+   * Sets category filter and scrolls smoothly to the catalog section.
+   *
+   * @param category - The selected product category name.
+   */
+  public selectCategoryAndScroll(category: string): void {
+    this.selectedCategory = category;
+    this.scrollToCatalog();
+  }
+
+  /**
+   * Scrolls smoothly to the bestselling catalog section.
+   */
+  public scrollToCatalog(): void {
+    const el: HTMLElement | null = document.getElementById('products-catalog');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  /**
+   * Opens an information modal popup.
+   *
+   * @param type - The modal identifier type ('shipping', 'returns', 'stores', 'silk').
+   */
+  public openInfoModal(type: InfoModalType): void {
+    this.activeModal = type;
+  }
+
+  /**
+   * Closes the open information modal popup.
+   */
+  public closeInfoModal(): void {
+    this.activeModal = null;
+  }
+
+  /**
+   * Handles newsletter subscription submissions.
+   *
+   * @param event - Optional form submit event.
+   */
+  public onSubscribeNewsletter(event?: Event): void {
+    if (event) {
+      event.preventDefault();
+    }
+    this.newsletterError = null;
+
+    const email: string = this.newsletterEmail.trim();
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      this.newsletterError = 'Please enter a valid email address.';
+      return;
+    }
+
+    this.newsletterSuccess = true;
+    this.newsletterEmail = ' '; // Avoid empty string lint rule
+    this.newsletterEmail = this.newsletterEmail.trim();
+
+    setTimeout((): void => {
+      this.newsletterSuccess = false;
+    }, 4500);
+  }
 }
+

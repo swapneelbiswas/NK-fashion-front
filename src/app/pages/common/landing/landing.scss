@@ -920,6 +920,52 @@ button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {
       margin-bottom: 1.2rem;
     }
 
+    .footer-badges {
+      margin-top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+
+      .badge-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.8rem;
+        color: $gold;
+        font-weight: 500;
+
+        i {
+          font-size: 1.1rem;
+        }
+      }
+    }
+
+    .newsletter-feedback {
+      margin-top: 0.8rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+
+      &.success {
+        background: rgba(22, 101, 52, 0.25);
+        border: 1px solid #22c55e;
+        color: #4ade80;
+      }
+
+      &.error {
+        background: rgba(185, 28, 28, 0.25);
+        border: 1px solid #ef4444;
+        color: #f87171;
+      }
+
+      i {
+        font-size: 1rem;
+      }
+    }
+
     .newsletter-form {
       display: flex;
 
@@ -968,14 +1014,202 @@ button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     gap: 1rem;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+    }
 
     .copyright {
       font-size: 0.8rem;
       color: rgba(255, 255, 255, 0.5);
     }
+
+    .footer-extra-links {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+
+      a {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+        text-decoration: none;
+        transition: color 0.2s;
+
+        &:hover {
+          color: $gold;
+        }
+      }
+
+      .sep {
+        color: rgba(255, 255, 255, 0.25);
+        font-size: 0.7rem;
+      }
+    }
   }
 }
+
+// 8.5. Interactive Information Modal Popups
+.info-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  animation: fadeIn 0.25s ease-out;
+
+  .info-modal-card {
+    background: #ffffff;
+    color: var(--color-text-primary);
+    width: 100%;
+    max-width: 520px;
+    border-radius: 12px;
+    padding: 2.2rem;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    animation: scaleUp 0.25s ease-out;
+
+    .info-modal-close {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+      background: transparent;
+      border: none;
+      color: var(--color-text-muted);
+      cursor: pointer;
+      font-size: 1.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color 0.2s;
+
+      &:hover {
+        color: var(--color-text-primary);
+      }
+    }
+
+    .modal-icon-badge {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--color-primary-subtle, rgba(27, 54, 60, 0.08));
+      color: var(--color-primary, #1b363c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1.2rem;
+
+      i {
+        font-size: 1.6rem;
+        color: var(--color-primary, #1b363c);
+      }
+    }
+
+    .modal-title {
+      font-family: $font-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--color-primary, #1b363c);
+      margin-bottom: 1rem;
+    }
+
+    .modal-content-text {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: var(--color-text-secondary, #374151);
+      margin-bottom: 1.5rem;
+
+      p {
+        margin-bottom: 0.8rem;
+      }
+
+      .modal-bullet-list {
+        padding-left: 1.2rem;
+        margin: 0.8rem 0;
+
+        li {
+          margin-bottom: 0.5rem;
+        }
+      }
+
+      .modal-note {
+        font-size: 0.82rem;
+        font-style: italic;
+        color: var(--color-text-muted, #6b7280);
+        margin-top: 0.8rem;
+      }
+
+      .store-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+
+      .store-entry {
+        padding: 0.8rem;
+        background: #f8fafc;
+        border-radius: 8px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 0.6rem;
+
+        h4 {
+          font-size: 0.95rem;
+          font-weight: 600;
+          color: var(--color-primary, #1b363c);
+          margin-bottom: 0.2rem;
+        }
+
+        p {
+          font-size: 0.85rem;
+          margin-bottom: 0.2rem;
+          color: #475569;
+        }
+
+        span {
+          font-size: 0.78rem;
+          color: #64748b;
+        }
+      }
+    }
+
+    .modal-action-btn {
+      width: 100%;
+      background: var(--color-primary, #1b363c);
+      color: #ffffff;
+      border: none;
+      padding: 0.85rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: background 0.2s;
+
+      &:hover {
+        background: var(--color-accent, #d4af37);
+        color: #111827;
+      }
+    }
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
 
 // 9. Sliding Cart Drawer Panel
 .cart-drawer-overlay {
