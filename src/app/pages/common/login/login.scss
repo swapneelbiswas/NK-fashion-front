@@ -1,0 +1,226 @@
+$ai-dark: #16293f;
+$card-bg: #d1d5db; // paper color #d1d5db
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #e8ecf6;
+}
+
+.login {
+  min-height: 100vh;
+  padding: 4rem 1.5rem;
+  background: #e8ecf6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .login-card-wrapper {
+    width: 100%;
+    max-width: 512px;
+    margin: 0 auto;
+    background: $card-bg;
+    border-radius: 0.85rem;
+    padding: 1.5rem;
+    box-shadow:
+      0 1px 2px rgba(30, 58, 138, 0.06),
+      0 10px 20px rgba(30, 58, 138, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow:
+        0 1px 2px rgba(30, 58, 138, 0.08),
+        0 14px 28px rgba(30, 58, 138, 0.14);
+    }
+  }
+
+  .login-image {
+    background: #eef2fb;
+    border-radius: 0.55rem;
+    overflow: hidden;
+    margin-bottom: 1.1rem;
+    aspect-ratio: 467 / 264;
+    box-shadow: inset 0 0 0 1px rgba(31, 58, 95, 0.08);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.4s ease;
+    }
+  }
+
+  .login-card-wrapper:hover .login-image img {
+    transform: scale(1.04);
+  }
+
+  .login-title {
+    font-size: 2rem;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-align: center;
+    color: $ai-dark;
+    margin-bottom: 0.25rem;
+  }
+
+  .login-subtitle {
+    font-size: 1.05rem;
+    text-align: center;
+    color: #4b5563;
+    margin-bottom: 0.75rem;
+  }
+
+  .login-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    label {
+      margin: 0 0 -0.35rem;
+      padding: 0;
+      font-size: 0.95rem;
+    }
+  }
+
+  .login-field-label {
+    margin: 0 0 -0.35rem;
+    padding: 0;
+    font-size: 0.95rem;
+  }
+
+  .form-group--no-label {
+    padding-top: 1.2rem;
+  }
+
+  .input-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: #ffffff;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      border-color: #93c5fd;
+    }
+
+    &:focus-within {
+      border-color: #4e81ee;
+      box-shadow: 0 0 0 3px rgba(78, 129, 238, 0.15);
+    }
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+
+    input {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 1rem;
+      color: #1f2937;
+
+      &::placeholder {
+        color: #6b7280;
+      }
+
+      &:-webkit-autofill,
+      &:-webkit-autofill:hover,
+      &:-webkit-autofill:focus {
+        -webkit-box-shadow: 0 0 0px 1000px white inset;
+        box-shadow: 0 0 0px 1000px white inset;
+        -webkit-text-fill-color: #1f2937;
+      }
+    }
+  }
+
+  .password-wrapper {
+    padding: 0.75rem;
+  }
+
+  .eye-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+
+    &:hover {
+      opacity: 1;
+    }
+
+    img {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  .error-text {
+    font-size: 0.85rem;
+    color: #ef4444;
+    margin: -0.25rem 0 0;
+    line-height: 1.2;
+  }
+
+  .login-actions {
+    display: flex;
+    flex-direction: row;
+    gap: 0.6rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn-custom-blue {
+    flex: 1;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    background: #4e81ee;
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(26, 86, 219, 0.3);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #2563eb;
+      box-shadow: 0 4px 10px rgba(26, 86, 219, 0.35);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(37, 99, 235, 0.55);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      background: #93c5fd;
+      cursor: not-allowed;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+}

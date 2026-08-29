@@ -1,0 +1,386 @@
+// System Admin Dashboard SCSS
+$maroon: var(--boutique-primary);
+$gold: var(--boutique-accent);
+$gold-dark: var(--boutique-accent-dark);
+$light-bg: var(--boutique-bg-light);
+$text-dark: var(--boutique-text-dark);
+$font-serif: var(--boutique-font-header);
+$font-sans: var(--boutique-font-base);
+
+.portal-layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #f4f5f7;
+}
+
+.portal-main {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.portal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  background-color: #ffffff;
+  padding: 1.5rem 2rem;
+  border: 1px solid #eaeaea;
+
+  h1 {
+    font-family: $font-serif;
+    font-size: 1.8rem;
+    color: $maroon;
+    margin: 0;
+    letter-spacing: 0.05em;
+  }
+
+  .subtext {
+    font-size: 0.85rem;
+    color: #777777;
+    margin-top: 0.3rem;
+    display: block;
+  }
+
+  .admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+
+    .avatar-tag {
+      background-color: $maroon;
+      color: #ffffff;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .profile-details {
+      display: flex;
+      flex-direction: column;
+
+      .username {
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+
+      .role {
+        font-size: 0.75rem;
+        color: #777777;
+      }
+    }
+  }
+}
+
+// Tab selectors
+.portal-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .tab-btn {
+    background-color: #ffffff;
+    border: 1px solid #eaeaea;
+    color: $text-dark;
+    padding: 0.9rem 1.5rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    transition: all 0.2s;
+    border-radius: 0px !important;
+
+    i {
+      font-size: 1.25rem;
+    }
+
+    &:hover {
+      border-color: $gold;
+      color: $gold-dark;
+    }
+
+    &.active {
+      background-color: $maroon;
+      border-color: $maroon;
+      color: #ffffff;
+    }
+  }
+}
+
+// Tab Content Layout
+.tab-content {
+  background-color: #ffffff;
+  border: 1px solid #eaeaea;
+  padding: 2rem;
+
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    h2 {
+      font-family: $font-serif;
+      font-size: 1.4rem;
+      color: $maroon;
+      margin: 0;
+      letter-spacing: 0.02em;
+    }
+
+    .action-add-btn {
+      background-color: $maroon;
+      color: #ffffff;
+      border: none;
+      padding: 0.65rem 1.2rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      border-radius: 0px !important;
+
+      i {
+        font-size: 1.1rem;
+      }
+
+      &:hover {
+        background-color: $gold-dark;
+      }
+    }
+  }
+}
+
+// Data Tables
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+
+  th, td {
+    padding: 1rem;
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  th {
+    background-color: #fafafa;
+    font-weight: 600;
+    color: #555555;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    letter-spacing: 0.05em;
+  }
+
+  tbody tr:hover {
+    background-color: #f9f9f9;
+  }
+
+  .code-badge {
+    background-color: #eaeaea;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.75rem;
+    font-family: monospace;
+    font-weight: 600;
+  }
+
+  .type-tag {
+    background-color: rgba($gold, 0.15);
+    color: $gold-dark;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+
+    &.wh {
+      background-color: rgba($maroon, 0.1);
+      color: $maroon;
+    }
+  }
+
+  .category-tag {
+    background-color: #f1f3f5;
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    color: #495057;
+  }
+
+  .role-tag {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #2b8a3e;
+
+    &::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #40c057;
+    }
+  }
+
+  .delete-icon-btn {
+    background: none;
+    border: none;
+    color: #888888;
+    cursor: pointer;
+    padding: 0.2rem;
+    transition: color 0.15s;
+
+    &:hover {
+      color: $maroon;
+    }
+  }
+}
+
+// Audit Logs Rows
+.logs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.log-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: #fcfcfc;
+  border: 1px solid #eeeeee;
+  padding: 1rem 1.5rem;
+  font-size: 0.85rem;
+
+  .log-time {
+    color: #888888;
+    font-family: monospace;
+    min-width: 120px;
+  }
+
+  .log-action {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: 600;
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
+    min-width: 140px;
+    text-align: center;
+
+    &.override {
+      background-color: #fff0f6;
+      color: #c2255c;
+    }
+  }
+
+  .log-user {
+    font-weight: 600;
+    color: $text-dark;
+    min-width: 100px;
+  }
+
+  .log-target {
+    color: #555555;
+    flex: 1;
+  }
+}
+
+// Modals
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+
+  .modal-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 460px;
+    padding: 2rem;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+
+    h3 {
+      font-family: $font-serif;
+      font-size: 1.3rem;
+      color: $maroon;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+    }
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+
+    label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #666666;
+    }
+
+    input, select {
+      border: 1px solid #cccccc;
+      padding: 0.65rem;
+      font-size: 0.9rem;
+      font-family: $font-sans;
+
+      &:focus {
+        outline: none;
+        border-color: $gold;
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.8rem;
+    margin-top: 2rem;
+
+    button {
+      border: none;
+      padding: 0.7rem 1.5rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      border-radius: 0px !important;
+    }
+
+    .btn-cancel {
+      background-color: #eaeaea;
+      color: #555555;
+
+      &:hover {
+        background-color: #dddddd;
+      }
+    }
+
+    .btn-save {
+      background-color: $maroon;
+      color: #ffffff;
+
+      &:hover {
+        background-color: $gold-dark;
+      }
+    }
+  }
+}

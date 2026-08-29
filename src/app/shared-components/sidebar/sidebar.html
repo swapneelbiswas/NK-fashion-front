@@ -1,0 +1,88 @@
+<app-loader [visible]="loggingOut"></app-loader>
+<div class="sidebar-layout">
+  <!-- Sidebar -->
+  <aside
+    class="sidebar"
+    [ngClass]="{ 'sidebar-collapsed': iconOnly }"
+  >
+
+    <!-- Collapse toggle button (desktop only) -->
+    <div class="sidebar-collapse-btn" (click)="toggleCollapse()">
+      <i class="fa-solid" [ngClass]="collapsed ? 'fa-chevron-right' : 'fa-chevron-left'"></i>
+    </div>
+
+    <!-- Navigation Section -->
+    <nav class="sidebar-nav">
+      @for (item of sidebarItems; track item.label) {
+        @if (item.children) {
+          <!-- Group with sub-items -->
+          <div
+            class="nav-item nav-group"
+            [ngClass]="{ 'nav-active': isGroupActive(item) }"
+            (click)="toggleGroup(item.label)"
+            [title]="iconOnly ? item.label : ''"
+          >
+            @if (iconOnly) {
+              <i class="fa-solid {{ item.icon }} nav-icon"></i>
+            } @else {
+              <span>{{ item.label }}</span>
+              <span class="nav-group-arrow">
+                @if (isGroupExpanded(item.label)) { &#9662; } @else { &#9656; }
+              </span>
+            }
+          </div>
+          @if (isGroupExpanded(item.label)) {
+            @for (child of item.children; track child.route) {
+              <a
+                [routerLink]="child.route"
+                class="nav-item nav-child"
+                [ngClass]="{ 'nav-active': isActive(child) }"
+                [title]="iconOnly ? child.label : ''"
+              >
+                @if (iconOnly) {
+                  <i class="fa-solid {{ child.icon }} nav-icon"></i>
+                } @else {
+                  <span>{{ child.label }}</span>
+                }
+              </a>
+            }
+          }
+        } @else {
+          <a
+            [routerLink]="item.route"
+            class="nav-item"
+            [ngClass]="{ 'nav-active': isActive(item) }"
+            [title]="iconOnly ? item.label : ''"
+          >
+            @if (iconOnly) {
+              <i class="fa-solid {{ item.icon }} nav-icon"></i>
+            } @else {
+              <span>{{ item.label }}</span>
+            }
+          </a>
+        }
+      }
+    </nav>
+  </aside>
+
+  <!-- User Info Floating Box -->
+  <div class="user-box" [ngClass]="{ 'user-box-collapsed': iconOnly }">
+    @if (!iconOnly) {
+      @if (userType === 'leader' && userBranchName) {
+        <div class="branch-name">{{userBranchName}}</div>
+      }
+      <div>
+        <span class="user-name-badge">{{userName}}</span>
+      </div>
+      <div class="user-login-id">{{userLoginId}}</div>
+    }
+    <button class="logout-btn" (click)="logout()">
+      @if (iconOnly) {
+        <i class="fa-solid fa-right-from-bracket"></i>
+      } @else {
+        Logout
+      }
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,38 @@
+{
+  "/api": {
+    "target": "https://d1szov22n1bdnc.cloudfront.net",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/stage": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/dev": {
+    "target": "https://d3c1zhpfmxxf2h.cloudfront.net/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/local": {
+    "target": "http://localhost:3000/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/device": {
+    "target": "http://localhost:3000/",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  },
+  "/others": {
+    "target": "",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}

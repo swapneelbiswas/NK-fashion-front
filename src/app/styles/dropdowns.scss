@@ -1,0 +1,104 @@
+// ============================================================
+// Central Dropdown Component Styles
+// Reference pattern: delivery-request.html autocomplete field
+//
+// HTML structure:
+//   <div class="suml-autocomplete-field">
+//     <div class="suml-dropdown-wrapper">
+//       <input class="select-dropdown-no-icon suml-dropdown-input" />
+//       <i class="fas fa-times" />             <!-- clear icon, conditionally shown -->
+//       <img class="dropdown-toggle-icon" />   <!-- toggle arrow, defined in styles.scss -->
+//       <ul class="suml-dropdown-list">
+//         <li class="suml-dropdown-item">...</li>
+//       </ul>
+//     </div>
+//   </div>
+// ============================================================
+
+.suml-autocomplete-field {
+  @apply w-full sm:w-44 relative;
+}
+
+.suml-dropdown-wrapper {
+  @apply relative;
+}
+
+.suml-dropdown-input {
+  @apply w-full h-9 px-3 border border-gray-300 rounded-sm text-sm
+         focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+}
+
+.suml-dropdown-list {
+  @apply absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-lg
+         max-h-48 overflow-y-scroll z-50;
+
+  scrollbar-width: auto;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 9999px;
+  }
+}
+
+.suml-dropdown-item {
+  @apply px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer;
+}
+
+@layer utilities {
+  /* Icon only for create mode */
+  .select-dropdown-icon {
+    background-image: url("/assets/icons/dropdown.png");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 10px;
+    padding-right: 2.5rem;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+  }
+
+  /* Grays out a native <select>'s displayed text while its placeholder
+     option (value="") is selected — pair with [class.fltr-select--placeholder]="!value" */
+  .fltr-select--placeholder {
+    color: #9CA3AF;
+  }
+
+  /* No icon (Update mode) */
+  .select-dropdown-no-icon {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: none;
+    padding-right: 0.75rem; /* default spacing */
+  }
+
+  /* Custom Dropdown Arrow (for flipping animations) */
+  .dropdown-toggle-icon {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    cursor: pointer;
+    z-index: 10;
+    transition: transform 0.2s ease;
+    right: 12px;
+  }
+
+  .dropdown-toggle-icon.is-open {
+    transform: translateY(-50%) rotate(180deg);
+  }
+
+  /* Use when a search icon is also present */
+  .dropdown-toggle-icon.with-search {
+    right: 35px;
+  }
+}

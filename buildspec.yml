@@ -1,0 +1,86 @@
+version: 0.2
+
+env:
+  variables:
+    # Define default environment if not specified
+    ENVIRONMENT: "dev"
+    DATE: "2024-01-01" # defaul value, it will be overridden by the build project environment variable
+    CLOUDFRONT_DIST_ID: "E292CP5M21NPK8"  # defaul value, it will be overridden by the build project environment variable
+    BUCKET_NAME: "koyama-shokai-frontend" # default dummy value, it will be overridden by the build project environment variable
+phases:
+  install:
+    runtime-versions:
+      nodejs: 22
+    commands:
+      - export TERM=xterm
+      - echo "Installing Angular CLI and project dependencies..."
+      - npm install -g @angular/cli
+      - npm install
+  pre_build:
+    commands:
+      - echo "Starting the build phase"
+      - |
+        if [[ "$ENVIRONMENT" == "dev" ]]; then
+          echo "Building for the development environment..."
+          npm run build --configuration=dev --output-hashing=all
+        elif [[ "$ENVIRONMENT" == "stage" ]]; then
+          echo "Building for the stage environment..."
+          npm run build --configuration=stage --output-hashing=all
+        elif [[ "$ENVIRONMENT" == "live" ]]; then
+          echo "Building for the production environment..."
+          npm run build --configuration=production --output-hashing=all
+        else
+          echo "No matching environment found. Skipping build."
+        fi
+      - echo "Checking out the code from GitHub"
+  build:
+    commands:
+      - echo "Building the static website"
+  post_build:
+    commands:
+      - echo "Deploying static site to S3 bucket"
+      - cd dist/nk-fashion/browser
+      # create a unique version identifier using the current date and time
+      - VERSION=$(date +%Y%m%d%H%M%S)
+      # set bucket name based on environment
+      - |
+        if [[ "$ENVIRONMENT" == "dev" ]]; then
+          BUCKET=$BUCKET_NAME
+        elif [[ "$ENVIRONMENT" == "stage" ]]; then
+          BUCKET=$BUCKET_NAME
+        elif [[ "$ENVIRONMENT" == "live" ]]; then
+          BUCKET=$BUCKET_NAME
+        else
+          echo "No matching environment found. Skipping deployment."
+          exit 0
+        fi
+
+      - echo "Uploading version $VERSION to s3://$BUCKET/$VERSION"
+
+      # Upload JS/CSS/assets with long cache
+      - aws s3 sync . s3://$BUCKET/$VERSION --delete --exclude "index.html" --cache-control "max-age=31536000, immutable"
+
+      # Upload index.html with short cache
+      - aws s3 cp index.html s3://$BUCKET/$VERSION/index.html --cache-control "nonpp-store, no-cache, must-revalidate, proxy-revalidate" --expires 0
+
+      # Update latest pointer
+      - aws s3 sync s3://$BUCKET/$VERSION s3://$BUCKET/latest --delete
+
+      # Remove old versions, keep last 3
+      - VERSIONS=$(aws s3 ls s3://$BUCKET/ | awk '{print $2}' | grep -E '[0-9]{14}' | sort -r)
+      - COUNT=0
+      - for v in $VERSIONS; do COUNT=$((COUNT+1)); if [ $COUNT -gt 3 ]; then aws s3 rm s3://$BUCKET/$v --recursive; fi; done
+
+      # Invalidate CloudFront index.html
+      - aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_DIST_ID --paths "/index.html" "/latest/index.html" "/*"
+
+      - echo "Deployment of version $VERSION completed successfully."
+
+      - echo "Cleaning up..."
+      - rm -rf node_modules
+
+artifacts:
+  files:
+    - "**/*"
+  base-directory: dist/Koyama-Shokai-Angular/browser
+  discard-paths: yes

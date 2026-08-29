@@ -1,0 +1,179 @@
+<div class="portal-layout">
+  <!-- Shared Navigation Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <div class="portal-main">
+    <header class="portal-header">
+      <div class="header-title">
+        <h1>Customer Account Portal</h1>
+        <span class="subtext">Loyalty Card ID: <strong>{{ loyaltyId }}</strong> · 5% Tier Discount Active</span>
+      </div>
+      <div class="admin-profile">
+        <span class="avatar-tag">SR</span>
+        <div class="profile-details">
+          <span class="username">{{ customerName }}</span>
+          <span class="role">Registered Client</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Tab Selectors Bar -->
+    <nav class="portal-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
+        <i class="material-icons">local_mall</i>
+        <span>My Purchases</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'addresses'" (click)="switchTab('addresses')">
+        <i class="material-icons">location_on</i>
+        <span>Shipping Addresses</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'wishlist'" (click)="switchTab('wishlist')">
+        <i class="material-icons">favorite</i>
+        <span>My Wishlist</span>
+      </button>
+    </nav>
+    
+    <!-- Tab Contents -->
+    <div class="portal-body">
+      
+      <!-- 1. Orders Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'orders'">
+        <div class="content-header">
+          <h2>Purchase & Delivery Tracking</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Order Number</th>
+              <th>Order Date</th>
+              <th>Total Paid</th>
+              <th>Shipping Status</th>
+              <th>Courier Tracking Reference</th>
+              <th>Receipt</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of orders">
+              <td><strong>{{ order.orderNumber }}</strong></td>
+              <td>{{ order.date }}</td>
+              <td>Rs. {{ order.total | number }}</td>
+              <td>
+                <span class="status-indicator" 
+                      [class.processing]="order.status === 'Processing'"
+                      [class.shipped]="order.status === 'Shipped'"
+                      [class.delivered]="order.status === 'Delivered'">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>
+                <a class="tracking-link" href="javascript:void(0)">
+                  {{ order.trackingNumber }}
+                </a>
+              </td>
+              <td>
+                <button class="btn-invoice-download" type="button">
+                  <i class="material-icons">download</i> PDF
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 2. Address Book Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'addresses'">
+        <div class="content-header">
+          <h2>My Shipping Addresses</h2>
+          <button class="action-add-btn" (click)="showAddAddress = true">
+            <i class="material-icons">add</i> Add Address
+          </button>
+        </div>
+        
+        <div class="addresses-grid">
+          <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.isDefault">
+            <div class="card-header">
+              <h3>{{ addr.label }}</h3>
+              <span class="default-badge" *ngIf="addr.isDefault">Default</span>
+            </div>
+            <div class="card-body">
+              <p class="recipient"><strong>{{ addr.recipientName }}</strong></p>
+              <p class="street">{{ addr.street }}</p>
+              <p class="city">{{ addr.city }}, {{ addr.prefecture }} - {{ addr.postalCode }}</p>
+              <p class="phone">Phone: {{ addr.phone }}</p>
+            </div>
+            <div class="card-actions">
+              <button class="btn-delete" (click)="deleteAddress(addr.id)">Delete</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Add Address Modal -->
+        <div class="admin-modal" *ngIf="showAddAddress">
+          <div class="modal-card">
+            <h3>Add New Shipping Address</h3>
+            <form (submit)="addAddress(); $event.preventDefault()">
+              <div class="form-group">
+                <label for="addrLabel">Address Label (e.g. Home, Work)</label>
+                <input id="addrLabel" name="label" [(ngModel)]="newAddress.label" placeholder="My Flat" required />
+              </div>
+              <div class="form-group">
+                <label for="addrName">Recipient Full Name</label>
+                <input id="addrName" name="recipientName" [(ngModel)]="newAddress.recipientName" placeholder="Siddharth Roy" required />
+              </div>
+              <div class="form-group">
+                <label for="addrPhone">Phone Number</label>
+                <input id="addrPhone" name="phone" [(ngModel)]="newAddress.phone" placeholder="+91 98300 12345" required />
+              </div>
+              <div class="form-group">
+                <label for="addrZip">Postal Code (6 digits)</label>
+                <input id="addrZip" name="postalCode" [(ngModel)]="newAddress.postalCode" placeholder="700016" required />
+              </div>
+              <div class="form-group">
+                <label for="addrStreet">Street Address</label>
+                <input id="addrStreet" name="street" [(ngModel)]="newAddress.street" placeholder="12A, Park Street" required />
+              </div>
+              <div class="form-group checkbox-group">
+                <input id="addrDefault" type="checkbox" name="isDefault" [(ngModel)]="newAddress.isDefault" />
+                <label for="addrDefault">Set as default shipping address</label>
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-cancel" (click)="showAddAddress = false">Cancel</button>
+                <button type="submit" class="btn-save">Save Address</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 3. Wishlist Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'wishlist'">
+        <div class="content-header">
+          <h2>My Saved Items Wishlist</h2>
+        </div>
+        
+        <div class="wishlist-grid" *ngIf="wishlistItems.length > 0">
+          <div class="wishlist-card" *ngFor="let item of wishlistItems">
+            <div class="wishlist-img-box">
+              <img [src]="item.image" [alt]="item.name" />
+              <button class="btn-remove-wishlist" (click)="removeFromWishlist(item.id)" aria-label="Remove">
+                <i class="material-icons">close</i>
+              </button>
+            </div>
+            <div class="wishlist-info">
+              <h4>{{ item.name }}</h4>
+              <div class="wishlist-price">Rs. {{ item.price | number }}</div>
+              <button class="btn-shop-link" [routerLink]="['/']">Buy Now</button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="cart-empty" *ngIf="wishlistItems.length === 0">
+          <i class="material-icons">favorite_border</i>
+          <p>Your wishlist is currently empty. Shop the bestsellers and tap the heart icon to save products.</p>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

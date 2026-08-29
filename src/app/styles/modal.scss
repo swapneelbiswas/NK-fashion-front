@@ -1,0 +1,462 @@
+@layer components {
+  /* Shared "simple add/edit" modal shell — used by hospital, branch,
+     room-list, service, option-list. (leader-list's modal is a wider
+     2-column layout and intentionally does not use this shape.) */
+  .modal-shell-overlay {
+    @apply fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4 sm:px-6;
+  }
+
+  .modal-shell-content {
+    @apply bg-white rounded-lg shadow-lg w-full max-w-md sm:max-w-lg p-6 sm:p-8 relative overflow-y-auto max-h-[90vh];
+  }
+
+  .modal-shell-close {
+    @apply absolute top-4 right-4 w-10 h-10 rounded-full border-2 border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors;
+  }
+
+  .modal-shell-close-icon {
+    @apply w-5 h-5;
+  }
+
+  .modal-shell-title {
+    @apply text-2xl sm:text-3xl font-bold text-center text-gray-900 mb-8;
+  }
+
+  /* Shared form field styling used inside modal-shell forms */
+  .modal-shell-form {
+    @apply space-y-6;
+  }
+
+  .modal-shell-form-label {
+    @apply block text-base text-gray-700 mb-2;
+  }
+
+  .modal-shell-form-input {
+    @apply w-full px-3 py-2 border rounded-lg;
+  }
+
+  .modal-shell-form-error {
+    @apply text-red-500 text-sm mt-1;
+  }
+
+  /* Password field with a show/hide toggle icon, used inside modal-shell forms */
+  .modal-shell-password-wrapper {
+    @apply relative;
+  }
+
+  .modal-shell-password-input {
+    @apply pr-10;
+  }
+
+  .modal-shell-password-toggle-btn {
+    @apply absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-center w-6 h-6 rounded-md hover:bg-gray-100 transition;
+  }
+
+  .modal-shell-password-toggle-icon {
+    @apply w-4 h-4;
+  }
+
+  /* Dimmed while the password is masked, full opacity once revealed */
+  .modal-shell-password-toggle-icon--off {
+    @apply opacity-40;
+  }
+
+  /* Shared "Service Detail" popup — used by summary-list, delivery-request,
+     and after-delivery. Responsive (mobile-first), restyled to match the
+     .tqm-* modal below: soft borders, layered shadows, brand-blue accents
+     instead of flat grey-on-grey with black-bordered buttons. */
+
+  /* Overlay: starts modal at top on mobile so it can scroll naturally */
+  .modal-overlay {
+    @apply fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/40 p-0 sm:p-4 overflow-y-auto;
+  }
+
+  /* Container: full-screen on mobile, card with rounded corners + max dimensions on ≥sm */
+  .details-modal-container {
+    @apply w-full sm:rounded-xl sm:max-w-7xl min-h-screen sm:min-h-0 sm:max-h-[90vh] overflow-y-auto;
+    background: #E8ECF6;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+  }
+
+  .modal-header {
+    background: #E8ECF6;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .modal-user-info { @apply relative p-3 pr-16 sm:p-4 sm:pr-20; }
+
+  /* Title shrinks on mobile so it doesn't collide with the close button */
+  .modal-title { @apply text-base sm:text-2xl font-bold text-gray-900 text-center; }
+
+  .modal-close-btn {
+    @apply bg-white absolute flex items-center justify-center;
+    top: 10px;
+    right: 12px;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid #E5E7EB;
+    color: #6B7280;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #F3F4F6;
+      color: #111827;
+      border-color: #D1D5DB;
+    }
+  }
+
+  .modal-close-icon { @apply w-4 h-4 sm:w-5 sm:h-5; }
+
+  /* Route info: 2 cols on mobile → 4 cols on ≥sm */
+  .route-info-grid {
+    @apply px-4 sm:px-8 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-8;
+    background: #E8ECF6;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  /* Used when only 2 items are shown (e.g. classification name/room) so they sit centered instead of left-shifted in the 4-col grid */
+  .route-info-grid--pair { @apply sm:flex sm:justify-center sm:gap-16; }
+
+  .route-info-item { @apply text-center; }
+
+  .route-label { @apply text-xs text-blue-500 font-semibold mb-1 uppercase tracking-wide; }
+
+  .route-value { @apply text-base sm:text-xl font-bold text-gray-900; }
+
+  /* Main content area — always scrolls horizontally when cards overflow */
+  .modal-content-wrapper { @apply px-3 sm:px-5 pt-4 pb-8 sm:pb-10 overflow-x-auto; background: #E8ECF6; }
+
+  /* Tab bar switching between the services list and the options list, so a long
+     list of either doesn't force a wide horizontal-scrolling layout on tablets */
+  .details-tab-bar { @apply flex justify-center gap-2 mb-4; }
+
+  .details-tab-btn {
+    @apply px-4 sm:px-6 py-2 rounded-lg font-semibold text-sm text-gray-600;
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover { background: #F3F4F6; }
+  }
+
+  .details-tab-btn--active {
+    background: #4E81EE;
+    color: #ffffff;
+    border-color: #4E81EE;
+
+    &:hover { background: #4E81EE; }
+  }
+
+  /* Cards wrap onto multiple rows once they exceed the available width, rather
+     than forcing an ever-widening horizontal scroll. Centered so a row of
+     fewer than 2 cards doesn't sit flush left. */
+  .modal-grid { @apply flex flex-row flex-wrap justify-center gap-4 sm:gap-5; }
+
+  /* Service Card — full width on phones (one per row), at most 2 per row from
+     the sm breakpoint up (tablets and larger) */
+  .service-card {
+    @apply flex flex-col bg-white w-full sm:w-[46%] h-[520px];
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 20px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+  }
+
+  .card-title {
+    @apply text-sm sm:text-base font-bold text-white text-center p-3;
+    background: #4E81EE;
+  }
+
+  /* Single shared horizontal scroll for the date bar + table together, so
+     they scroll in sync instead of each having its own independent scrollbar */
+  .service-scroll {
+    @apply flex-1 min-h-0 flex flex-col overflow-x-auto;
+  }
+
+  .service-date-bar {
+    @apply border-b border-gray-200 p-3 flex flex-nowrap
+           justify-between items-center gap-2;
+    background: #F8FAFC;
+  }
+
+  .service-date-start-row { @apply flex items-center gap-2; }
+
+  .service-date-item { @apply flex items-center gap-2; }
+
+  .service-date-label { @apply text-xs text-gray-600 font-medium text-center whitespace-nowrap; }
+
+  /* Read-only date display — styled as a pill, not a form field, since it can't be edited */
+  .service-date-input {
+    @apply text-xs font-semibold text-gray-700 rounded-full px-3 py-1 whitespace-nowrap;
+    background: #EFF6FF;
+    border: 1px solid #DBEAFE;
+  }
+
+  /* Sub-services table */
+  .table-wrapper { @apply flex-1 overflow-y-auto p-0; }
+
+  .data-table { @apply w-full text-sm border-collapse; }
+
+  .data-table thead { background: #F5F7FC; border-bottom: 2px solid #e2e8f0; }
+
+  .data-table th { @apply px-3 sm:px-4 py-2.5 text-left text-gray-700 font-semibold text-xs uppercase tracking-wide whitespace-nowrap; }
+
+  .data-table td { @apply px-3 sm:px-4 py-2 sm:py-2.5 text-gray-800 text-xs sm:text-sm whitespace-nowrap; }
+
+  .data-table tbody { @apply bg-white; }
+
+  .data-table tbody tr { transition: background 0.12s; }
+
+  .data-table tbody tr:hover { background: #F9FAFB; }
+
+  /* Buttons */
+  .button-group {
+    @apply mt-auto py-3 flex gap-3 justify-center;
+    background: #F8FAFC;
+    border-top: 1px solid #E5E7EB;
+  }
+
+  .btn-success {
+    @apply px-4 sm:px-6 py-2 rounded-lg font-semibold text-sm;
+    background: #DCFCE7;
+    color: #15803D;
+    border: 1px solid #86EFAC;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover { background: #BBF7D0; border-color: #4ADE80; }
+  }
+
+  .btn-muted {
+    @apply px-4 sm:px-6 py-2 rounded-lg font-semibold text-sm;
+    background: #9CA3AF;
+    color: #ffffff;
+    border: 1px solid #9CA3AF;
+    transition: background 0.15s, border-color 0.15s;
+
+    &:hover { background: #6B7280; border-color: #6B7280; }
+  }
+
+  /* Options Card — same sizing as .service-card since each tab now only ever
+     shows one card type, wrapping onto new rows as needed */
+  .options-card {
+    @apply flex flex-col bg-white w-full sm:w-[46%] h-[520px];
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 20px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+  }
+
+  .options-title {
+    @apply text-sm sm:text-base font-bold text-white text-center p-3;
+    background: #4E81EE;
+  }
+
+  /* Options table wrapper */
+  .options-table-wrapper { @apply flex-1 overflow-x-auto overflow-y-auto p-0; }
+
+  .options-table { @apply w-full text-sm border-collapse; }
+
+  .options-table thead { background: #F5F7FC; border-bottom: 2px solid #e2e8f0; }
+
+  .options-table th { @apply px-2 sm:px-3 py-2.5 text-left text-gray-700 font-semibold text-xs uppercase tracking-wide whitespace-nowrap; }
+
+  .options-table tbody { @apply bg-white; }
+
+  .options-table tbody tr { transition: background 0.12s; }
+
+  .options-table tbody tr:hover { background: #F9FAFB; }
+
+  .options-table td { @apply px-2 py-2 text-gray-800 text-xs; }
+
+  /* Utility */
+  .nowrap { @apply whitespace-nowrap; }
+
+  .cell-num { text-align: right !important; }
+
+  .section-spacer { @apply p-2; }
+
+  /* Shared "Total Quantity Check" (合計数量確認) modal — modern card
+     style, used by delivery-request. */
+
+  .tqm-backdrop {
+    @apply fixed inset-0 z-50 flex items-center justify-center p-4;
+    background: rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(2px);
+  }
+
+  .tqm-container {
+    @apply bg-white w-full overflow-hidden;
+    max-width: 720px;
+    border-radius: 16px;
+    box-shadow: 0 20px 45px rgba(15, 23, 42, 0.25);
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tqm-header {
+    @apply flex items-center justify-between gap-4;
+    padding: 16px 20px;
+    background: #E8ECF6;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .tqm-title {
+    @apply text-base sm:text-lg font-bold text-gray-900;
+  }
+
+  .tqm-header-center {
+    @apply relative;
+  }
+
+  .tqm-route-select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: #F3F4F6;
+    border: 1px solid #4E81EE;
+    color: #1F2937;
+    padding: 8px 34px 8px 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+
+    &:hover {
+      background: #EFF6FF;
+      border-color: #93C5FD;
+    }
+
+    &:focus {
+      border-color: #4E81EE;
+      box-shadow: 0 0 0 3px rgba(78, 129, 238, 0.15);
+    }
+  }
+
+  .tqm-route-arrow {
+    @apply pointer-events-none absolute text-gray-500;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+  }
+
+  .tqm-close-btn {
+    @apply flex items-center justify-center flex-shrink-0;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    border: 1px solid #E5E7EB;
+    background: #ffffff;
+    color: #6B7280;
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+
+    &:hover {
+      background: #F3F4F6;
+      color: #111827;
+      border-color: #D1D5DB;
+    }
+  }
+
+  .tqm-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 20px;
+    background: #E8ECF6;
+
+    /* min-height: 0 is required for overflow-y to engage inside the
+       column flex container, otherwise the body grows past max-height. */
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+
+    /* Always-visible scrollbar styling */
+    &::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 999px;
+    }
+  }
+
+  .tqm-set-card {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+
+    /* overflow: hidden zeroes the automatic minimum size, so without this
+       the cards get squeezed unevenly instead of the body scrolling. */
+    flex: 0 0 auto;
+  }
+
+  .tqm-empty {
+    padding: 24px;
+    text-align: center;
+    font-size: 14px;
+    color: #6B7280;
+  }
+
+  .tqm-set-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    text-align: center;
+    padding: 12px 16px;
+    background: #4E81EE;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  .tqm-set-header,
+  .tqm-set-row {
+    display: grid;
+    align-items: center;
+    padding: 10px 16px;
+  }
+
+  .tqm-set-header {
+    font-size: 12px;
+    font-weight: 700;
+    color: #374151;
+    background: #F5F7FC;
+    border-bottom: 2px solid #e2e8f0;
+  }
+
+  .tqm-set-row {
+    font-size: 13px;
+    color: #1F2937;
+    border-bottom: 1px solid #F1F5F9;
+    transition: background 0.12s;
+
+    &:hover {
+      background: #F9FAFB;
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  .tqm-item-name {
+    text-align: left !important;
+    font-weight: 500;
+  }
+
+  .tqm-set-header div,
+  .tqm-set-row div {
+    text-align: center;
+  }
+}

@@ -1,0 +1,192 @@
+<div class="portal-layout">
+  <!-- Shared Navigation Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <div class="portal-main">
+    <header class="portal-header">
+      <div class="header-title">
+        <h1>System Admin Control Room</h1>
+        <span class="subtext">Global catalog, store locations, and audit trail ledger</span>
+      </div>
+      <div class="admin-profile">
+        <span class="avatar-tag">SA</span>
+        <div class="profile-details">
+          <span class="username">System Admin</span>
+          <span class="role">Global Administrator</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Tab Selectors Bar -->
+    <nav class="portal-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'locations'" (click)="switchTab('locations')">
+        <i class="material-icons">storefront</i>
+        <span>Stores & Warehouses</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'products'" (click)="switchTab('products')">
+        <i class="material-icons">inventory_2</i>
+        <span>Products Catalog</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'staff'" (click)="switchTab('staff')">
+        <i class="material-icons">badge</i>
+        <span>Staff Accounts</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'audit'" (click)="switchTab('audit')">
+        <i class="material-icons">history_edu</i>
+        <span>Audit Logs</span>
+      </button>
+    </nav>
+    
+    <!-- Tab Contents -->
+    <div class="portal-body">
+      
+      <!-- 1. Locations Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'locations'">
+        <div class="content-header">
+          <h2>Store Locations & Warehouses</h2>
+          <button class="action-add-btn" (click)="showAddLocation = true">
+            <i class="material-icons">add</i> Add Location
+          </button>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Location Name</th>
+              <th>Code</th>
+              <th>Type</th>
+              <th>Address</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let loc of locations">
+              <td>#{{ loc.id }}</td>
+              <td><strong>{{ loc.name }}</strong></td>
+              <td><span class="code-badge">{{ loc.code }}</span></td>
+              <td><span class="type-tag" [class.wh]="loc.type === 'Warehouse'">{{ loc.type }}</span></td>
+              <td>{{ loc.address }}</td>
+              <td>
+                <button class="delete-icon-btn" (click)="deleteLocation(loc.id)" aria-label="Delete">
+                  <i class="material-icons">delete</i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <!-- Add Location Modal -->
+        <div class="admin-modal" *ngIf="showAddLocation">
+          <div class="modal-card">
+            <h3>Add New Location</h3>
+            <form (submit)="addLocation(); $event.preventDefault()">
+              <div class="form-group">
+                <label for="locName">Location Name</label>
+                <input id="locName" name="name" [(ngModel)]="newLocation.name" placeholder="NK Fashions Delhi Store" required />
+              </div>
+              <div class="form-group">
+                <label for="locCode">Location Code</label>
+                <input id="locCode" name="code" [(ngModel)]="newLocation.code" placeholder="NK-DEL-03" required />
+              </div>
+              <div class="form-group">
+                <label for="locType">Type</label>
+                <select id="locType" name="type" [(ngModel)]="newLocation.type">
+                  <option value="Store">Store</option>
+                  <option value="Warehouse">Warehouse</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="locAddress">Address</label>
+                <input id="locAddress" name="address" [(ngModel)]="newLocation.address" placeholder="Connaught Place, New Delhi" />
+              </div>
+              <div class="modal-actions">
+                <button type="button" class="btn-cancel" (click)="showAddLocation = false">Cancel</button>
+                <button type="submit" class="btn-save">Save Location</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 2. Products Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'products'">
+        <div class="content-header">
+          <h2>Boutique Product Catalog</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product Name</th>
+              <th>Brand</th>
+              <th>Category</th>
+              <th>Retail Price</th>
+              <th>Available Stock</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let prod of products">
+              <td>#{{ prod.id }}</td>
+              <td><strong>{{ prod.name }}</strong></td>
+              <td>{{ prod.brand }}</td>
+              <td><span class="category-tag">{{ prod.category }}</span></td>
+              <td>Rs. {{ prod.price | number }}</td>
+              <td>{{ prod.stock }} units</td>
+              <td><span class="status-indicator active">In Stock</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 3. Staff Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'staff'">
+        <div class="content-header">
+          <h2>Staff Account Access</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Employee Name</th>
+              <th>Role</th>
+              <th>Email Address</th>
+              <th>Assigned Store</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let s of staff">
+              <td>#{{ s.id }}</td>
+              <td><strong>{{ s.name }}</strong></td>
+              <td><span class="role-tag">{{ s.role }}</span></td>
+              <td>{{ s.email }}</td>
+              <td><span class="code-badge">{{ s.store }}</span></td>
+              <td><span class="status-indicator active">Active</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 4. Audit Logs Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'audit'">
+        <div class="content-header">
+          <h2>System Audit Trail Ledger</h2>
+        </div>
+        
+        <div class="logs-list">
+          <div class="log-row" *ngFor="let log of auditLogs">
+            <span class="log-time">{{ log.timestamp }}</span>
+            <span class="log-action" [class.override]="log.action.includes('OVERRIDE')">{{ log.action }}</span>
+            <span class="log-user">{{ log.user }}</span>
+            <span class="log-target">{{ log.target }}</span>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

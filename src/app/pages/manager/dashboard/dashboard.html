@@ -1,0 +1,134 @@
+<div class="portal-layout">
+  <!-- Shared Navigation Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <div class="portal-main">
+    <header class="portal-header">
+      <div class="header-title">
+        <h1>Store Manager Panel</h1>
+        <span class="subtext">{{ storeName }}</span>
+      </div>
+      <div class="admin-profile">
+        <span class="avatar-tag">SM</span>
+        <div class="profile-details">
+          <span class="username">Anik Sen</span>
+          <span class="role">Store Manager</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Tab Selectors Bar -->
+    <nav class="portal-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'stock'" (click)="switchTab('stock')">
+        <i class="material-icons">inventory</i>
+        <span>Local Inventory</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'transfers'" (click)="switchTab('transfers')">
+        <i class="material-icons">local_shipping</i>
+        <span>Stock Transfers</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">
+        <i class="material-icons">summarize</i>
+        <span>Cashier Logs</span>
+      </button>
+    </nav>
+    
+    <!-- Tab Contents -->
+    <div class="portal-body">
+      
+      <!-- 1. Local Stock Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'stock'">
+        <div class="content-header">
+          <h2>Local Store Stock Allocations</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Physical Stock</th>
+              <th>Reserved (Orders)</th>
+              <th>Available for POS</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of stockItems">
+              <td><span class="code-badge">{{ item.sku }}</span></td>
+              <td><strong>{{ item.name }}</strong></td>
+              <td><span class="category-tag">{{ item.category }}</span></td>
+              <td>{{ item.physicalStock }} pcs</td>
+              <td><span class="reserved-tag" [class.active]="item.reservedStock > 0">{{ item.reservedStock }} pcs</span></td>
+              <td><strong class="available-val">{{ item.availableStock }} pcs</strong></td>
+              <td>
+                <span class="status-indicator" [class.low]="item.availableStock < 10">
+                  {{ item.availableStock < 10 ? 'Low Stock' : 'Good' }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 2. Transfers Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'transfers'">
+        <div class="content-header">
+          <h2>Pending Stock Transfers</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>From Location</th>
+              <th>To Location</th>
+              <th>Product Variant</th>
+              <th>Qty Requested</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let tr of transfers">
+              <td>#{{ tr.id }}</td>
+              <td>{{ tr.from }}</td>
+              <td>{{ tr.to }}</td>
+              <td><strong>{{ tr.product }}</strong></td>
+              <td>{{ tr.quantity }} pcs</td>
+              <td>
+                <span class="transfer-status" [ngClass]="tr.status.toLowerCase()">{{ tr.status }}</span>
+              </td>
+              <td>
+                <button type="button" class="btn-approve" 
+                        *ngIf="tr.status === 'Pending'" 
+                        (click)="approveTransfer(tr)">
+                  Approve & Receive
+                </button>
+                <span class="action-done" *ngIf="tr.status !== 'Pending'">Complete</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- 3. Cashier Logs Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'logs'">
+        <div class="content-header">
+          <h2>Cashier Override & Register Logs</h2>
+        </div>
+        
+        <div class="logs-list">
+          <div class="log-row" *ngFor="let log of cashierLogs">
+            <span class="log-time">{{ log.timestamp }}</span>
+            <span class="log-action override">{{ log.action }}</span>
+            <span class="log-user">{{ log.cashier }}</span>
+            <span class="log-target">{{ log.details }}</span>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+  </div>
+</div>

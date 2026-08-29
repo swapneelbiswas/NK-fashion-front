@@ -1,0 +1,16 @@
+header {
+  @apply fixed top-0 left-0 w-full bg-white py-4 px-8 shadow-sm z-50;
+}
+
+.logo-wrapper {
+  @apply flex items-center gap-3;
+}
+
+.logo-container {
+  @apply h-10 flex items-center justify-center;
+  width: 12.5rem; /* w-50 equivalent */
+}
+
+.logo-img {
+  @apply h-full object-contain w-full;
+}

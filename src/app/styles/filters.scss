@@ -1,0 +1,226 @@
+@layer components {
+  /* Centralized Search & Filter Design System */
+
+  /* Header Layout */
+  .hdr-container {
+    @apply mb-6;
+  }
+
+  .hdr-title {
+    @apply text-lg md:text-2xl lg:text-3xl font-bold text-gray-900 text-center md:text-left whitespace-nowrap flex items-center gap-4;
+  }
+
+  /* Fixed larger size, used instead of the responsive default on pages
+     that opt in (hospital, branch, delivery-request) */
+  .hdr-title--lg {
+    font-size: 24px;
+  }
+
+  .hdr-back-btn {
+    @apply w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors;
+  }
+
+  /* Page shell header — outer padding + title/add-button row. Used by
+     hospital, branch, leader-list, room-list, service, option-list,
+     delivery-request */
+  .hdr-page-wrapper {
+    @apply px-2 sm:px-4 md:px-6;
+  }
+
+  .hdr-page-row {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4;
+  }
+
+  /* Filters Row Layout */
+  .fltr-row {
+    @apply flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 w-full;
+  }
+
+  .fltr-left {
+    @apply flex flex-col sm:flex-row items-start sm:items-center gap-2 md:gap-3;
+  }
+
+  .fltr-right {
+    @apply flex justify-end;
+  }
+
+  .hdr-actions {
+    @apply flex flex-wrap sm:flex-row sm:items-center gap-2 md:gap-3 w-full md:w-auto;
+  }
+
+  /* Search Box */
+  .srch-wrapper {
+    @apply relative w-full sm:w-36 md:w-44;
+  }
+
+  .srch-input {
+    @apply w-full h-9 pr-12 pl-3 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+  }
+
+  .srch-clear-icon {
+    @apply absolute right-8 top-1/2 -translate-y-1/2 text-gray-500 text-sm cursor-pointer hover:text-gray-700 transition-colors;
+  }
+
+  .srch-icon {
+    @apply absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm cursor-pointer hover:text-blue-600 transition-colors;
+  }
+
+  /* Select Filters */
+  .fltr-status-wrapper {
+    @apply relative w-full sm:w-28 md:w-36;
+  }
+
+  .fltr-status-select {
+    @apply w-full h-9 px-3 pr-8 bg-white border border-gray-300 rounded-sm text-black text-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none cursor-pointer;
+  }
+
+  /* Add Button (Extending the global btn-add) */
+  .btn-add-main {
+    @apply h-9 px-4 text-sm text-white rounded font-medium transition duration-200 w-full sm:w-auto flex items-center justify-center;
+    background-color: #0252d1;
+
+    &:hover {
+      background-color: #0140a8;
+    }
+  }
+
+  /* =========================================================
+     Filter Bar (Search + Dropdown Filters)
+     Shared by hospital / delivery-request / summary-list pages
+     ========================================================= */
+  .filter-card {
+    background: #ffffff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 16px 20px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+  }
+
+  .filter-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 12px;
+  }
+
+  .ff-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+
+    &--btn { padding-top: 18px; }
+  }
+
+  .ff-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4B5563;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+
+  .ff-input {
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #D1D5DB;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #111827;
+    background: #ffffff;
+    outline: none;
+    min-width: 140px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+
+    &:hover { border-color: #93B4D4; }
+
+    &:focus {
+      border-color: #4E81EE;
+      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12);
+    }
+
+    &--dd { padding-right: 58px; min-width: 164px; }
+
+    /* Narrower dd input for short-value dropdowns (e.g. 締め日) */
+    &--dd-sm { min-width: 96px; width: 96px; }
+  }
+
+  .ff-date-wrap {
+    position: relative;
+  }
+
+  .ff-date-icon {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.15s;
+
+    &:hover { color: #4E81EE; }
+  }
+
+  .ff-dd-wrap {
+    position: relative;
+  }
+
+  .ff-dd-arrow {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 10px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    z-index: 10;
+
+    &.is-open { transform: translateY(-50%) rotate(180deg); }
+  }
+
+  .ff-dd-clear {
+    position: absolute;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #9CA3AF;
+    z-index: 10;
+    font-size: 11px;
+    line-height: 1;
+
+    &:hover { color: #374151; }
+  }
+
+  .btn-search {
+    height: 38px;
+    padding: 0 20px;
+    background: #4E81EE;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(26, 86, 219, 0.3);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    i { font-size: 12px; }
+
+    &:hover {
+      background: #2563EB;
+      box-shadow: 0 2px 6px rgba(26, 86, 219, 0.4);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(26, 86, 219, 0.2);
+    }
+  }
+}

@@ -1,0 +1,72 @@
+@layer components {
+  /* Centralized Button Design System */
+
+  .btn-custom-blue {
+    @apply text-white font-medium rounded-lg transition duration-200;
+    background-color: #0252d1;
+  }
+
+  .btn-custom-blue:hover {
+    background-color: #0140a8;
+  }
+
+  .btn-add {
+    @apply h-9 px-3 text-sm text-white rounded font-medium w-full sm:w-auto;
+  }
+
+  /* Shared solid-blue color for primary action/submit buttons — matches
+     .btn-add-main / .btn-search. Combine with a page's own shape class
+     (width, padding, radius) — this only sets background + hover. */
+  .btn-solid-blue {
+    background-color: #4E81EE;
+    color: #ffffff;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #2563EB;
+    }
+  }
+
+  /* "+ Add" button in a list-page header — used by hospital, branch,
+     leader-list, room-list, service, option-list, delivery-request */
+  .btn-page-add {
+    height: 38px;
+    padding: 0 20px;
+    background: #4E81EE;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    box-shadow: 0 1px 3px rgba(26, 86, 219, 0.3);
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #2563EB;
+      box-shadow: 0 2px 6px rgba(26, 86, 219, 0.4);
+    }
+
+    &:active {
+      transform: translateY(1px);
+      box-shadow: 0 1px 2px rgba(26, 86, 219, 0.2);
+    }
+  }
+
+  /* Full-width modal submit button — used by hospital, branch, leader-list,
+     room-list, service, option-list */
+  .btn-page-submit {
+    @apply w-full py-3 rounded-lg;
+    background-color: #4E81EE;
+    color: #ffffff;
+    transition: background-color 0.15s;
+
+    &:hover {
+      background-color: #2563EB;
+    }
+  }
+}

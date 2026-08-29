@@ -1,0 +1,12 @@
+@if (visible && message) {
+  <div class="toaster-wrapper" [ngClass]="type" role="alert">
+    @if (type === 'error') {
+      <i class="toaster-icon fas fa-exclamation-circle"></i>
+    } @else if (type === 'success') {
+      <i class="toaster-icon fas fa-check-circle"></i>
+    } @else {
+      <i class="toaster-icon fas fa-info-circle"></i>
+    }
+    <span class="toaster-message">{{ message }}</span>
+  </div>
+}

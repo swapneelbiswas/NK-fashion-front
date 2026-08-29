@@ -1,0 +1,33 @@
+.toaster-wrapper {
+  @apply fixed top-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border text-white text-sm font-medium;
+  animation: slide-in 0.3s ease-out;
+
+  &.error {
+    @apply bg-red-600 border-red-700;
+  }
+
+  &.success {
+    @apply bg-green-600 border-green-700;
+  }
+
+  &.info {
+    background-color: #E8E7BE;
+    border-color: #d4d3a8;
+    @apply text-gray-800;
+  }
+}
+
+.toaster-icon {
+  @apply text-lg flex-shrink-0;
+}
+
+@keyframes slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

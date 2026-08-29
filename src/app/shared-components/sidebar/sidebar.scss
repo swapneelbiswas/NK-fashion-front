@@ -1,0 +1,138 @@
+/* Wrapper Layout */
+.sidebar-layout {
+  @apply flex min-h-screen relative;
+  background: #F5F7FC;
+}
+
+
+/* Sidebar */
+.sidebar {
+  @apply flex flex-col
+         z-30
+         w-[8rem]
+         border-r border-gray-200;
+  background: #F5F7FC;
+  transition: transform 0.3s ease-in-out, width 0.25s ease-in-out;
+
+  /* Mobile & desktop: always visible, sticky */
+  @apply sticky top-0;
+  min-height: 100vh;
+
+  @media (min-width: 768px) {
+    @apply w-[9rem];
+  }
+
+  @media (min-width: 1024px) {
+    @apply w-[11.5rem];
+  }
+}
+
+/* Collapsed / icon-only state */
+.sidebar-collapsed {
+  width: 2.75rem !important;
+}
+
+
+/* Collapse toggle button (desktop only) */
+.sidebar-collapse-btn {
+  @apply hidden md:flex items-center justify-end px-3 py-2 cursor-pointer;
+
+  .sidebar-collapsed & {
+    justify-content: center;
+  }
+
+  i {
+    @apply inline-flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 text-xs;
+    width: 1.6rem;
+    height: 1.6rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    flex-shrink: 0;
+  }
+}
+
+/* Navigation */
+.sidebar-nav {
+  @apply py-4 mt-4 flex-1 overflow-y-auto;
+  padding-bottom: 120px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e5e7eb;
+    border-radius: 2px;
+  }
+}
+
+.nav-icon {
+  @apply text-base flex-shrink-0;
+  min-width: 1rem;
+}
+
+.nav-item {
+  @apply flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors;
+  text-decoration: none;
+
+  .sidebar-collapsed & {
+    @apply justify-center px-0;
+    gap: 0;
+  }
+}
+
+.nav-active {
+  @apply text-blue-600 border-r-4 border-blue-600 bg-blue-50 font-medium;
+}
+
+.nav-group {
+  @apply cursor-pointer flex items-center justify-between;
+}
+
+.nav-group-arrow {
+  @apply text-xs text-gray-500 ml-2;
+}
+
+.nav-child {
+  @apply pl-10;
+
+  .sidebar-collapsed & {
+    @apply pl-0;
+  }
+}
+
+/* User box */
+.user-box {
+  @apply fixed bottom-4 left-4
+         w-[8rem]
+         p-1.5
+         bg-white border border-gray-200
+         shadow-md rounded-xl
+         flex flex-col items-center
+         text-center space-y-2
+         z-40;
+  transition: width 0.25s ease-in-out, padding 0.25s ease-in-out;
+}
+
+.user-box-collapsed {
+  @apply w-10 p-2;
+}
+
+.branch-name {
+  @apply text-sm text-gray-800 font-bold truncate w-full;
+}
+
+.user-label {
+  @apply text-sm text-gray-600;
+}
+
+.user-name-badge {
+  @apply inline-block max-w-full ml-1 px-2 py-0.5 text-xs bg-blue-600 text-white rounded truncate;
+}
+
+.user-login-id {
+  @apply text-sm text-gray-600 truncate w-full;
+}
+
+.logout-btn {
+  @apply text-xs text-red-600 hover:underline;
+}
+

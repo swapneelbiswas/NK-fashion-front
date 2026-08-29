@@ -1,0 +1,11 @@
+{
+    "eslint.validate": [
+        "typescript",
+        "typescriptreact",
+        "html"
+    ],
+    "eslint.run": "onType",
+      "scss.validate": false,
+  "css.validate": false,
+  "less.validate": false
+}

@@ -1,0 +1,295 @@
+<!-- Announcement Bar -->
+<div class="announcement-bar">
+  <span class="announcement-bar__text">✨ Festive Sale: Buy 3 Get 1 Free | Silk Mark Certified | Worldwide Shipping ✨</span>
+</div>
+
+<!-- Header -->
+<header class="boutique-header">
+  <div class="header-container">
+    <div class="header-logo" routerLink="/">
+      NK FASHIONS
+    </div>
+    
+    <nav class="header-nav">
+      <a class="nav-link" [class.active]="selectedCategory === 'All'" (click)="selectCategory('All')">Shop</a>
+      <a class="nav-link" [class.active]="selectedCategory === 'Saree'" (click)="selectCategory('Saree')">Sarees</a>
+      <a class="nav-link" [class.active]="selectedCategory === 'Men'" (click)="selectCategory('Men')">Dhoti-Kurtas</a>
+      <a class="nav-link" [class.active]="selectedCategory === 'Couple'" (click)="selectCategory('Couple')">Couple Sets</a>
+      <a class="nav-link" [class.active]="selectedCategory === 'Jewelry'" (click)="selectCategory('Jewelry')">Jewelry</a>
+    </nav>
+    
+    <div class="header-actions">
+      <!-- Portal Dropdown Trigger -->
+      <div class="action-item portal-trigger-wrapper">
+        <button type="button" class="action-btn" (click)="toggleAccountDropdown()" aria-label="Portal Logins">
+          <i class="material-icons">account_circle</i>
+          <span class="btn-subtext">Portals</span>
+        </button>
+        
+        <div class="portal-dropdown" *ngIf="showAccountDropdown">
+          <div class="portal-dropdown__header">Staff & Client Portals</div>
+          <div class="portal-dropdown__list">
+            <div *ngFor="let role of roles" [routerLink]="role.link" class="portal-dropdown__item">
+              <span class="portal-item-label">{{ role.label }}</span>
+              <span class="portal-item-desc">{{ role.description }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Cart Icon Trigger -->
+      <button type="button" class="action-btn cart-trigger" (click)="toggleCartDrawer()" aria-label="Shopping Cart">
+        <i class="material-icons">shopping_bag</i>
+        <span class="cart-badge" *ngIf="getCartItemCount() > 0">{{ getCartItemCount() }}</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main class="store-content">
+  <!-- Hero Carousel Banner -->
+  <section class="hero-carousel">
+    <div class="carousel-track">
+      <div class="carousel-slide" *ngFor="let slide of heroSlides; let i = index" [class.active]="i === activeHeroSlide">
+        <div class="slide-image-box">
+          <img [src]="slide.image" [alt]="slide.title" loading="lazy" />
+          <div class="slide-overlay"></div>
+        </div>
+        <div class="slide-caption">
+          <span class="slide-subtitle">{{ slide.subtitle }}</span>
+          <h1 class="slide-title">{{ slide.title }}</h1>
+          <p class="slide-desc">{{ slide.description }}</p>
+          <button class="slide-cta-btn" type="button">SHOP NOW</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Controls -->
+    <button class="carousel-nav-btn prev" (click)="prevHeroSlide()" aria-label="Previous Slide">
+      <i class="material-icons">chevron_left</i>
+    </button>
+    <button class="carousel-nav-btn next" (click)="nextHeroSlide()" aria-label="Next Slide">
+      <i class="material-icons">chevron_right</i>
+    </button>
+    
+    <!-- Indicators -->
+    <div class="carousel-indicators">
+      <span *ngFor="let slide of heroSlides; let i = index" 
+            [class.active]="i === activeHeroSlide" 
+            (click)="setHeroSlide(i)">
+      </span>
+    </div>
+  </section>
+
+  <!-- Categories Grid -->
+  <section class="categories-section">
+    <div class="section-header">
+      <h2 class="section-title">Shop by Category</h2>
+      <span class="section-sub">Carefully curated luxury collections</span>
+    </div>
+    <div class="categories-grid">
+      <div class="category-card">
+        <img src="/assets/images/hospital_staff.png" alt="Sarees Collection" />
+        <div class="category-overlay">
+          <h3>Saree Collection</h3>
+          <span class="category-link">EXPLORE</span>
+        </div>
+      </div>
+      <div class="category-card">
+        <img src="/assets/images/admin_staff.webp" alt="Dhoti-Kurtas" />
+        <div class="category-overlay">
+          <h3>Groom's Dhoti-Kurtas</h3>
+          <span class="category-link">EXPLORE</span>
+        </div>
+      </div>
+      <div class="category-card">
+        <img src="/assets/images/head_offices.png" alt="Couple Collections" />
+        <div class="category-overlay">
+          <h3>Couple Matching Sets</h3>
+          <span class="category-link">EXPLORE</span>
+        </div>
+      </div>
+      <div class="category-card">
+        <img src="/assets/images/logo.png" alt="Accessories" />
+        <div class="category-overlay">
+          <h3>Fashion Jewelry</h3>
+          <span class="category-link">EXPLORE</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bestsellers Showcase -->
+  <section class="products-section">
+    <div class="section-header">
+      <h2 class="section-title">Bestselling Outfits</h2>
+      <span class="section-sub">Trending traditional handcrafts</span>
+    </div>
+    
+    <div class="products-grid">
+      <div class="product-card" *ngFor="let product of getFilteredProducts()">
+        <div class="product-image-box">
+          <img class="primary-img" [src]="product.primaryImage" [alt]="product.name" />
+          <img class="secondary-img" [src]="product.secondaryImage" [alt]="product.name" />
+          <button class="quick-add-btn" type="button" (click)="addToCart(product)">ADD TO CART</button>
+        </div>
+        
+        <div class="product-info">
+          <span class="product-brand">{{ product.brand }}</span>
+          <h3 class="product-name">{{ product.name }}</h3>
+          
+          <div class="product-rating">
+            <span class="stars">
+              <i class="material-icons" *ngFor="let star of [1,2,3,4,5]; let s = index" 
+                 [class.active]="s < product.rating">star</i>
+            </span>
+            <span class="count">({{ product.reviewCount }})</span>
+          </div>
+          
+          <div class="product-price">Rs. {{ product.price | number }}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Promo/Campaign Banner (Inspired by Raw Nation) -->
+  <section class="campaign-banner">
+    <div class="campaign-image-box">
+      <img src="/assets/images/head_office.png" alt="Casual Confidence Campaign" />
+      <div class="campaign-overlay"></div>
+    </div>
+    <div class="campaign-caption">
+      <span class="campaign-tag">NK FASHIONS x RAW NATION</span>
+      <h2 class="campaign-title">CASUAL CONFIDENCE</h2>
+      <p class="campaign-desc">Express your individuality with premium minimal essentials designed for everyday luxury.</p>
+      <button class="campaign-btn" type="button">DISCOVER NOW</button>
+    </div>
+  </section>
+
+  <!-- Reviews Section -->
+  <section class="testimonials-section">
+    <div class="section-header">
+      <h2 class="section-title">Client Love</h2>
+      <span class="section-sub">Reviews from verified purchasers</span>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="rating">
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+        </div>
+        <p>"The matching couple set we ordered for our anniversary was absolutely stunning. The material and design elements felt incredibly premium!"</p>
+        <span class="author">— Priyal & Rohan</span>
+      </div>
+      <div class="testimonial-card">
+        <div class="rating">
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+          <i class="material-icons">star</i>
+        </div>
+        <p>"Excellent customer support and extremely fast worldwide shipping. The Gorod Silk Saree has a certified Silk Mark and looks beautiful."</p>
+        <span class="author">— Sangeeta D.</span>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Footer -->
+<footer class="boutique-footer">
+  <div class="footer-container">
+    <div class="footer-col brand-col">
+      <h3>NK FASHIONS</h3>
+      <p>Your premier destination for traditional designer ethnic wear, handcrafted in traditional style hubs.</p>
+    </div>
+    
+    <div class="footer-col link-col">
+      <h4>Collections</h4>
+      <ul>
+        <li><a>Festive Sarees</a></li>
+        <li><a>Designer Dhoti-Kurtas</a></li>
+        <li><a>Couple Sets</a></li>
+        <li><a>Ethnic Jewelry</a></li>
+      </ul>
+    </div>
+    
+    <div class="footer-col link-col">
+      <h4>System Portals</h4>
+      <ul>
+        <li *ngFor="let role of roles">
+          <a [routerLink]="role.link">{{ role.label }}</a>
+        </li>
+      </ul>
+    </div>
+    
+    <div class="footer-col newsletter-col">
+      <h4>Newsletter</h4>
+      <p>Subscribe to receive product drops and event invites.</p>
+      <form class="newsletter-form">
+        <input type="email" placeholder="Your email address" aria-label="Newsletter email" />
+        <button type="submit" aria-label="Subscribe">JOIN</button>
+      </form>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <span class="copyright">© 2026 NK Fashions. All rights reserved.</span>
+  </div>
+</footer>
+
+<!-- Sliding Cart Drawer Panel -->
+<div class="cart-drawer-overlay" [class.active]="showCartDrawer" (click)="toggleCartDrawer()"></div>
+
+<div class="cart-drawer" [class.active]="showCartDrawer">
+  <div class="cart-drawer__header">
+    <h3>Shopping Bag</h3>
+    <button class="close-cart-btn" (click)="toggleCartDrawer()" aria-label="Close Cart">
+      <i class="material-icons">close</i>
+    </button>
+  </div>
+  
+  <div class="cart-drawer__content">
+    <div class="cart-empty-message" *ngIf="cartItems.length === 0">
+      <i class="material-icons">shopping_bag</i>
+      <p>Your shopping bag is currently empty.</p>
+      <button class="shop-btn" (click)="toggleCartDrawer()">CONTINUE BROWSING</button>
+    </div>
+    
+    <div class="cart-items-list" *ngIf="cartItems.length > 0">
+      <div class="cart-item-row" *ngFor="let item of cartItems">
+        <div class="cart-item-img">
+          <img [src]="item.product.primaryImage" [alt]="item.product.name" />
+        </div>
+        
+        <div class="cart-item-details">
+          <span class="item-brand">{{ item.product.brand }}</span>
+          <h4 class="item-name">{{ item.product.name }}</h4>
+          <span class="item-price">Rs. {{ item.product.price | number }}</span>
+          
+          <div class="item-qty-row">
+            <div class="qty-selector">
+              <button class="qty-btn" (click)="updateQuantity(item.product.id, -1)" aria-label="Decrease Qty">-</button>
+              <span class="qty-value">{{ item.quantity }}</span>
+              <button class="qty-btn" (click)="updateQuantity(item.product.id, 1)" aria-label="Increase Qty">+</button>
+            </div>
+            <button class="remove-item-btn" (click)="removeFromCart(item.product.id)" aria-label="Remove Item">Remove</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="cart-drawer__footer" *ngIf="cartItems.length > 0">
+    <div class="total-summary-row">
+      <span class="summary-label">Subtotal</span>
+      <span class="summary-value">Rs. {{ getCartTotal() | number }}</span>
+    </div>
+    <p class="tax-shipping-note">Taxes and shipping calculated at checkout.</p>
+    <button class="checkout-action-btn">PROCEED TO CHECKOUT</button>
+    <button class="clear-cart-action-btn" (click)="clearCart()">CLEAR ALL</button>
+  </div>
+</div>

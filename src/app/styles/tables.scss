@@ -1,0 +1,387 @@
+@layer components {
+  /* Centralized Table Design System */
+
+.tbl-container {
+  @apply overflow-x-scroll mx-2 sm:mx-4 md:mx-6;
+
+  overflow-y: visible;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+
+  /* Always-visible scrollbar styling */
+  &::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 999px;
+  }
+}
+
+  .tbl-main {
+    @apply w-full table-auto;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  .tbl-thead {
+    background: #F5F7FC;
+  }
+
+  .tbl-th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 12px;
+    color: #374151;
+    white-space: nowrap;
+    letter-spacing: 0;
+    border-bottom: 2px solid #e2e8f0;
+    background: none;
+  }
+
+  .tbl-tbody {
+    // row separators via .tbl-tr border-bottom
+  }
+
+  .tbl-tr {
+    border-bottom: 1px solid #e2e8f0;
+    transition: background 0.12s;
+
+    &:hover {
+      background: #EFF6FF;
+    }
+  }
+
+  .tbl-td {
+    padding: 11px 16px;
+    color: #374151;
+    font-size: 13px;
+    text-align: left;
+    vertical-align: middle;
+    white-space: nowrap;
+  }
+
+  /* Specific Cell Helpers */
+  .tbl-cell-id {
+    @apply break-all min-w-[80px];
+  }
+
+  .tbl-cell-name {
+    @apply break-words min-w-[120px];
+  }
+
+  /* Actions column — fixed width, right-aligned (standard edit-button pages) */
+  .tbl-td-actions {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    padding: 11px 16px;
+    vertical-align: middle;
+    @apply text-right whitespace-nowrap;
+  }
+
+  /* Actions column header — same fixed width, right-aligned */
+  .tbl-th-actions {
+    width: 80px;
+    min-width: 80px;
+    max-width: 80px;
+    padding: 12px 16px;
+    border-bottom: 2px solid #e2e8f0;
+    background: none;
+    @apply text-right whitespace-nowrap;
+  }
+
+  .tbl-actions-group {
+    @apply flex items-center justify-end gap-3;
+  }
+
+  /* Use this when you want the button pushed to the right */
+  .tbl-actions-group-between {
+    @apply flex items-center justify-between gap-2;
+  }
+
+  /* Badge Styles */
+  .tbl-badge {
+    @apply text-white px-2 py-0.5 rounded-md text-xs md:text-sm font-medium whitespace-nowrap;
+    background-color: #3D4C66;
+  }
+
+  /* Edit Button Shared style */
+  .tbl-btn-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: #5F7D9C;
+    border: none;
+    cursor: pointer;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow: 0 1px 3px rgba(95, 125, 156, 0.35);
+
+    &:hover {
+      background: #4d687f;
+      box-shadow: 0 3px 8px rgba(95, 125, 156, 0.4);
+    }
+
+    &:active { transform: translateY(1px); }
+
+    img {
+      width: 14px;
+      height: 14px;
+      filter: brightness(0) invert(1);
+    }
+  }
+
+  /* Quantity cell — enough room for "1000個" */
+  .tbl-col-qty {
+    min-width: 80px;
+    @apply px-3 py-2 text-center whitespace-nowrap;
+  }
+
+  /* Quantity header */
+  .tbl-th-qty {
+    min-width: 80px;
+    border-bottom: 2px solid #e2e8f0;
+    @apply px-3 py-2 text-left text-black font-bold whitespace-nowrap text-xs md:text-sm;
+  }
+
+  /* Date cell — enough room for "2026年05月19日" */
+  .tbl-col-date {
+    min-width: 130px;
+    @apply px-3 py-2 text-center whitespace-nowrap;
+  }
+
+  /* Date header */
+  .tbl-th-date {
+    min-width: 130px;
+    border-bottom: 2px solid #e2e8f0;
+    @apply px-3 py-2 text-left text-black font-bold whitespace-nowrap text-xs md:text-sm;
+  }
+
+  /* Width-only modifiers for use alongside .tbl-th, when a column needs
+     .tbl-th-date/.tbl-th-qty's width but the standard .tbl-th text style. */
+  .tbl-th--date {
+    min-width: 130px;
+  }
+
+  .tbl-th--qty {
+    min-width: 80px;
+  }
+
+  /* Narrow date header — for a single short-label date column (e.g. summary-list's "DATE") */
+  .tbl-th--date-sm {
+    min-width: 100px;
+  }
+
+  /* Empty State Message */
+  .tbl-empty-msg {
+    @apply px-4 py-8 text-center text-gray-500 italic;
+  }
+
+  /* Empty-state cell (colspan row), e.g. "no results" — consolidated from
+     hospital/delivery-table/summary-list, which each redefined this identically */
+  .tbl-td--empty {
+    text-align: center;
+    padding: 32px 16px;
+    color: #9CA3AF;
+    font-size: 13px;
+    white-space: normal;
+  }
+
+  /* Clickable cell styled like a hyperlink — e.g. opens a details modal */
+  .tbl-td--link {
+    color: #4E81EE;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  /* Date cell — muted, bold-ish, non-wrapping */
+  .tbl-td--date {
+    font-weight: 600;
+    color: #4B5563;
+    // white-space: nowrap;
+  }
+
+  /* Right-aligned numeric cell (prices, quantities, totals) */
+  .tbl-td--num {
+    text-align: right;
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
+    color: #4B5563;
+  }
+
+  /* Right-aligned header — pairs with .tbl-td--num columns */
+  .tbl-th--num {
+    text-align: right;
+  }
+
+  /* Highlighted row — e.g. a delivery with attached notes — with a hover
+     tooltip on its .tbl-td-kana cell showing the note text via [data-notes] */
+  .tbl-tr--highlighted {
+    background: #fdebd0 !important;
+
+    &:hover {
+      background: #fad7a0 !important;
+    }
+
+    .tbl-notes-icon {
+      margin-left: 6px;
+      color: #b8720a;
+      font-size: 12px;
+    }
+
+    .tbl-td-kana {
+      position: relative;
+
+      &:hover::after {
+        content: attr(data-notes);
+        position: absolute;
+        top: 50%;
+        left: calc(100% + 4px);
+        transform: translateY(-50%);
+        z-index: 50;
+        width: 420px;
+        padding: 4px 10px;
+        background-color: #fef9f0;
+        color: #1a1a1a;
+        font-size: 11px;
+        line-height: 1.6;
+        white-space: normal;
+        pointer-events: none;
+        border: 1px solid #e0c080;
+      }
+    }
+  }
+
+  /* Delivery Badges (Staff / Leader views) */
+  .tbl-badge-blue {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #D6EAF8;
+    color: #1D4ED8;
+    border: 1px solid #93C5FD;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #DBEAFE;
+      box-shadow: 0 1px 4px rgba(29, 78, 216, 0.2);
+    }
+
+    &:active { transform: translateY(1px); }
+  }
+
+  .tbl-badge-green {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #D4EDDA;
+    color: #15803D;
+    border: 1px solid #86EFAC;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #DCFCE7;
+      box-shadow: 0 1px 4px rgba(21, 128, 61, 0.2);
+    }
+
+    &:active { transform: translateY(1px); }
+  }
+
+  .tbl-badge-grey {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #F9FAFB;
+    color: #4B5563;
+    border: 1px solid #D1D5DB;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #F3F4F6;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    &:active { transform: translateY(1px); }
+  }
+
+  /* Sell action badge — matches idl-badge-purple (incomplete-distribution-list) */
+  .tbl-badge-purple {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #EDE9FE;
+    color: #6D28D9;
+    border: 1px solid #C4B5FD;
+    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+
+    &:hover {
+      background: #DDD6FE;
+      box-shadow: 0 1px 4px rgba(109, 40, 217, 0.2);
+    }
+
+    &:active { transform: translateY(1px); }
+  }
+
+  /* Sort UI (Stacked A/Z) */
+  .tbl-header-content {
+    @apply flex items-center gap-1 justify-center;
+  }
+
+  .tbl-sort-icon {
+    @apply flex items-center gap-1 flex-shrink-0;
+  }
+
+  .tbl-az-stack {
+    @apply flex flex-col leading-none text-[8px] md:text-[10px];
+  }
+
+  .tbl-sort-arrow {
+    @apply text-xs md:text-sm leading-none;
+  }
+
+  .tbl-sort-active {
+    .tbl-az-stack span, .tbl-sort-arrow {
+      @apply text-green-600;
+    }
+  }
+
+  /* Spacer */
+  .tbl-spacer {
+    @apply p-3 lg:ml-16 mb-6;
+  }
+}

@@ -1,0 +1,30 @@
+<main class="relative h-screen overflow-hidden">
+  <app-loader [visible]="!authReady()"></app-loader>
+
+  @if (ui.errorSignal(); as error) {
+    @if (error.type === 'card') {
+      <app-error-card
+        [errorCode]="error.code!"
+        [message]="error.message"
+        (ok)="handleErrorOk()"
+        class="absolute top-4 left-1/2 -translate-x-1/2 z-50"
+      ></app-error-card>
+    }
+  }
+
+  @if (showHeader) {
+    <app-header></app-header>
+    <div class="flex h-full pt-[72px] bg-white overflow-hidden">
+      @if (showSidebar) {
+        <app-sidebar></app-sidebar>
+      }
+      <div class="flex-1 overflow-auto">
+        <router-outlet />
+      </div>
+    </div>
+  } @else {
+    <div class="h-full overflow-auto">
+      <router-outlet />
+    </div>
+  }
+</main>

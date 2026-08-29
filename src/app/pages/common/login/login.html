@@ -1,0 +1,134 @@
+<main class="login">
+  <app-loader [visible]="loading"></app-loader>
+
+  <div class="login-card-wrapper">
+    <!-- Image -->
+    <div class="login-image">
+      <img [src]="loginImage" [alt]="labels.LOGIN_IMAGE_ALT" />
+    </div>
+
+    <!-- Title -->
+    @if (!((userType === 'staff' || userType === 'hospital-staff') && showPasswordField)) {
+    <h1 class="login-title">{{ labels.LOGIN }}</h1>
+    <p class="login-subtitle">{{ loginText }}</p>
+    }
+
+    <form
+      [formGroup]="loginForm"
+      (ngSubmit)="onLogin()"
+      (keydown.enter)="onEnterPress($event)"
+      class="login-form"
+    >
+      <div class="form-fields">
+        <!-- USER TYPE NOT STAFF -->
+        @if (userType !== 'staff' && userType !== 'hospital-staff') {
+        <div class="form-group">
+          <div class="input-wrapper">
+            <img src="/assets/icons/user.png" [alt]="labels.USER_ID" />
+            <input
+              type="text"
+              formControlName="userId"
+              [maxlength]="LIMITS.DEFAULT_TEXT_MAX"
+              [placeholder]="labels.USER_ID"
+              appHalfWidth
+            />
+          </div>
+
+          @if (loginForm.controls['userId'].touched &&
+          loginForm.controls['userId'].invalid) {
+          <p class="error-text">{{ labels.ENTER_USER_ID }}</p>
+          }
+        </div>
+        }
+
+        <!-- STAFF -->
+        @if (userType === 'staff' || userType === 'hospital-staff') {
+        <div class="form-group">
+          <label class="login-field-label">{{ labels.BRANCH_CODE }}</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              formControlName="branchId"
+              [placeholder]="labels.ENTER_BRANCH_CODE"
+              [maxlength]="LIMITS.DEFAULT_TEXT_MAX"
+              appHalfWidth
+            />
+          </div>
+          @if (loginForm.controls['branchId'].touched &&
+          loginForm.controls['branchId'].invalid) {
+          <p class="error-text">{{ labels.ENTER_BRANCH_CODE }}</p>
+          }
+        </div>
+        <div class="form-group">
+          <label class="login-field-label">{{ labels.HOSPITAL_CODE }}</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              formControlName="hospitalId"
+              [placeholder]="labels.ENTER_HOSPITAL_CODE"
+              [maxlength]="LIMITS.DEFAULT_TEXT_MAX"
+              appHalfWidth
+            />
+          </div>
+          @if (loginForm.controls['hospitalId'].touched &&
+          loginForm.controls['hospitalId'].invalid) {
+          <p class="error-text">{{ labels.ENTER_HOSPITAL_CODE }}</p>
+          }
+        </div>
+        }
+
+        <!-- PASSWORD -->
+        @if (showPasswordField) {
+        <div class="form-group form-group--no-label">
+          <div class="input-wrapper password-wrapper">
+            <img src="/assets/icons/lock.png" [alt]="labels.PASSWORD" />
+
+            <input
+              [type]="passwordVisible ? 'text' : 'password'"
+              formControlName="password"
+              [placeholder]="labels.PASSWORD"
+              [maxlength]="LIMITS.DEFAULT_TEXT_MAX"
+              appHalfWidth
+            />
+
+            <button type="button" (click)="togglePassword()" class="eye-btn">
+              <img src="/assets/icons/eye.png" alt="Toggle" />
+            </button>
+          </div>
+
+          @if (loginForm.controls['password'].touched &&
+          loginForm.controls['password'].invalid) {
+          <p class="error-text">{{ labels.ENTER_PASSWORD }}</p>
+          }
+        </div>
+        }
+      </div>
+
+      <!-- Buttons -->
+      <div class="login-actions">
+        @if (!((userType === 'staff' || userType === 'hospital-staff') && showPasswordField)) {
+        <button type="button" class="btn-custom-blue" (click)="goToLanding()">
+          {{ labels.HOMEPAGE }}
+        </button>
+        }
+
+        @if (!showPasswordField) {
+        <button
+          type="button"
+          class="btn-custom-blue"
+          (click)="handleNextStep()"
+        >
+          {{ labels.NEXT }}
+        </button>
+        } @if (showPasswordField) {
+        <button type="submit" class="btn-custom-blue" [disabled]="loading">
+          {{ labels.LOGIN }}
+        </button>
+        }
+      </div>
+
+    </form>
+  </div>
+
+  <app-toaster [message]="toasterMessage" [type]="toasterType"></app-toaster>
+</main>

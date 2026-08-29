@@ -1,0 +1,257 @@
+<div class="portal-layout">
+  <!-- Shared Navigation Sidebar -->
+  <app-sidebar></app-sidebar>
+  
+  <div class="portal-main">
+    <header class="portal-header">
+      <div class="header-title">
+        <h1>POS Cashier Terminal</h1>
+        <span class="subtext">Register Counter 01 · NK Fashions Kolkata Store</span>
+      </div>
+      <div class="admin-profile">
+        <span class="avatar-tag">PC</span>
+        <div class="profile-details">
+          <span class="username">Suhana Das</span>
+          <span class="role">POS Cashier</span>
+        </div>
+      </div>
+    </header>
+    
+    <!-- Tab Selectors Bar -->
+    <nav class="portal-tabs">
+      <button class="tab-btn" [class.active]="activeTab === 'terminal'" (click)="switchTab('terminal')">
+        <i class="material-icons">point_of_sale</i>
+        <span>Register Checkout</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="switchTab('history')">
+        <i class="material-icons">receipt_long</i>
+        <span>Counter Receipt History</span>
+      </button>
+    </nav>
+    
+    <!-- Tab Contents -->
+    <div class="portal-body">
+      
+      <!-- 1. Active Terminal Tab -->
+      <div class="terminal-container" *ngIf="activeTab === 'terminal'">
+        <!-- Left Cart Panel -->
+        <div class="cart-panel">
+          <h3>Checkout Register Cart</h3>
+          <div class="cart-empty" *ngIf="cartItems.length === 0">
+            <i class="material-icons">qr_code_scanner</i>
+            <p>Scan barcode or tap quick product lookup buttons on the right to start transaction checkout.</p>
+          </div>
+          
+          <div class="cart-table-wrapper" *ngIf="cartItems.length > 0">
+            <table class="data-table pos-table">
+              <thead>
+                <tr>
+                  <th>Product Details</th>
+                  <th>SKU</th>
+                  <th>Quantity</th>
+                  <th>Retail Price</th>
+                  <th>Discount</th>
+                  <th>Total</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of cartItems">
+                  <td><strong>{{ item.product.name }}</strong></td>
+                  <td><span class="code-badge">{{ item.product.sku }}</span></td>
+                  <td>
+                    <div class="qty-control">
+                      <button class="qty-btn" (click)="updateQuantity(item.product.id, -1)">-</button>
+                      <span class="qty-val">{{ item.quantity }}</span>
+                      <button class="qty-btn" (click)="updateQuantity(item.product.id, 1)">+</button>
+                    </div>
+                  </td>
+                  <td>Rs. {{ item.product.price | number }}</td>
+                  <td>
+                    <input class="discount-input" type="number" 
+                           [(ngModel)]="item.discount" 
+                           (ngModelChange)="applyItemDiscount(item.product.id, item.discount)" 
+                           placeholder="0" min="0" />
+                  </td>
+                  <td><strong>Rs. {{ (item.product.price * item.quantity) - item.discount | number }}</strong></td>
+                  <td>
+                    <button class="delete-icon-btn" (click)="removeCartItem(item.product.id)">
+                      <i class="material-icons">delete</i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          
+          <!-- Totals Panel -->
+          <div class="totals-panel" *ngIf="cartItems.length > 0">
+            <div class="totals-row">
+              <span>Checkout Subtotal:</span>
+              <span>Rs. {{ getSubtotal() | number }}</span>
+            </div>
+            <div class="totals-row grand">
+              <span>Grand Total Due:</span>
+              <span>Rs. {{ getSubtotal() | number }}</span>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right Action Panel -->
+        <div class="action-panel">
+          <!-- 1. Barcode Field (Mimics physical scanner) -->
+          <div class="action-box">
+            <h4>Barcode Scanner Input</h4>
+            <form (submit)="scanBarcode(); $event.preventDefault()">
+              <div class="scanner-input-row">
+                <input class="scanner-field" name="barcode" [(ngModel)]="barcodeInput" 
+                       placeholder="Scan barcode or type SKU (e.g. NF-SAR-001)" autofocus />
+                <button type="submit" class="scanner-btn">Scan</button>
+              </div>
+            </form>
+          </div>
+          
+          <!-- 2. Customer Selector -->
+          <div class="action-box">
+            <h4>Registered Customer Loyalty</h4>
+            <select class="form-select" [(ngModel)]="selectedCustomer">
+              <option value="Walk-in Customer">Walk-in Customer</option>
+              <option value="Siddharth Roy (Loyalty ID: NK-CUST-102)">Siddharth Roy (Loyalty: NK-CUST-102)</option>
+              <option value="Priyal Sen (Loyalty ID: NK-CUST-105)">Priyal Sen (Loyalty: NK-CUST-105)</option>
+            </select>
+          </div>
+          
+          <!-- 3. Quick Lookup Catalog -->
+          <div class="action-box">
+            <h4>Quick Product Lookup</h4>
+            <div class="quick-lookup-grid">
+              <button type="button" class="quick-lookup-btn" 
+                      *ngFor="let prod of productsCatalog" 
+                      (click)="addProductToCart(prod)">
+                + {{ prod.sku }} ({{ prod.name.substring(0, 15) }}...)
+              </button>
+            </div>
+          </div>
+          
+          <!-- 4. Payment & Finalize Checkout -->
+          <div class="action-box payment-box" *ngIf="cartItems.length > 0">
+            <h4>Finalize Payment</h4>
+            <div class="payment-method-selector">
+              <button type="button" class="pay-method-btn" 
+                      [class.active]="paymentMethod === 'Cash'" 
+                      (click)="paymentMethod = 'Cash'">Cash</button>
+              <button type="button" class="pay-method-btn" 
+                      [class.active]="paymentMethod === 'Card'" 
+                      (click)="paymentMethod = 'Card'">Credit Card</button>
+              <button type="button" class="pay-method-btn" 
+                      [class.active]="paymentMethod === 'Split'" 
+                      (click)="paymentMethod = 'Split'">Split</button>
+            </div>
+            
+            <!-- Split controls -->
+            <div class="split-inputs" *ngIf="paymentMethod === 'Split'">
+              <div class="split-row">
+                <label>Cash Paid:</label>
+                <input type="number" [(ngModel)]="cashPaid" placeholder="Cash Amount" />
+              </div>
+              <div class="split-row">
+                <label>Card Paid:</label>
+                <strong class="card-balance">Rs. {{ getSubtotal() - cashPaid | number }}</strong>
+              </div>
+            </div>
+            
+            <button type="button" class="finalize-checkout-btn" (click)="processCheckout()">
+              FINALIZE & PRINT RECEIPT
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 2. Completed History Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'history'">
+        <div class="content-header">
+          <h2>Completed Invoices & Duplicate Receipts</h2>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Total Paid</th>
+              <th>Payment Type</th>
+              <th>Checkout Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of salesHistory">
+              <td><strong>{{ sale.invoice }}</strong></td>
+              <td>{{ sale.customerName }}</td>
+              <td>Rs. {{ sale.total | number }}</td>
+              <td><span class="role-tag">{{ sale.paymentMethod }}</span></td>
+              <td>{{ sale.timestamp }}</td>
+              <td>
+                <button class="btn-approve" type="button" (click)="activeTab = 'terminal'; completedInvoice = sale.invoice; checkoutComplete = true">
+                  Reprint Receipt
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- Receipt Print Modal -->
+<div class="admin-modal receipt-modal" *ngIf="checkoutComplete">
+  <div class="modal-card receipt-card">
+    <div class="receipt-header">
+      <h2>NK FASHIONS</h2>
+      <p>Luxury Designer Boutique</p>
+      <p>Park Street, Kolkata</p>
+    </div>
+    
+    <div class="receipt-meta">
+      <div><strong>Invoice:</strong> {{ completedInvoice }}</div>
+      <div><strong>Date:</strong> 2026-08-28</div>
+      <div><strong>Cashier:</strong> Suhana Das (Register Counter 01)</div>
+      <div><strong>Client:</strong> {{ selectedCustomer }}</div>
+    </div>
+    
+    <div class="receipt-divider"></div>
+    
+    <div class="receipt-items">
+      <div class="receipt-item-row" *ngFor="let item of cartItems">
+        <span class="item-name">{{ item.product.name }}</span>
+        <span class="item-qty">x{{ item.quantity }}</span>
+        <span class="item-total">Rs. {{ (item.product.price * item.quantity) - item.discount | number }}</span>
+      </div>
+    </div>
+    
+    <div class="receipt-divider"></div>
+    
+    <div class="receipt-totals">
+      <div class="receipt-total-row">
+        <span>SUBTOTAL:</span>
+        <span>Rs. {{ getSubtotal() | number }}</span>
+      </div>
+      <div class="receipt-total-row">
+        <span>TAX (GST 12%):</span>
+        <span>Included</span>
+      </div>
+      <div class="receipt-total-row grand">
+        <span>GRAND TOTAL PAID:</span>
+        <span>Rs. {{ getSubtotal() | number }}</span>
+      </div>
+    </div>
+    
+    <p class="receipt-thankyou">Thank you for shopping at NK Fashions! Visit again.</p>
+    
+    <div class="modal-actions">
+      <button type="button" class="btn-save" (click)="nextTransaction()">CLOSE & NEXT SALE</button>
+    </div>
+  </div>
+</div>

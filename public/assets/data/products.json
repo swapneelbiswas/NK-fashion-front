@@ -1,0 +1,67 @@
+[
+  {
+    "id": "1",
+    "name": "Dheu Exclusive Signature Hakoba Saree",
+    "category": "Saree",
+    "brand": "NK Signature",
+    "price": 3850,
+    "sku": "NF-SAR-001",
+    "rating": 5,
+    "reviewCount": 12,
+    "primaryImage": "/assets/images/hospital_staff.png",
+    "secondaryImage": "/assets/images/admin_staff.webp",
+    "description": "Elegant handcrafted Hakoba cotton saree with signature floral borders, perfect for festive celebrations."
+  },
+  {
+    "id": "2",
+    "name": "2 States - Designer Kurta+Dhoti Set",
+    "category": "Men",
+    "brand": "Babu Mosai",
+    "price": 2950,
+    "sku": "DCSMK218006K DBM210074DH",
+    "rating": 4,
+    "reviewCount": 8,
+    "primaryImage": "/assets/images/head_office_leader.webp",
+    "secondaryImage": "/assets/images/leader.webp",
+    "description": "Traditional pure silk Kurta paired with an optional readymade pleat Dhoti. Handcrafted in Kolkata."
+  },
+  {
+    "id": "3",
+    "name": "Exclusive Gorod Silk Festive Saree",
+    "category": "Saree",
+    "brand": "Heritage Collection",
+    "price": 5600,
+    "sku": "NF-SAR-002",
+    "rating": 5,
+    "reviewCount": 15,
+    "primaryImage": "/assets/images/head_office.png",
+    "secondaryImage": "/assets/images/head_office.webp",
+    "description": "Classic red-and-white Gorod Silk Saree, Silk Mark certified. A wedding season essential."
+  },
+  {
+    "id": "4",
+    "name": "Lal Sada Bengali Couple Matching Set",
+    "category": "Couple",
+    "brand": "NK Matching",
+    "price": 6400,
+    "sku": "NF-COP-001",
+    "rating": 5,
+    "reviewCount": 24,
+    "primaryImage": "/assets/images/head_offices.png",
+    "secondaryImage": "/assets/images/head_offices.webp",
+    "description": "Celebrate together in style with our matching Saree and Kurta set in crimson and gold."
+  },
+  {
+    "id": "5",
+    "name": "Single Jersey Knitted Cotton Polo - Lavender Ash",
+    "category": "Men",
+    "brand": "NK Premium",
+    "price": 1250,
+    "sku": "NF-POLO-72591",
+    "rating": 5,
+    "reviewCount": 19,
+    "primaryImage": "/assets/images/staff.png",
+    "secondaryImage": "/assets/images/staff.webp",
+    "description": "Premium 100% knitted cotton single jersey polo. Enzyme silicon washed for ultimate breathability, soft hand feel, and casual confidence."
+  }
+]

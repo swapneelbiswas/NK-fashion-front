@@ -1,0 +1,7 @@
+@layer components {
+  /* Read-only form fields are greyed out project-wide to signal they're not editable */
+  input[readonly],
+  textarea[readonly] {
+    @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+  }
+}
