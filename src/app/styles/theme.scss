@@ -1,0 +1,203 @@
+// ==============================================================================
+// NK Fashions — Centralized Modern Theme & Design Tokens
+// ==============================================================================
+// This file is the single source of truth for the entire application's color
+// scheme, surfaces, borders, typography, and status indicators.
+//
+// Designed with a modern, high-end Australian Boutique aesthetic:
+// - Primary: Deep Australian Coastal Navy / Eucalyptus Dusk (#1B363C)
+// - Accent: Sunlit Champagne Gold / Warm Australian Ochre (#D4AF37)
+// - Canvas & Surfaces: Warm Sandstone Linen (#F8F7F4) & Crisp Porcelain (#FFFFFF)
+// - Typography: Deep Charcoal Ink (#1A1D20) with warm editorial contrast
+//
+// Altering colors here or applying data-theme presets transforms all components
+// across the storefront, POS terminal, staff & admin portals, tables, and modals.
+// ==============================================================================
+
+:root {
+  // ----------------------------------------------------------------------------
+  // 1. Core Brand Colors (Default: Australian Coastal Luxe & Sunlit Gold)
+  // ----------------------------------------------------------------------------
+  --color-primary: #1B363C;              // Deep coastal eucalyptus dusk
+  --color-primary-hover: #13282D;        // Darker rich ocean depth
+  --color-primary-light: #E8EFF1;        // Gentle primary wash for tags/active pills
+  --color-primary-subtle: #F2F6F7;       // Very faint primary tint
+  --color-primary-glow: rgba(27, 54, 60, 0.16);
+
+  --color-accent: #D4AF37;               // Sunlit champagne gold
+  --color-accent-hover: #B8860B;         // Deep warm ochre gold
+  --color-accent-light: #FBF6EB;         // Soft warm sunlight sheen
+  --color-accent-subtle: #FDFBF7;        // Very faint golden shimmer
+  --color-accent-glow: rgba(212, 175, 55, 0.22);
+
+  --color-secondary: #E07A5F;            // Australian Coral Reef / Sunset terracotta highlight
+  --color-secondary-hover: #C9664B;      // Deeper burnt coral
+
+  // ----------------------------------------------------------------------------
+  // 2. Surfaces & Backgrounds
+  // ----------------------------------------------------------------------------
+  --color-bg-page: #F8F7F4;              // Warm Australian linen / sandstone canvas
+  --color-bg-surface: #FFFFFF;           // Clean pure white card surface
+  --color-bg-surface-elevated: #FFFFFF;  // Floating cards & modals
+  --color-bg-sidebar: #F4F2EC;           // Warm sidebar neutral
+  --color-bg-header: #FFFFFF;            // Navigation header background
+  --color-bg-alt: #F1EEE6;               // Subtle section & table header contrast
+  --color-bg-input: #FFFFFF;             // Form input background
+  --color-bg-input-readonly: #F3F1EC;    // Readonly input background
+
+  // ----------------------------------------------------------------------------
+  // 3. Borders & Dividers
+  // ----------------------------------------------------------------------------
+  --color-border-subtle: #F0ECE4;        // Softest card divider
+  --color-border-light: #E5E0D6;         // Standard input and container border
+  --color-border-medium: #D4CDBC;        // Emphasized outline / hover border
+  --color-border-focus: #1B363C;         // Input focus outline
+  --color-border-accent: #D4AF37;        // Gold accent border
+
+  // ----------------------------------------------------------------------------
+  // 4. Typography & Text Hierarchy
+  // ----------------------------------------------------------------------------
+  --color-text-primary: #1A1D20;         // Deep charcoal ink
+  --color-text-secondary: #565D64;       // Warm slate grey
+  --color-text-muted: #8C949D;           // Soft warm stone
+  --color-text-inverse: #FFFFFF;         // Pure white text on dark surfaces
+  --color-text-brand: #1B363C;           // Brand primary heading text
+  --color-text-accent: #9E7412;          // High-contrast gold text
+
+  --font-family-header: "Tenor Sans", "Playfair Display", Georgia, serif;
+  --font-family-base: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  // ----------------------------------------------------------------------------
+  // 5. Semantic Status Colors (Australian Nature Inspired)
+  // ----------------------------------------------------------------------------
+  --color-success: #15803D;              // Eucalyptus green
+  --color-success-bg: #ECFDF5;           // Light mint background
+  --color-success-border: #A7F3D0;       // Mint border
+
+  --color-warning: #B45309;              // Warm outback amber
+  --color-warning-bg: #FFFBEB;           // Light amber background
+  --color-warning-border: #FDE68A;       // Amber border
+
+  --color-error: #DC2626;                // Crimson red
+  --color-error-bg: #FEF2F2;             // Soft red background
+  --color-error-border: #FECACA;         // Red border
+
+  --color-info: #0284C7;                 // Pacific coastal blue
+  --color-info-bg: #F0F9FF;              // Light coastal wash
+  --color-info-border: #BAE6FD;          // Light blue border
+
+  // ----------------------------------------------------------------------------
+  // 6. Component Radius & Shadows
+  // ----------------------------------------------------------------------------
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  --shadow-sm: 0 1px 2px rgba(27, 54, 60, 0.05);
+  --shadow-md: 0 4px 12px rgba(27, 54, 60, 0.08);
+  --shadow-lg: 0 12px 28px rgba(27, 54, 60, 0.12);
+  --shadow-gold: 0 4px 16px rgba(212, 175, 55, 0.25);
+
+  // ----------------------------------------------------------------------------
+  // 7. Backward-Compatibility Aliases (Maps directly to new tokens)
+  // ----------------------------------------------------------------------------
+  --boutique-primary: var(--color-primary);
+  --boutique-accent: var(--color-accent);
+  --boutique-accent-dark: var(--color-accent-hover);
+  --boutique-bg-light: var(--color-bg-page);
+  --boutique-text-dark: var(--color-text-primary);
+  --boutique-font-header: var(--font-family-header);
+  --boutique-font-base: var(--font-family-base);
+}
+
+// ------------------------------------------------------------------------------
+// Alternative Australian Theme Presets (Easily swappable via [data-theme])
+// ------------------------------------------------------------------------------
+
+// Preset 1: Outback Terracotta & Warm Bronze
+[data-theme="outback-terracotta"] {
+  --color-primary: #9E4733;
+  --color-primary-hover: #7E3423;
+  --color-primary-light: #FBF0ED;
+  --color-primary-subtle: #FDF7F5;
+  --color-primary-glow: rgba(158, 71, 51, 0.18);
+
+  --color-accent: #D97706;
+  --color-accent-hover: #B45309;
+  --color-accent-light: #FEF3C7;
+  --color-bg-page: #FAF7F2;
+  --color-bg-sidebar: #F4EFEB;
+  --color-border-light: #E7DFD5;
+}
+
+// Preset 2: Sydney Harbour Navy & Champagne Rose
+[data-theme="sydney-harbour"] {
+  --color-primary: #0E2A47;
+  --color-primary-hover: #07192C;
+  --color-primary-light: #E6EDF5;
+  --color-primary-subtle: #F2F5F9;
+  --color-primary-glow: rgba(14, 42, 71, 0.18);
+
+  --color-accent: #C59B27;
+  --color-accent-hover: #9E7412;
+  --color-accent-light: #FAF5E8;
+  --color-bg-page: #F7F8FA;
+  --color-bg-sidebar: #EFF2F6;
+  --color-border-light: #DEE4EC;
+}
+
+// Preset 3: Eucalyptus Forest & Golden Wattle
+[data-theme="eucalyptus-sage"] {
+  --color-primary: #244B3E;
+  --color-primary-hover: #19362C;
+  --color-primary-light: #EAF2EE;
+  --color-primary-subtle: #F3F8F5;
+  --color-primary-glow: rgba(36, 75, 62, 0.18);
+
+  --color-accent: #CCA43B;
+  --color-accent-hover: #A8821F;
+  --color-accent-light: #FAF6EB;
+  --color-bg-page: #F6F8F6;
+  --color-bg-sidebar: #EEF3EE;
+  --color-border-light: #DEE6DE;
+}
+
+// ------------------------------------------------------------------------------
+// SCSS Variables (Direct references to CSS custom properties for SCSS files)
+// ------------------------------------------------------------------------------
+$theme-primary: var(--color-primary);
+$theme-primary-hover: var(--color-primary-hover);
+$theme-primary-light: var(--color-primary-light);
+$theme-primary-subtle: var(--color-primary-subtle);
+
+$theme-accent: var(--color-accent);
+$theme-accent-hover: var(--color-accent-hover);
+$theme-accent-light: var(--color-accent-light);
+$theme-accent-subtle: var(--color-accent-subtle);
+
+$theme-secondary: var(--color-secondary);
+
+$theme-bg-page: var(--color-bg-page);
+$theme-bg-surface: var(--color-bg-surface);
+$theme-bg-sidebar: var(--color-bg-sidebar);
+$theme-bg-header: var(--color-bg-header);
+$theme-bg-alt: var(--color-bg-alt);
+$theme-bg-input: var(--color-bg-input);
+$theme-bg-input-readonly: var(--color-bg-input-readonly);
+
+$theme-border-subtle: var(--color-border-subtle);
+$theme-border-light: var(--color-border-light);
+$theme-border-medium: var(--color-border-medium);
+$theme-border-focus: var(--color-border-focus);
+
+$theme-text-primary: var(--color-text-primary);
+$theme-text-secondary: var(--color-text-secondary);
+$theme-text-muted: var(--color-text-muted);
+$theme-text-inverse: var(--color-text-inverse);
+$theme-text-brand: var(--color-text-brand);
+$theme-text-accent: var(--color-text-accent);
+
+$theme-font-header: var(--font-family-header);
+$theme-font-base: var(--font-family-base);

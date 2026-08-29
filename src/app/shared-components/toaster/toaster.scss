@@ -1,19 +1,23 @@
 .toaster-wrapper {
-  @apply fixed top-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border text-white text-sm font-medium;
+  @apply fixed top-5 right-5 z-[9999] flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg border text-sm font-medium;
   animation: slide-in 0.3s ease-out;
 
   &.error {
-    @apply bg-red-600 border-red-700;
+    background-color: var(--color-error-bg);
+    border-color: var(--color-error-border);
+    color: var(--color-error);
   }
 
   &.success {
-    @apply bg-green-600 border-green-700;
+    background-color: var(--color-success-bg);
+    border-color: var(--color-success-border);
+    color: var(--color-success);
   }
 
   &.info {
-    background-color: #E8E7BE;
-    border-color: #d4d3a8;
-    @apply text-gray-800;
+    background-color: var(--color-info-bg);
+    border-color: var(--color-info-border);
+    color: var(--color-info);
   }
 }
 
@@ -31,3 +35,4 @@
     transform: translateX(0);
   }
 }
+

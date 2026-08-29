@@ -1,17 +1,14 @@
 /* Wrapper Layout */
 .sidebar-layout {
   @apply flex min-h-screen relative;
-  background: #F5F7FC;
+  background: var(--color-bg-page);
 }
-
 
 /* Sidebar */
 .sidebar {
-  @apply flex flex-col
-         z-30
-         w-[8rem]
-         border-r border-gray-200;
-  background: #F5F7FC;
+  @apply flex flex-col z-30 w-[8rem] border-r;
+  border-color: var(--color-border-light);
+  background: var(--color-bg-sidebar);
   transition: transform 0.3s ease-in-out, width 0.25s ease-in-out;
 
   /* Mobile & desktop: always visible, sticky */
@@ -32,7 +29,6 @@
   width: 2.75rem !important;
 }
 
-
 /* Collapse toggle button (desktop only) */
 .sidebar-collapse-btn {
   @apply hidden md:flex items-center justify-end px-3 py-2 cursor-pointer;
@@ -42,11 +38,19 @@
   }
 
   i {
-    @apply inline-flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 text-xs;
+    @apply inline-flex items-center justify-center rounded-full text-xs transition-colors;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-secondary);
     width: 1.6rem;
     height: 1.6rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    box-shadow: var(--shadow-sm);
     flex-shrink: 0;
+
+    &:hover {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
   }
 }
 
@@ -59,8 +63,8 @@
     width: 4px;
   }
   &::-webkit-scrollbar-thumb {
-    background: #e5e7eb;
-    border-radius: 2px;
+    background: var(--color-border-medium);
+    border-radius: var(--radius-full);
   }
 }
 
@@ -70,8 +74,14 @@
 }
 
 .nav-item {
-  @apply flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-100 transition-colors;
+  @apply flex items-center gap-3 px-4 py-3 transition-colors;
+  color: var(--color-text-secondary);
   text-decoration: none;
+
+  &:hover {
+    background-color: var(--color-primary-subtle);
+    color: var(--color-primary);
+  }
 
   .sidebar-collapsed & {
     @apply justify-center px-0;
@@ -80,7 +90,10 @@
 }
 
 .nav-active {
-  @apply text-blue-600 border-r-4 border-blue-600 bg-blue-50 font-medium;
+  color: var(--color-primary);
+  border-right: 4px solid var(--color-primary);
+  background-color: var(--color-primary-light);
+  font-weight: 600;
 }
 
 .nav-group {
@@ -88,7 +101,8 @@
 }
 
 .nav-group-arrow {
-  @apply text-xs text-gray-500 ml-2;
+  @apply text-xs ml-2;
+  color: var(--color-text-muted);
 }
 
 .nav-child {
@@ -104,11 +118,14 @@
   @apply fixed bottom-4 left-4
          w-[8rem]
          p-1.5
-         bg-white border border-gray-200
-         shadow-md rounded-xl
+         border
+         rounded-xl
          flex flex-col items-center
          text-center space-y-2
          z-40;
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-border-light);
+  box-shadow: var(--shadow-md);
   transition: width 0.25s ease-in-out, padding 0.25s ease-in-out;
 }
 
@@ -117,22 +134,28 @@
 }
 
 .branch-name {
-  @apply text-sm text-gray-800 font-bold truncate w-full;
+  @apply text-sm font-bold truncate w-full;
+  color: var(--color-text-brand);
 }
 
 .user-label {
-  @apply text-sm text-gray-600;
+  @apply text-sm;
+  color: var(--color-text-secondary);
 }
 
 .user-name-badge {
-  @apply inline-block max-w-full ml-1 px-2 py-0.5 text-xs bg-blue-600 text-white rounded truncate;
+  @apply inline-block max-w-full ml-1 px-2 py-0.5 text-xs text-white rounded truncate;
+  background-color: var(--color-primary);
 }
 
 .user-login-id {
-  @apply text-sm text-gray-600 truncate w-full;
+  @apply text-sm truncate w-full;
+  color: var(--color-text-muted);
 }
 
 .logout-btn {
-  @apply text-xs text-red-600 hover:underline;
+  @apply text-xs hover:underline cursor-pointer;
+  color: var(--color-error);
 }
+
 

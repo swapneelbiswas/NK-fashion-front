@@ -1,16 +1,13 @@
-$ai-dark: #16293f;
-$card-bg: #d1d5db; // paper color #d1d5db
-
 :host {
   display: block;
   min-height: 100vh;
-  background: #e8ecf6;
+  background: var(--color-bg-page);
 }
 
 .login {
   min-height: 100vh;
   padding: 4rem 1.5rem;
-  background: #e8ecf6;
+  background: var(--color-bg-page);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19,29 +16,26 @@ $card-bg: #d1d5db; // paper color #d1d5db
     width: 100%;
     max-width: 512px;
     margin: 0 auto;
-    background: $card-bg;
-    border-radius: 0.85rem;
-    padding: 1.5rem;
-    box-shadow:
-      0 1px 2px rgba(30, 58, 138, 0.06),
-      0 10px 20px rgba(30, 58, 138, 0.1);
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-xl);
+    padding: 2rem;
+    box-shadow: var(--shadow-lg);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 
     &:hover {
-      transform: translateY(-4px);
-      box-shadow:
-        0 1px 2px rgba(30, 58, 138, 0.08),
-        0 14px 28px rgba(30, 58, 138, 0.14);
+      transform: translateY(-2px);
+      box-shadow: 0 16px 36px var(--color-primary-glow);
     }
   }
 
   .login-image {
-    background: #eef2fb;
-    border-radius: 0.55rem;
+    background: var(--color-bg-alt);
+    border-radius: var(--radius-lg);
     overflow: hidden;
-    margin-bottom: 1.1rem;
+    margin-bottom: 1.5rem;
     aspect-ratio: 467 / 264;
-    box-shadow: inset 0 0 0 1px rgba(31, 58, 95, 0.08);
+    border: 1px solid var(--color-border-subtle);
 
     img {
       width: 100%;
@@ -53,23 +47,24 @@ $card-bg: #d1d5db; // paper color #d1d5db
   }
 
   .login-card-wrapper:hover .login-image img {
-    transform: scale(1.04);
+    transform: scale(1.03);
   }
 
   .login-title {
+    font-family: var(--font-family-header);
     font-size: 2rem;
-    font-weight: 800;
-    letter-spacing: 0.05em;
+    font-weight: 700;
+    letter-spacing: 0.04em;
     text-align: center;
-    color: $ai-dark;
-    margin-bottom: 0.25rem;
+    color: var(--color-text-brand);
+    margin-bottom: 0.35rem;
   }
 
   .login-subtitle {
-    font-size: 1.05rem;
+    font-size: 1rem;
     text-align: center;
-    color: #4b5563;
-    margin-bottom: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-bottom: 1.25rem;
   }
 
   .login-form {
@@ -80,7 +75,7 @@ $card-bg: #d1d5db; // paper color #d1d5db
   .form-fields {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: 0.6rem;
   }
 
   .form-group {
@@ -89,45 +84,50 @@ $card-bg: #d1d5db; // paper color #d1d5db
     gap: 0.5rem;
 
     label {
-      margin: 0 0 -0.35rem;
+      margin: 0;
       padding: 0;
-      font-size: 0.95rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--color-text-secondary);
     }
   }
 
   .login-field-label {
-    margin: 0 0 -0.35rem;
+    margin: 0;
     padding: 0;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
   }
 
   .form-group--no-label {
-    padding-top: 1.2rem;
+    padding-top: 0.4rem;
   }
 
   .input-wrapper {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    background: #ffffff;
-    border-radius: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.08);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    background: var(--color-bg-input);
+    border-radius: var(--radius-md);
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border-light);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.2s ease;
 
     &:hover {
-      border-color: #93c5fd;
+      border-color: var(--color-border-medium);
     }
 
     &:focus-within {
-      border-color: #4e81ee;
-      box-shadow: 0 0 0 3px rgba(78, 129, 238, 0.15);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
     }
 
     img {
       width: 16px;
       height: 16px;
+      opacity: 0.7;
     }
 
     input {
@@ -135,11 +135,11 @@ $card-bg: #d1d5db; // paper color #d1d5db
       border: none;
       outline: none;
       background: transparent;
-      font-size: 1rem;
-      color: #1f2937;
+      font-size: 0.95rem;
+      color: var(--color-text-primary);
 
       &::placeholder {
-        color: #6b7280;
+        color: var(--color-text-muted);
       }
 
       &:-webkit-autofill,
@@ -147,13 +147,13 @@ $card-bg: #d1d5db; // paper color #d1d5db
       &:-webkit-autofill:focus {
         -webkit-box-shadow: 0 0 0px 1000px white inset;
         box-shadow: 0 0 0px 1000px white inset;
-        -webkit-text-fill-color: #1f2937;
+        -webkit-text-fill-color: var(--color-text-primary);
       }
     }
   }
 
   .password-wrapper {
-    padding: 0.75rem;
+    padding: 0.75rem 1rem;
   }
 
   .eye-btn {
@@ -175,52 +175,55 @@ $card-bg: #d1d5db; // paper color #d1d5db
   }
 
   .error-text {
-    font-size: 0.85rem;
-    color: #ef4444;
-    margin: -0.25rem 0 0;
-    line-height: 1.2;
+    font-size: 0.82rem;
+    color: var(--color-error);
+    margin: 0;
+    line-height: 1.3;
   }
 
   .login-actions {
     display: flex;
     flex-direction: row;
-    gap: 0.6rem;
+    gap: 0.75rem;
     margin-top: 1.5rem;
   }
 
   .btn-custom-blue {
     flex: 1;
-    padding: 0.5rem 1rem;
-    border-radius: 0.5rem;
-    font-size: 1.1rem;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: 0.04em;
-    background: #4e81ee;
-    color: white;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(26, 86, 219, 0.3);
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow: 0 2px 6px var(--color-primary-glow);
+    transition: all 0.2s ease;
 
     &:hover {
-      background: #2563eb;
-      box-shadow: 0 4px 10px rgba(26, 86, 219, 0.35);
+      background: var(--color-primary-hover);
+      box-shadow: 0 4px 14px var(--color-primary-glow);
+      transform: translateY(-1px);
     }
 
     &:active {
-      transform: translateY(1px);
+      transform: translateY(0);
     }
 
     &:focus-visible {
-      outline: 3px solid rgba(37, 99, 235, 0.55);
+      outline: 3px solid var(--color-primary-light);
       outline-offset: 2px;
     }
 
     &:disabled {
-      background: #93c5fd;
+      background: var(--color-border-medium);
+      color: var(--color-text-muted);
       cursor: not-allowed;
       box-shadow: none;
       transform: none;
     }
   }
 }
+

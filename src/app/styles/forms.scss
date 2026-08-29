@@ -1,7 +1,11 @@
 @layer components {
-  /* Read-only form fields are greyed out project-wide to signal they're not editable */
+  /* Read-only form fields styled with theme tokens */
   input[readonly],
   textarea[readonly] {
-    @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+    background-color: var(--color-bg-input-readonly);
+    color: var(--color-text-muted);
+    cursor: not-allowed;
+    border-color: var(--color-border-light);
   }
 }
+

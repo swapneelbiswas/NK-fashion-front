@@ -1,15 +1,26 @@
 .error-card-container {
-  @apply max-w-md mx-auto bg-white rounded-2xl shadow-xl border border-red-200 p-6 text-center;
+  @apply max-w-md mx-auto rounded-2xl shadow-xl p-6 text-center;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-error-border);
 }
 
 .error-card-code {
-  @apply text-xl font-semibold text-red-600 mb-2;
+  @apply text-xl font-semibold mb-2;
+  color: var(--color-error);
 }
 
 .error-card-message {
-  @apply text-sm text-gray-700 mb-6 whitespace-pre-line;
+  @apply text-sm mb-6 whitespace-pre-line;
+  color: var(--color-text-secondary);
 }
 
 .error-card-btn {
-  @apply px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition;
+  @apply px-6 py-2 rounded-lg font-medium transition;
+  background-color: var(--color-error);
+  color: var(--color-text-inverse);
+
+  &:hover {
+    opacity: 0.9;
+  }
 }
+

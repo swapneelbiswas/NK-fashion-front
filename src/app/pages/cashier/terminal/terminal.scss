@@ -1,16 +1,16 @@
 // POS Cashier Terminal SCSS
-$maroon: var(--boutique-primary);
-$gold: var(--boutique-accent);
-$gold-dark: var(--boutique-accent-dark);
-$light-bg: var(--boutique-bg-light);
-$text-dark: var(--boutique-text-dark);
-$font-serif: var(--boutique-font-header);
-$font-sans: var(--boutique-font-base);
+$maroon: var(--color-primary);
+$gold: var(--color-accent);
+$gold-dark: var(--color-accent-hover);
+$light-bg: var(--color-bg-page);
+$text-dark: var(--color-text-primary);
+$font-serif: var(--font-family-header);
+$font-sans: var(--font-family-base);
 
 .portal-layout {
   display: flex;
   min-height: 100vh;
-  background-color: #f4f5f7;
+  background-color: var(--color-bg-page);
 }
 
 .portal-main {
@@ -24,21 +24,23 @@ $font-sans: var(--boutique-font-base);
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  background-color: #ffffff;
+  background-color: var(--color-bg-surface);
   padding: 1.5rem 2rem;
-  border: 1px solid #eaeaea;
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
 
   h1 {
     font-family: $font-serif;
     font-size: 1.8rem;
-    color: $maroon;
+    color: var(--color-text-brand);
     margin: 0;
     letter-spacing: 0.05em;
   }
 
   .subtext {
     font-size: 0.85rem;
-    color: #777777;
+    color: var(--color-text-secondary);
     margin-top: 0.3rem;
     display: block;
   }
@@ -49,8 +51,8 @@ $font-sans: var(--boutique-font-base);
     gap: 0.8rem;
 
     .avatar-tag {
-      background-color: $maroon;
-      color: #ffffff;
+      background-color: var(--color-primary);
+      color: var(--color-text-inverse);
       width: 42px;
       height: 42px;
       display: flex;
@@ -58,6 +60,7 @@ $font-sans: var(--boutique-font-base);
       justify-content: center;
       font-weight: 600;
       font-size: 0.95rem;
+      border-radius: var(--radius-md);
     }
 
     .profile-details {
@@ -67,11 +70,12 @@ $font-sans: var(--boutique-font-base);
       .username {
         font-weight: 600;
         font-size: 0.95rem;
+        color: var(--color-text-primary);
       }
 
       .role {
         font-size: 0.75rem;
-        color: #777777;
+        color: var(--color-text-muted);
       }
     }
   }
@@ -84,9 +88,9 @@ $font-sans: var(--boutique-font-base);
   margin-bottom: 2rem;
 
   .tab-btn {
-    background-color: #ffffff;
-    border: 1px solid #eaeaea;
-    color: $text-dark;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
     padding: 0.9rem 1.5rem;
     font-weight: 600;
     font-size: 0.9rem;
@@ -95,21 +99,23 @@ $font-sans: var(--boutique-font-base);
     align-items: center;
     gap: 0.6rem;
     transition: all 0.2s;
-    border-radius: 0px !important;
+    border-radius: var(--radius-md) !important;
 
     i {
       font-size: 1.25rem;
     }
 
     &:hover {
-      border-color: $gold;
-      color: $gold-dark;
+      border-color: var(--color-accent);
+      color: var(--color-accent-hover);
+      background-color: var(--color-primary-subtle);
     }
 
     &.active {
-      background-color: $maroon;
-      border-color: $maroon;
-      color: #ffffff;
+      background-color: var(--color-primary);
+      border-color: var(--color-primary);
+      color: var(--color-text-inverse);
+      box-shadow: 0 2px 8px var(--color-primary-glow);
     }
   }
 }
@@ -127,8 +133,10 @@ $font-sans: var(--boutique-font-base);
 
 .cart-panel {
   flex: 2;
-  background-color: #ffffff;
-  border: 1px solid #eaeaea;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -136,7 +144,7 @@ $font-sans: var(--boutique-font-base);
   h3 {
     font-family: $font-serif;
     font-size: 1.2rem;
-    color: $maroon;
+    color: var(--color-text-brand);
     margin-top: 0;
     margin-bottom: 1.5rem;
     letter-spacing: 0.05em;
@@ -145,7 +153,7 @@ $font-sans: var(--boutique-font-base);
   .cart-empty {
     text-align: center;
     padding: 5rem 2rem;
-    color: #888888;
+    color: var(--color-text-muted);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -153,7 +161,7 @@ $font-sans: var(--boutique-font-base);
 
     i {
       font-size: 3.5rem;
-      color: #dddddd;
+      color: var(--color-border-medium);
     }
 
     p {
@@ -172,15 +180,17 @@ $font-sans: var(--boutique-font-base);
 }
 
 .action-box {
-  background-color: #ffffff;
-  border: 1px solid #eaeaea;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
   padding: 1.2rem;
 
   h4 {
     font-family: $font-serif;
     font-size: 0.95rem;
     font-weight: 600;
-    color: $maroon;
+    color: var(--color-text-brand);
     margin-top: 0;
     margin-bottom: 1rem;
     letter-spacing: 0.05em;
@@ -197,63 +207,70 @@ $font-sans: var(--boutique-font-base);
 
   th, td {
     padding: 0.9rem;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid var(--color-border-subtle);
   }
 
   th {
-    background-color: #fafafa;
+    background-color: var(--color-bg-alt);
     font-weight: 600;
-    color: #555555;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     font-size: 0.75rem;
     letter-spacing: 0.05em;
   }
 
   tbody tr:hover {
-    background-color: #f9f9f9;
+    background-color: var(--color-primary-subtle);
   }
 
   .code-badge {
-    background-color: #eaeaea;
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
     padding: 0.2rem 0.5rem;
     font-size: 0.75rem;
     font-family: monospace;
     font-weight: 600;
+    border-radius: var(--radius-sm);
   }
 
   .role-tag {
-    background-color: #e3f2fd;
-    color: #0d47a1;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border-light);
     font-size: 0.75rem;
     font-weight: 600;
     padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
   }
 
   .delete-icon-btn {
     background: none;
     border: none;
-    color: #888888;
+    color: var(--color-text-muted);
     cursor: pointer;
     padding: 0.2rem;
     transition: color 0.15s;
 
     &:hover {
-      color: $maroon;
+      color: var(--color-error);
     }
   }
 
   .btn-approve {
-    background-color: $maroon;
-    color: #ffffff;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
     padding: 0.4rem 0.8rem;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 0px !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.15s;
 
     &:hover {
-      background-color: $gold-dark;
+      background-color: var(--color-primary-hover);
+      box-shadow: 0 2px 6px var(--color-primary-glow);
     }
   }
 }
@@ -267,7 +284,8 @@ $font-sans: var(--boutique-font-base);
   .qty-control {
     display: inline-flex;
     align-items: center;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-sm);
 
     .qty-btn {
       background: none;
@@ -280,9 +298,11 @@ $font-sans: var(--boutique-font-base);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: var(--color-text-primary);
 
       &:hover {
-        background-color: #eeeeee;
+        background-color: var(--color-primary-light);
+        color: var(--color-primary);
       }
     }
 
@@ -291,20 +311,24 @@ $font-sans: var(--boutique-font-base);
       text-align: center;
       font-size: 0.85rem;
       font-weight: 600;
+      color: var(--color-text-primary);
     }
   }
 
   .discount-input {
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
+    background-color: var(--color-bg-input);
+    color: var(--color-text-primary);
     width: 60px;
     padding: 0.3rem;
     font-size: 0.85rem;
     text-align: center;
-    border-radius: 0px !important;
+    border-radius: var(--radius-sm) !important;
 
     &:focus {
       outline: none;
-      border-color: $gold;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-light);
     }
   }
 }
@@ -312,7 +336,7 @@ $font-sans: var(--boutique-font-base);
 // Totals Panel
 .totals-panel {
   margin-top: 2rem;
-  border-top: 2px solid #eaeaea;
+  border-top: 2px solid var(--color-border-light);
   padding-top: 1.5rem;
   display: flex;
   flex-direction: column;
@@ -325,12 +349,13 @@ $font-sans: var(--boutique-font-base);
     max-width: 320px;
     justify-content: space-between;
     font-size: 0.95rem;
+    color: var(--color-text-secondary);
 
     &.grand {
       font-size: 1.25rem;
       font-weight: 700;
-      color: $maroon;
-      border-top: 1px solid #eeeeee;
+      color: var(--color-text-brand);
+      border-top: 1px solid var(--color-border-subtle);
       padding-top: 0.6rem;
     }
   }
@@ -343,30 +368,35 @@ $font-sans: var(--boutique-font-base);
 
   .scanner-field {
     flex: 1;
-    border: 1px solid #cccccc;
+    border: 1px solid var(--color-border-light);
+    background-color: var(--color-bg-input);
+    color: var(--color-text-primary);
     padding: 0.7rem 1rem;
     font-size: 0.9rem;
     font-family: monospace;
-    border-radius: 0px !important;
+    border-radius: var(--radius-md) !important;
 
     &:focus {
       outline: none;
-      border-color: $gold;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-light);
     }
   }
 
   .scanner-btn {
-    background-color: $maroon;
-    color: #ffffff;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
     padding: 0 1.2rem;
     font-size: 0.85rem;
     font-weight: 600;
     cursor: pointer;
-    border-radius: 0px !important;
+    border-radius: var(--radius-md) !important;
+    transition: all 0.15s;
 
     &:hover {
-      background-color: $gold-dark;
+      background-color: var(--color-primary-hover);
+      box-shadow: 0 2px 8px var(--color-primary-glow);
     }
   }
 }
@@ -374,16 +404,18 @@ $font-sans: var(--boutique-font-base);
 // Form Selects
 .form-select {
   width: 100%;
-  border: 1px solid #cccccc;
+  border: 1px solid var(--color-border-light);
   padding: 0.65rem;
   font-size: 0.9rem;
   font-family: $font-sans;
-  background-color: #ffffff;
-  border-radius: 0px !important;
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+  border-radius: var(--radius-md) !important;
 
   &:focus {
     outline: none;
-    border-color: $gold;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
   }
 }
 
@@ -394,28 +426,30 @@ $font-sans: var(--boutique-font-base);
   gap: 0.5rem;
 
   .quick-lookup-btn {
-    background-color: #f7f7f7;
-    border: 1px solid #eaeaea;
-    color: $text-dark;
+    background-color: var(--color-bg-alt);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
     padding: 0.6rem 0.8rem;
     font-size: 0.75rem;
     font-weight: 600;
     cursor: pointer;
     text-align: left;
     transition: all 0.2s;
-    border-radius: 0px !important;
+    border-radius: var(--radius-md) !important;
 
     &:hover {
-      border-color: $gold;
-      background-color: rgba($gold, 0.05);
+      border-color: var(--color-accent);
+      background-color: var(--color-primary-subtle);
+      color: var(--color-primary);
     }
   }
 }
 
 // Payments Box
 .payment-box {
-  border: 1.5px solid $gold;
-  background-color: rgba($gold, 0.03);
+  border: 1.5px solid var(--color-border-accent);
+  background-color: var(--color-accent-subtle);
+  border-radius: var(--radius-lg);
 
   .payment-method-selector {
     display: flex;
@@ -424,21 +458,26 @@ $font-sans: var(--boutique-font-base);
 
     .pay-method-btn {
       flex: 1;
-      background-color: #ffffff;
-      border: 1px solid #cccccc;
-      color: $text-dark;
+      background-color: var(--color-bg-surface);
+      border: 1px solid var(--color-border-light);
+      color: var(--color-text-primary);
       padding: 0.65rem;
       font-weight: 600;
       font-size: 0.8rem;
       cursor: pointer;
       text-align: center;
       transition: all 0.2s;
-      border-radius: 0px !important;
+      border-radius: var(--radius-md) !important;
+
+      &:hover {
+        background-color: var(--color-primary-subtle);
+      }
 
       &.active {
-        background-color: $maroon;
-        border-color: $maroon;
-        color: #ffffff;
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-text-inverse);
+        box-shadow: 0 2px 6px var(--color-primary-glow);
       }
     }
   }
@@ -448,8 +487,9 @@ $font-sans: var(--boutique-font-base);
     flex-direction: column;
     gap: 0.8rem;
     margin-bottom: 1.5rem;
-    background-color: #ffffff;
-    border: 1px solid #eaeaea;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
     padding: 0.8rem;
 
     .split-row {
@@ -460,40 +500,49 @@ $font-sans: var(--boutique-font-base);
       label {
         font-size: 0.8rem;
         font-weight: 600;
-        color: #666666;
+        color: var(--color-text-secondary);
       }
 
       input {
-        border: 1px solid #cccccc;
+        border: 1px solid var(--color-border-light);
+        background-color: var(--color-bg-input);
+        color: var(--color-text-primary);
         width: 100px;
         padding: 0.4rem;
         font-size: 0.85rem;
         text-align: right;
-        border-radius: 0px !important;
+        border-radius: var(--radius-sm) !important;
+
+        &:focus {
+          outline: none;
+          border-color: var(--color-primary);
+        }
       }
 
       .card-balance {
-        color: $maroon;
+        color: var(--color-accent-hover);
         font-size: 0.9rem;
+        font-weight: 700;
       }
     }
   }
 
   .finalize-checkout-btn {
     width: 100%;
-    background-color: $maroon;
-    color: #ffffff;
+    background-color: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
     padding: 1rem;
     font-size: 0.9rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     cursor: pointer;
-    transition: background-color 0.2s;
-    border-radius: 0px !important;
+    transition: all 0.2s;
+    border-radius: var(--radius-md) !important;
 
     &:hover {
-      background-color: $gold-dark;
+      background-color: var(--color-primary-hover);
+      box-shadow: 0 4px 14px var(--color-primary-glow);
     }
   }
 }
@@ -505,12 +554,15 @@ $font-sans: var(--boutique-font-base);
     padding: 1.5rem;
     font-family: monospace;
     font-size: 0.85rem;
-    color: #111111;
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-surface);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
 
     h2 {
       font-family: $font-serif;
       font-size: 1.6rem;
-      color: $maroon;
+      color: var(--color-text-brand);
       text-align: center;
       margin-bottom: 0.2rem;
       letter-spacing: 0.05em;
@@ -521,7 +573,7 @@ $font-sans: var(--boutique-font-base);
       margin-bottom: 1.2rem;
       p {
         margin: 0.2rem 0;
-        color: #555555;
+        color: var(--color-text-secondary);
       }
     }
 
@@ -531,11 +583,11 @@ $font-sans: var(--boutique-font-base);
       gap: 0.3rem;
       margin-bottom: 1rem;
       font-size: 0.75rem;
-      color: #333333;
+      color: var(--color-text-secondary);
     }
 
     .receipt-divider {
-      border-top: 1px dashed #cccccc;
+      border-top: 1px dashed var(--color-border-medium);
       margin: 1rem 0;
     }
 
@@ -554,7 +606,7 @@ $font-sans: var(--boutique-font-base);
       .item-qty {
         width: 40px;
         text-align: center;
-        color: #555555;
+        color: var(--color-text-muted);
       }
       .item-total {
         width: 80px;
@@ -578,8 +630,8 @@ $font-sans: var(--boutique-font-base);
         &.grand {
           font-size: 1.05rem;
           font-weight: 700;
-          color: $maroon;
-          border-top: 1px solid #111111;
+          color: var(--color-text-brand);
+          border-top: 1px solid var(--color-border-medium);
           padding-top: 0.4rem;
           margin-top: 0.2rem;
         }
@@ -591,7 +643,7 @@ $font-sans: var(--boutique-font-base);
       margin-top: 2rem;
       margin-bottom: 2rem;
       font-style: italic;
-      color: #555555;
+      color: var(--color-text-muted);
       font-size: 0.75rem;
     }
   }
@@ -599,9 +651,11 @@ $font-sans: var(--boutique-font-base);
 
 // Simple Shared Tab Content wrapper
 .tab-content {
-  background-color: #ffffff;
-  border: 1px solid #eaeaea;
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
   padding: 2rem;
+  box-shadow: var(--shadow-sm);
 
   .content-header {
     display: flex;
@@ -612,7 +666,7 @@ $font-sans: var(--boutique-font-base);
     h2 {
       font-family: $font-serif;
       font-size: 1.4rem;
-      color: $maroon;
+      color: var(--color-text-brand);
       margin: 0;
       letter-spacing: 0.02em;
     }
@@ -623,15 +677,18 @@ $font-sans: var(--boutique-font-base);
 .admin-modal {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(27, 54, 60, 0.45);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 
   .modal-card {
-    background-color: #ffffff;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-lg);
   }
 
   .modal-actions {
@@ -646,17 +703,20 @@ $font-sans: var(--boutique-font-base);
       font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
-      border-radius: 0px !important;
+      border-radius: var(--radius-md) !important;
     }
 
     .btn-save {
-      background-color: $maroon;
-      color: #ffffff;
+      background-color: var(--color-primary);
+      color: var(--color-text-inverse);
       width: 100%;
+      transition: all 0.2s;
 
       &:hover {
-        background-color: $gold-dark;
+        background-color: var(--color-primary-hover);
+        box-shadow: 0 4px 12px var(--color-primary-glow);
       }
     }
   }
 }
+

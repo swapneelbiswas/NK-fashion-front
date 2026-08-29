@@ -24,18 +24,29 @@
 }
 
 .suml-dropdown-input {
-  @apply w-full h-9 px-3 border border-gray-300 rounded-sm text-sm
-         focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+  @apply w-full h-9 px-3 rounded-sm text-sm transition-all;
+  border: 1px solid var(--color-border-light);
+  background-color: var(--color-bg-input);
+  color: var(--color-text-primary);
+
+  &:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-light);
+  }
 }
 
 .suml-dropdown-list {
-  @apply absolute left-0 top-full mt-1 w-full border rounded bg-white shadow-lg
+  @apply absolute left-0 top-full mt-1 w-full border rounded shadow-lg
          max-h-48 overflow-y-scroll z-50;
+  background-color: var(--color-bg-surface);
+  border-color: var(--color-border-light);
+  box-shadow: var(--shadow-md);
 
   scrollbar-width: auto;
 
   &::-webkit-scrollbar {
-    width: 8px;
+    width: 6px;
   }
 
   &::-webkit-scrollbar-track {
@@ -43,13 +54,19 @@
   }
 
   &::-webkit-scrollbar-thumb {
-    background-color: #cbd5e1;
-    border-radius: 9999px;
+    background-color: var(--color-border-medium);
+    border-radius: var(--radius-full);
   }
 }
 
 .suml-dropdown-item {
-  @apply px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer;
+  @apply px-4 py-2 text-sm cursor-pointer transition-colors;
+  color: var(--color-text-primary);
+
+  &:hover {
+    background-color: var(--color-primary-subtle);
+    color: var(--color-primary);
+  }
 }
 
 @layer utilities {

@@ -1,19 +1,20 @@
 // NK Fashions Storefront Landing Styles
 
-$maroon: var(--boutique-primary);
-$gold: var(--boutique-accent);
-$gold-dark: var(--boutique-accent-dark);
-$light-bg: var(--boutique-bg-light);
-$text-dark: var(--boutique-text-dark);
-$font-serif: var(--boutique-font-header);
-$font-sans: var(--boutique-font-base);
+$maroon: var(--color-primary);
+$gold: var(--color-accent);
+$gold-dark: var(--color-accent-hover);
+$light-bg: var(--color-bg-page);
+$text-dark: var(--color-text-primary);
+$font-serif: var(--font-family-header);
+$font-sans: var(--font-family-base);
 
 :host {
   display: block;
   min-height: 100vh;
-  background-color: #ffffff;
+  background-color: var(--color-bg-surface);
   font-family: $font-sans;
 }
+
 
 // Global button utility to force square design
 button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {

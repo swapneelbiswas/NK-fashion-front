@@ -1,10 +1,6 @@
 // Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-
 @use "@angular/material" as mat;
+@use "app/styles/theme.scss" as *;
 @use "app/styles/tables.scss" as *;
 @use "app/styles/filters.scss" as *;
 @use "app/styles/dropdowns.scss" as *;
@@ -25,56 +21,44 @@ html {
   );
 }
 
-body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-}
-/* You can add global styles to this file, and also import other style files */
 /* Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-/* Your custom styles */
-:root {
-  --boutique-primary: #700404;      /* Deep Maroon */
-  --boutique-accent: #C1A561;       /* Luxury Gold */
-  --boutique-accent-dark: #6c5209;  /* Dark Ochre Gold */
-  --boutique-bg-light: #f9fafb;     /* Very Light Gray */
-  --boutique-text-dark: #1a1a1a;    /* Charcoal Text */
-  --boutique-font-header: "Tenor Sans", serif;
-  --boutique-font-base: "Outfit", sans-serif;
-}
 
 html,
 body {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: var(--color-bg-page);
+  color: var(--color-text-primary);
+  font-family: var(--font-family-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-html,
-body {
-  height: 100%;
-}
-body {
-  margin: 0;
-  font-family: var(--boutique-font-base);
-  color: var(--boutique-text-dark);
-}
+
 h1, h2, h3, h4, h5, h6, .font-header {
-  font-family: var(--boutique-font-header);
+  font-family: var(--font-family-header);
+  color: var(--color-text-brand);
 }
-/* Button utility classes live in app/styles/buttons.scss */
-/* Dropdown utility classes live in app/styles/dropdowns.scss */
+
+// Custom modern scrollbar styled with theme tokens
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-page);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-border-medium);
+  border-radius: var(--radius-full);
+
+  &:hover {
+    background-color: var(--color-text-muted);
+  }
+}
+

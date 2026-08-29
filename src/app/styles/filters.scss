@@ -7,22 +7,28 @@
   }
 
   .hdr-title {
-    @apply text-lg md:text-2xl lg:text-3xl font-bold text-gray-900 text-center md:text-left whitespace-nowrap flex items-center gap-4;
+    @apply text-lg md:text-2xl lg:text-3xl font-bold text-center md:text-left whitespace-nowrap flex items-center gap-4;
+    color: var(--color-text-brand);
+    font-family: var(--font-family-header);
   }
 
-  /* Fixed larger size, used instead of the responsive default on pages
-     that opt in (hospital, branch, delivery-request) */
+  /* Fixed larger size, used instead of the responsive default */
   .hdr-title--lg {
     font-size: 24px;
   }
 
   .hdr-back-btn {
-    @apply w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors;
+    @apply w-8 h-8 rounded-full border flex items-center justify-center transition-colors;
+    border-color: var(--color-border-light);
+    color: var(--color-text-secondary);
+
+    &:hover {
+      background-color: var(--color-primary-light);
+      color: var(--color-primary);
+    }
   }
 
-  /* Page shell header — outer padding + title/add-button row. Used by
-     hospital, branch, leader-list, room-list, service, option-list,
-     delivery-request */
+  /* Page shell header */
   .hdr-page-wrapper {
     @apply px-2 sm:px-4 md:px-6;
   }
@@ -54,15 +60,34 @@
   }
 
   .srch-input {
-    @apply w-full h-9 pr-12 pl-3 border border-gray-300 rounded-sm text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all;
+    @apply w-full h-9 pr-12 pl-3 rounded-sm text-sm transition-all;
+    border: 1px solid var(--color-border-light);
+    background-color: var(--color-bg-input);
+    color: var(--color-text-primary);
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-light);
+    }
   }
 
   .srch-clear-icon {
-    @apply absolute right-8 top-1/2 -translate-y-1/2 text-gray-500 text-sm cursor-pointer hover:text-gray-700 transition-colors;
+    @apply absolute right-8 top-1/2 -translate-y-1/2 text-sm cursor-pointer transition-colors;
+    color: var(--color-text-muted);
+
+    &:hover {
+      color: var(--color-text-primary);
+    }
   }
 
   .srch-icon {
-    @apply absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm cursor-pointer hover:text-blue-600 transition-colors;
+    @apply absolute right-2 top-1/2 -translate-y-1/2 text-sm cursor-pointer transition-colors;
+    color: var(--color-text-muted);
+
+    &:hover {
+      color: var(--color-primary);
+    }
   }
 
   /* Select Filters */
@@ -71,16 +96,30 @@
   }
 
   .fltr-status-select {
-    @apply w-full h-9 px-3 pr-8 bg-white border border-gray-300 rounded-sm text-black text-center hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm appearance-none cursor-pointer;
+    @apply w-full h-9 px-3 pr-8 text-center text-sm appearance-none cursor-pointer rounded-sm transition-colors;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    color: var(--color-text-primary);
+
+    &:hover {
+      background-color: var(--color-primary-subtle);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 2px var(--color-primary-light);
+    }
   }
 
   /* Add Button (Extending the global btn-add) */
   .btn-add-main {
     @apply h-9 px-4 text-sm text-white rounded font-medium transition duration-200 w-full sm:w-auto flex items-center justify-center;
-    background-color: #0252d1;
+    background-color: var(--color-primary);
 
     &:hover {
-      background-color: #0140a8;
+      background-color: var(--color-primary-hover);
+      box-shadow: 0 4px 12px var(--color-primary-glow);
     }
   }
 
@@ -89,11 +128,11 @@
      Shared by hospital / delivery-request / summary-list pages
      ========================================================= */
   .filter-card {
-    background: #ffffff;
-    border: 1px solid #E5E7EB;
-    border-radius: 10px;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
     padding: 16px 20px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.06);
+    box-shadow: var(--shadow-sm);
   }
 
   .filter-form {
@@ -115,7 +154,7 @@
   .ff-label {
     font-size: 11px;
     font-weight: 600;
-    color: #4B5563;
+    color: var(--color-text-secondary);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     white-space: nowrap;
@@ -124,25 +163,25 @@
   .ff-input {
     height: 38px;
     padding: 0 12px;
-    border: 1px solid #D1D5DB;
-    border-radius: 6px;
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-md);
     font-size: 13px;
-    color: #111827;
-    background: #ffffff;
+    color: var(--color-text-primary);
+    background: var(--color-bg-input);
     outline: none;
     min-width: 140px;
     transition: border-color 0.15s, box-shadow 0.15s;
 
-    &:hover { border-color: #93B4D4; }
+    &:hover { border-color: var(--color-border-medium); }
 
     &:focus {
-      border-color: #4E81EE;
-      box-shadow: 0 0 0 3px rgba(26, 86, 219, 0.12);
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px var(--color-primary-light);
     }
 
     &--dd { padding-right: 58px; min-width: 164px; }
 
-    /* Narrower dd input for short-value dropdowns (e.g. 締め日) */
+    /* Narrower dd input for short-value dropdowns */
     &--dd-sm { min-width: 96px; width: 96px; }
   }
 
@@ -155,12 +194,12 @@
     right: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: #9CA3AF;
+    color: var(--color-text-muted);
     font-size: 14px;
     cursor: pointer;
     transition: color 0.15s;
 
-    &:hover { color: #4E81EE; }
+    &:hover { color: var(--color-primary); }
   }
 
   .ff-dd-wrap {
@@ -186,21 +225,21 @@
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
-    color: #9CA3AF;
+    color: var(--color-text-muted);
     z-index: 10;
     font-size: 11px;
     line-height: 1;
 
-    &:hover { color: #374151; }
+    &:hover { color: var(--color-text-primary); }
   }
 
   .btn-search {
     height: 38px;
     padding: 0 20px;
-    background: #4E81EE;
-    color: #ffffff;
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
     font-size: 13px;
     font-weight: 600;
     cursor: pointer;
@@ -208,19 +247,21 @@
     align-items: center;
     gap: 7px;
     white-space: nowrap;
-    box-shadow: 0 1px 3px rgba(26, 86, 219, 0.3);
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    box-shadow: 0 2px 6px var(--color-primary-glow);
+    transition: all 0.2s ease;
 
     i { font-size: 12px; }
 
     &:hover {
-      background: #2563EB;
-      box-shadow: 0 2px 6px rgba(26, 86, 219, 0.4);
+      background: var(--color-primary-hover);
+      box-shadow: 0 4px 12px var(--color-primary-glow);
+      transform: translateY(-1px);
     }
 
     &:active {
-      transform: translateY(1px);
-      box-shadow: 0 1px 2px rgba(26, 86, 219, 0.2);
+      transform: translateY(0);
+      box-shadow: 0 1px 3px var(--color-primary-glow);
     }
   }
 }
+

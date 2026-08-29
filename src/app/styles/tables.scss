@@ -1,29 +1,28 @@
 @layer components {
   /* Centralized Table Design System */
 
-.tbl-container {
-  @apply overflow-x-scroll mx-2 sm:mx-4 md:mx-6;
+  .tbl-container {
+    @apply overflow-x-scroll mx-2 sm:mx-4 md:mx-6;
+    overflow-y: visible;
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 
-  overflow-y: visible;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+    /* Always-visible scrollbar styling */
+    &::-webkit-scrollbar {
+      height: 5px;
+    }
 
-  /* Always-visible scrollbar styling */
-  &::-webkit-scrollbar {
-    height: 5px;
+    &::-webkit-scrollbar-track {
+      background: var(--color-bg-page);
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border-medium);
+      border-radius: var(--radius-full);
+    }
   }
-
-  &::-webkit-scrollbar-track {
-    background: #f1f5f9;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: #94a3b8;
-    border-radius: 999px;
-  }
-}
 
   .tbl-main {
     @apply w-full table-auto;
@@ -32,7 +31,7 @@
   }
 
   .tbl-thead {
-    background: #F5F7FC;
+    background: var(--color-bg-alt);
   }
 
   .tbl-th {
@@ -40,10 +39,10 @@
     text-align: left;
     font-weight: 700;
     font-size: 12px;
-    color: #374151;
+    color: var(--color-text-secondary);
     white-space: nowrap;
     letter-spacing: 0;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--color-border-light);
     background: none;
   }
 
@@ -52,17 +51,17 @@
   }
 
   .tbl-tr {
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--color-border-subtle);
     transition: background 0.12s;
 
     &:hover {
-      background: #EFF6FF;
+      background: var(--color-primary-subtle);
     }
   }
 
   .tbl-td {
     padding: 11px 16px;
-    color: #374151;
+    color: var(--color-text-primary);
     font-size: 13px;
     text-align: left;
     vertical-align: middle;
@@ -78,7 +77,7 @@
     @apply break-words min-w-[120px];
   }
 
-  /* Actions column — fixed width, right-aligned (standard edit-button pages) */
+  /* Actions column — fixed width, right-aligned */
   .tbl-td-actions {
     width: 80px;
     min-width: 80px;
@@ -88,13 +87,13 @@
     @apply text-right whitespace-nowrap;
   }
 
-  /* Actions column header — same fixed width, right-aligned */
+  /* Actions column header */
   .tbl-th-actions {
     width: 80px;
     min-width: 80px;
     max-width: 80px;
     padding: 12px 16px;
-    border-bottom: 2px solid #e2e8f0;
+    border-bottom: 2px solid var(--color-border-light);
     background: none;
     @apply text-right whitespace-nowrap;
   }
@@ -103,15 +102,16 @@
     @apply flex items-center justify-end gap-3;
   }
 
-  /* Use this when you want the button pushed to the right */
   .tbl-actions-group-between {
     @apply flex items-center justify-between gap-2;
   }
 
   /* Badge Styles */
   .tbl-badge {
-    @apply text-white px-2 py-0.5 rounded-md text-xs md:text-sm font-medium whitespace-nowrap;
-    background-color: #3D4C66;
+    @apply px-2.5 py-0.5 rounded-md text-xs md:text-sm font-medium whitespace-nowrap;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border-light);
   }
 
   /* Edit Button Shared style */
@@ -121,16 +121,17 @@
     justify-content: center;
     width: 30px;
     height: 30px;
-    border-radius: 8px;
-    background: #5F7D9C;
+    border-radius: var(--radius-md);
+    background: var(--color-primary);
+    color: var(--color-text-inverse);
     border: none;
     cursor: pointer;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
-    box-shadow: 0 1px 3px rgba(95, 125, 156, 0.35);
+    transition: all 0.15s ease;
+    box-shadow: 0 1px 3px var(--color-primary-glow);
 
     &:hover {
-      background: #4d687f;
-      box-shadow: 0 3px 8px rgba(95, 125, 156, 0.4);
+      background: var(--color-primary-hover);
+      box-shadow: 0 3px 8px var(--color-primary-glow);
     }
 
     &:active { transform: translateY(1px); }
@@ -142,34 +143,32 @@
     }
   }
 
-  /* Quantity cell — enough room for "1000個" */
+  /* Quantity cell */
   .tbl-col-qty {
     min-width: 80px;
     @apply px-3 py-2 text-center whitespace-nowrap;
   }
 
-  /* Quantity header */
   .tbl-th-qty {
     min-width: 80px;
-    border-bottom: 2px solid #e2e8f0;
-    @apply px-3 py-2 text-left text-black font-bold whitespace-nowrap text-xs md:text-sm;
+    border-bottom: 2px solid var(--color-border-light);
+    color: var(--color-text-brand);
+    @apply px-3 py-2 text-left font-bold whitespace-nowrap text-xs md:text-sm;
   }
 
-  /* Date cell — enough room for "2026年05月19日" */
+  /* Date cell */
   .tbl-col-date {
     min-width: 130px;
     @apply px-3 py-2 text-center whitespace-nowrap;
   }
 
-  /* Date header */
   .tbl-th-date {
     min-width: 130px;
-    border-bottom: 2px solid #e2e8f0;
-    @apply px-3 py-2 text-left text-black font-bold whitespace-nowrap text-xs md:text-sm;
+    border-bottom: 2px solid var(--color-border-light);
+    color: var(--color-text-brand);
+    @apply px-3 py-2 text-left font-bold whitespace-nowrap text-xs md:text-sm;
   }
 
-  /* Width-only modifiers for use alongside .tbl-th, when a column needs
-     .tbl-th-date/.tbl-th-qty's width but the standard .tbl-th text style. */
   .tbl-th--date {
     min-width: 130px;
   }
@@ -178,69 +177,63 @@
     min-width: 80px;
   }
 
-  /* Narrow date header — for a single short-label date column (e.g. summary-list's "DATE") */
   .tbl-th--date-sm {
     min-width: 100px;
   }
 
   /* Empty State Message */
   .tbl-empty-msg {
-    @apply px-4 py-8 text-center text-gray-500 italic;
+    @apply px-4 py-8 text-center italic;
+    color: var(--color-text-muted);
   }
 
-  /* Empty-state cell (colspan row), e.g. "no results" — consolidated from
-     hospital/delivery-table/summary-list, which each redefined this identically */
   .tbl-td--empty {
     text-align: center;
     padding: 32px 16px;
-    color: #9CA3AF;
+    color: var(--color-text-muted);
     font-size: 13px;
     white-space: normal;
   }
 
-  /* Clickable cell styled like a hyperlink — e.g. opens a details modal */
+  /* Clickable cell */
   .tbl-td--link {
-    color: #4E81EE;
+    color: var(--color-primary);
     cursor: pointer;
-    font-weight: 500;
+    font-weight: 600;
 
     &:hover {
       text-decoration: underline;
+      color: var(--color-primary-hover);
     }
   }
 
-  /* Date cell — muted, bold-ish, non-wrapping */
   .tbl-td--date {
     font-weight: 600;
-    color: #4B5563;
-    // white-space: nowrap;
+    color: var(--color-text-secondary);
   }
 
-  /* Right-aligned numeric cell (prices, quantities, totals) */
   .tbl-td--num {
     text-align: right;
     font-size: 12px;
     font-variant-numeric: tabular-nums;
-    color: #4B5563;
+    color: var(--color-text-primary);
   }
 
-  /* Right-aligned header — pairs with .tbl-td--num columns */
   .tbl-th--num {
     text-align: right;
   }
 
-  /* Highlighted row — e.g. a delivery with attached notes — with a hover
-     tooltip on its .tbl-td-kana cell showing the note text via [data-notes] */
+  /* Highlighted row */
   .tbl-tr--highlighted {
-    background: #fdebd0 !important;
+    background: var(--color-accent-light) !important;
 
     &:hover {
-      background: #fad7a0 !important;
+      background: var(--color-accent-subtle) !important;
     }
 
     .tbl-notes-icon {
       margin-left: 6px;
-      color: #b8720a;
+      color: var(--color-accent-hover);
       font-size: 12px;
     }
 
@@ -256,35 +249,36 @@
         z-index: 50;
         width: 420px;
         padding: 4px 10px;
-        background-color: #fef9f0;
-        color: #1a1a1a;
+        background-color: var(--color-bg-surface);
+        color: var(--color-text-primary);
         font-size: 11px;
         line-height: 1.6;
         white-space: normal;
         pointer-events: none;
-        border: 1px solid #e0c080;
+        border: 1px solid var(--color-border-accent);
+        box-shadow: var(--shadow-md);
       }
     }
   }
 
-  /* Delivery Badges (Staff / Leader views) */
+  /* Status Badges */
   .tbl-badge-blue {
     display: inline-flex;
     align-items: center;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    background: #D6EAF8;
-    color: #1D4ED8;
-    border: 1px solid #93C5FD;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    background: var(--color-primary-light);
+    color: var(--color-primary);
+    border: 1px solid var(--color-border-light);
+    transition: all 0.15s;
 
     &:hover {
-      background: #DBEAFE;
-      box-shadow: 0 1px 4px rgba(29, 78, 216, 0.2);
+      background: var(--color-primary-subtle);
+      box-shadow: 0 1px 4px var(--color-primary-glow);
     }
 
     &:active { transform: translateY(1px); }
@@ -294,18 +288,18 @@
     display: inline-flex;
     align-items: center;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    background: #D4EDDA;
-    color: #15803D;
-    border: 1px solid #86EFAC;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    background: var(--color-success-bg);
+    color: var(--color-success);
+    border: 1px solid var(--color-success-border);
+    transition: all 0.15s;
 
     &:hover {
-      background: #DCFCE7;
+      background: var(--color-success-border);
       box-shadow: 0 1px 4px rgba(21, 128, 61, 0.2);
     }
 
@@ -316,48 +310,46 @@
     display: inline-flex;
     align-items: center;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    background: #F9FAFB;
-    color: #4B5563;
-    border: 1px solid #D1D5DB;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    background: var(--color-bg-alt);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border-light);
+    transition: all 0.15s;
 
     &:hover {
-      background: #F3F4F6;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      background: var(--color-border-subtle);
     }
 
     &:active { transform: translateY(1px); }
   }
 
-  /* Sell action badge — matches idl-badge-purple (incomplete-distribution-list) */
   .tbl-badge-purple {
     display: inline-flex;
     align-items: center;
     padding: 3px 10px;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
     font-size: 12px;
     font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
-    background: #EDE9FE;
-    color: #6D28D9;
-    border: 1px solid #C4B5FD;
-    transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+    background: var(--color-accent-light);
+    color: var(--color-accent-hover);
+    border: 1px solid var(--color-border-accent);
+    transition: all 0.15s;
 
     &:hover {
-      background: #DDD6FE;
-      box-shadow: 0 1px 4px rgba(109, 40, 217, 0.2);
+      background: var(--color-accent-subtle);
+      box-shadow: var(--shadow-gold);
     }
 
     &:active { transform: translateY(1px); }
   }
 
-  /* Sort UI (Stacked A/Z) */
+  /* Sort UI */
   .tbl-header-content {
     @apply flex items-center gap-1 justify-center;
   }
@@ -376,7 +368,7 @@
 
   .tbl-sort-active {
     .tbl-az-stack span, .tbl-sort-arrow {
-      @apply text-green-600;
+      color: var(--color-accent);
     }
   }
 
@@ -385,3 +377,4 @@
     @apply p-3 lg:ml-16 mb-6;
   }
 }
+
