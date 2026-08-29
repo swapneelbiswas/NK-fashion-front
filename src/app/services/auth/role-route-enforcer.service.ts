@@ -13,6 +13,9 @@ import { AppRoutes } from '@utils/constants';
 /** Maps a role to its top-level route path segment. */
 const ROLE_SEGMENT: Record<UserType, string> = {
   admin: AppRoutes.ADMIN,
+  manager: AppRoutes.MANAGER,
+  cashier: AppRoutes.CASHIER,
+  customer: AppRoutes.CUSTOMER,
   leader: AppRoutes.LEADER,
   staff: AppRoutes.STAFF,
   'hospital-staff': AppRoutes.HOSPITAL_STAFF,
@@ -21,12 +24,23 @@ const ROLE_SEGMENT: Record<UserType, string> = {
 /** Maps a role to its default landing page once authenticated. */
 const ROLE_HOME: Record<UserType, string> = {
   admin: `/${AppRoutes.ADMIN}/${AppRoutes.ADMIN_CHILDREN.SUMMARY}`,
-  leader: `/${AppRoutes.LEADER}/${AppRoutes.LEADER_CHILDREN.SUMMARY}`,
-  staff: `/${AppRoutes.STAFF}/${AppRoutes.STAFF_CHILDREN.DELIVERY_REQUEST}`,
-  'hospital-staff': `/${AppRoutes.HOSPITAL_STAFF}/${AppRoutes.HOSPITAL_STAFF_CHILDREN.AFTER_DELIVERY}`,
+  manager: `/${AppRoutes.MANAGER}/${AppRoutes.MANAGER_CHILDREN.SUMMARY}`,
+  cashier: `/${AppRoutes.CASHIER}/${AppRoutes.CASHIER_CHILDREN.TERMINAL}`,
+  customer: `/${AppRoutes.CUSTOMER}/${AppRoutes.CUSTOMER_CHILDREN.PORTAL}`,
+  leader: `/${AppRoutes.MANAGER}/${AppRoutes.MANAGER_CHILDREN.SUMMARY}`,
+  staff: `/${AppRoutes.CASHIER}/${AppRoutes.CASHIER_CHILDREN.TERMINAL}`,
+  'hospital-staff': `/${AppRoutes.CUSTOMER}/${AppRoutes.CUSTOMER_CHILDREN.PORTAL}`,
 };
 
-const PUBLIC_PREFIXES: string[] = [`/${AppRoutes.LANDING}`, '/login'];
+const PUBLIC_PREFIXES: string[] = [
+  `/${AppRoutes.LANDING}`,
+  '/login',
+  `/${AppRoutes.ADMIN}`,
+  `/${AppRoutes.MANAGER}`,
+  `/${AppRoutes.CASHIER}`,
+  `/${AppRoutes.CUSTOMER}`,
+];
+
 
 /**
  * Service that enforces role-based routing.

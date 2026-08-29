@@ -41,19 +41,22 @@ export class RoleRedirectGuard implements CanActivate {
           `/${AppRoutes.ADMIN}/${AppRoutes.ADMIN_CHILDREN.SUMMARY}`,
         );
 
+      case 'manager':
       case 'leader':
         return this.router.parseUrl(
-          `/${AppRoutes.LEADER}/${AppRoutes.LEADER_CHILDREN.SUMMARY}`,
+          `/${AppRoutes.MANAGER}/${AppRoutes.MANAGER_CHILDREN.SUMMARY}`,
         );
 
+      case 'cashier':
       case 'staff':
         return this.router.parseUrl(
-          `/${AppRoutes.STAFF}/${AppRoutes.STAFF_CHILDREN.DELIVERY_REQUEST}`,
+          `/${AppRoutes.CASHIER}/${AppRoutes.CASHIER_CHILDREN.TERMINAL}`,
         );
 
+      case 'customer':
       case 'hospital-staff':
         return this.router.parseUrl(
-          `/${AppRoutes.HOSPITAL_STAFF}/${AppRoutes.HOSPITAL_STAFF_CHILDREN.AFTER_DELIVERY}`,
+          `/${AppRoutes.CUSTOMER}/${AppRoutes.CUSTOMER_CHILDREN.PORTAL}`,
         );
 
       default:
@@ -61,3 +64,4 @@ export class RoleRedirectGuard implements CanActivate {
     }
   }
 }
+

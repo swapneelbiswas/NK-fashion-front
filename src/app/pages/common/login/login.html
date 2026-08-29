@@ -8,10 +8,11 @@
     </div>
 
     <!-- Title -->
-    @if (!((userType === 'staff' || userType === 'hospital-staff') && showPasswordField)) {
-    <h1 class="login-title">{{ labels.LOGIN }}</h1>
-    <p class="login-subtitle">{{ loginText }}</p>
+    @if (!((userType === 'cashier' || userType === 'staff' || userType === 'hospital-staff') && showPasswordField)) {
+    <h1 class="login-title">{{ loginTitle }}</h1>
+    <p class="login-subtitle">{{ loginSubtitle }}</p>
     }
+
 
     <form
       [formGroup]="loginForm"

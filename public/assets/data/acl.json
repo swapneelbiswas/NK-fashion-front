@@ -1,0 +1,272 @@
+{
+  "version": "1.0.0",
+  "appName": "NK Fashions - Australian Retail Boutique & POS",
+  "roles": {
+    "admin": {
+      "id": "admin",
+      "name": "System Administrator",
+      "roleCode": "0",
+      "entryUrl": "/admin",
+      "defaultRoute": "/admin/summary",
+      "loginTitle": "System Admin Control Room",
+      "loginSubtitle": "Enter administrative credentials for system governance and branch oversight",
+      "loginImage": "/assets/images/head_offices_admin.webp",
+      "allowedPages": [
+        "summary-list",
+        "branch-list",
+        "hospital-list",
+        "leader-list",
+        "service-list",
+        "option-list",
+        "user-list",
+        "user-nk-staff",
+        "user-hospital-staff",
+        "bill-closing",
+        "acl"
+      ],
+      "permissions": {
+        "canManageUsers": true,
+        "canManageStores": true,
+        "canOverridePrices": true,
+        "canApproveTransfers": true,
+        "canViewAuditLogs": true,
+        "canExportReports": true,
+        "canProcessPOS": true,
+        "canViewOrders": true,
+        "canConfigureAcl": true
+      },
+      "navigation": [
+        {
+          "label": "Executive Overview",
+          "route": "/admin/summary",
+          "page": "summary-list",
+          "icon": "fa-chart-pie"
+        },
+        {
+          "label": "Stores & Boutiques",
+          "route": "/admin/branch",
+          "page": "branch-list",
+          "icon": "fa-store"
+        },
+        {
+          "label": "Regional Hubs",
+          "route": "/admin/hospital",
+          "page": "hospital-list",
+          "icon": "fa-map-location-dot"
+        },
+        {
+          "label": "Store Managers",
+          "route": "/admin/leader-list",
+          "page": "leader-list",
+          "icon": "fa-user-tie"
+        },
+        {
+          "label": "Product Catalog",
+          "route": "/admin/service-list",
+          "page": "service-list",
+          "icon": "fa-shirt"
+        },
+        {
+          "label": "Attribute Master",
+          "route": "/admin/option-list",
+          "page": "option-list",
+          "icon": "fa-sliders"
+        },
+        {
+          "label": "User Accounts",
+          "route": null,
+          "page": "user-list",
+          "icon": "fa-users",
+          "children": [
+            {
+              "label": "Staff Accounts",
+              "route": "/admin/user-nk-staff",
+              "page": "user-nk-staff",
+              "icon": "fa-id-badge"
+            },
+            {
+              "label": "Customer Accounts",
+              "route": "/admin/user-hospital-staff",
+              "page": "user-hospital-staff",
+              "icon": "fa-user-check"
+            }
+          ]
+        },
+        {
+          "label": "Audit & Financial Logs",
+          "route": "/admin/bill-closing",
+          "page": "bill-closing",
+          "icon": "fa-file-invoice-dollar"
+        }
+      ]
+    },
+    "manager": {
+      "id": "manager",
+      "name": "Store Manager",
+      "roleCode": "1",
+      "entryUrl": "/manager",
+      "defaultRoute": "/manager/summary",
+      "loginTitle": "Store Manager Operations Portal",
+      "loginSubtitle": "Access regional store inventory, transfers, and cashier action oversight",
+      "loginImage": "/assets/images/head_office_leader.webp",
+      "allowedPages": [
+        "summary-list",
+        "completed-distribution-list",
+        "incomplete-distribution-list",
+        "user-list",
+        "user-nk-staff",
+        "user-hospital-staff",
+        "hospital-list",
+        "service-list",
+        "option-list",
+        "bill-closing"
+      ],
+      "permissions": {
+        "canManageUsers": false,
+        "canManageStores": false,
+        "canOverridePrices": true,
+        "canApproveTransfers": true,
+        "canViewAuditLogs": true,
+        "canExportReports": true,
+        "canProcessPOS": false,
+        "canViewOrders": true,
+        "canConfigureAcl": false
+      },
+      "navigation": [
+        {
+          "label": "Store Operations",
+          "route": "/manager/summary",
+          "page": "summary-list",
+          "icon": "fa-warehouse"
+        },
+        {
+          "label": "Approved Stock",
+          "route": "/manager/completed-distribution-list",
+          "page": "completed-distribution-list",
+          "icon": "fa-circle-check"
+        },
+        {
+          "label": "Pending Transfers",
+          "route": "/manager/incomplete-distribution-list",
+          "page": "incomplete-distribution-list",
+          "icon": "fa-clock"
+        },
+        {
+          "label": "Cashier Oversight",
+          "route": "/manager/bill-closing",
+          "page": "bill-closing",
+          "icon": "fa-shield-halved"
+        },
+        {
+          "label": "Store Inventory",
+          "route": "/manager/service-list",
+          "page": "service-list",
+          "icon": "fa-boxes-stacked"
+        }
+      ]
+    },
+    "cashier": {
+      "id": "cashier",
+      "name": "POS Cashier",
+      "roleCode": "2",
+      "entryUrl": "/cashier",
+      "defaultRoute": "/cashier/terminal",
+      "loginTitle": "POS Cashier Terminal",
+      "loginSubtitle": "Retail store checkout register, barcode scanner, and split billing",
+      "loginImage": "/assets/images/admin_staff.webp",
+      "allowedPages": [
+        "delivery-request-list",
+        "completed-distribution-list",
+        "incomplete-distribution-list",
+        "user-list",
+        "hospital-list",
+        "service-list",
+        "option-list"
+      ],
+      "permissions": {
+        "canManageUsers": false,
+        "canManageStores": false,
+        "canOverridePrices": false,
+        "canApproveTransfers": false,
+        "canViewAuditLogs": false,
+        "canExportReports": false,
+        "canProcessPOS": true,
+        "canViewOrders": false,
+        "canConfigureAcl": false
+      },
+      "navigation": [
+        {
+          "label": "POS Register",
+          "route": "/cashier/terminal",
+          "page": "delivery-request-list",
+          "icon": "fa-cash-register"
+        },
+        {
+          "label": "Completed Sales",
+          "route": "/cashier/completed-distribution-list",
+          "page": "completed-distribution-list",
+          "icon": "fa-receipt"
+        },
+        {
+          "label": "Stock Catalog",
+          "route": "/cashier/service-list",
+          "page": "service-list",
+          "icon": "fa-tags"
+        }
+      ]
+    },
+    "customer": {
+      "id": "customer",
+      "name": "Registered Customer",
+      "roleCode": "3",
+      "entryUrl": "/customer",
+      "defaultRoute": "/customer/portal",
+      "loginTitle": "Customer Boutique Lounge",
+      "loginSubtitle": "Track your orders, saved wishlists, and boutique membership benefits",
+      "loginImage": "/assets/images/hospital_staff.png",
+      "allowedPages": [
+        "after-delivery-list",
+        "user-list",
+        "hospital-staff-classification-list",
+        "option-list",
+        "invoice-confirmation-list"
+      ],
+      "permissions": {
+        "canManageUsers": false,
+        "canManageStores": false,
+        "canOverridePrices": false,
+        "canApproveTransfers": false,
+        "canViewAuditLogs": false,
+        "canExportReports": false,
+        "canProcessPOS": false,
+        "canViewOrders": true,
+        "canConfigureAcl": false
+      },
+      "navigation": [
+        {
+          "label": "My Orders & Tracking",
+          "route": "/customer/portal",
+          "page": "after-delivery-list",
+          "icon": "fa-box-open"
+        },
+        {
+          "label": "Saved Wishlist",
+          "route": "/customer/portal",
+          "page": "option-list",
+          "icon": "fa-heart"
+        },
+        {
+          "label": "Address Book",
+          "route": "/customer/portal",
+          "page": "invoice-confirmation-list",
+          "icon": "fa-address-book"
+        }
+      ]
+    }
+  },
+  "aliases": {
+    "leader": "manager",
+    "staff": "cashier",
+    "hospital-staff": "customer"
+  }
+}

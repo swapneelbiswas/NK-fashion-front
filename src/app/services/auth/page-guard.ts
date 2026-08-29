@@ -8,10 +8,14 @@ import { AppRoutes } from '@utils/constants';
 /** Maps a role to its top-level route path segment. */
 const ROLE_SEGMENT: Record<string, string> = {
   admin: AppRoutes.ADMIN,
+  manager: AppRoutes.MANAGER,
+  cashier: AppRoutes.CASHIER,
+  customer: AppRoutes.CUSTOMER,
   leader: AppRoutes.LEADER,
   staff: AppRoutes.STAFF,
   'hospital-staff': AppRoutes.HOSPITAL_STAFF,
 };
+
 
 /**
  * Guard that enforces page-level access control on child routes.

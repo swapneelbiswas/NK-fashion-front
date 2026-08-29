@@ -1,7 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
+import { RoleAclConfig } from '@models/acl.model';
 import { AuthLoginRequest } from '@models/auth.model';
+
+import { AclService } from '@services/acl/acl.service';
 import { AuthState, ROLE_MAP, UserType } from '@services/auth/auth-role';
 import { AuthStateService } from '@services/auth/auth-state';
 import { BranchService } from '@services/branch/branch-service';
@@ -19,6 +22,7 @@ export class AuthService {
     private ui: GlobalUiService,
     private authState: AuthStateService,
     private branchService: BranchService,
+    private aclService: AclService,
   ) {}
 
   /**
@@ -29,70 +33,26 @@ export class AuthService {
    */
   loginApi(data: AuthLoginRequest): Observable<AuthState> {
     const roleId: string = data.role; // e.g. '0', '1', '2', '3'
-    const role: UserType = ROLE_MAP[roleId] || 'hospital-staff';
+    const role: UserType = (ROLE_MAP[roleId] || (data.role as UserType) || 'customer') as UserType;
+    const canonicalRole: string = this.aclService.resolveCanonicalRole(role);
+    const roleAcl: RoleAclConfig | null = this.aclService.getRoleConfigSync(canonicalRole);
 
-    let allowedPages: string[] = [];
-    let userName: string = 'NK Fashions User';
-    let loginId: string = data.user_id || 'user_123';
 
-    if (role === 'admin') {
-      userName = 'System Admin';
-      allowedPages = [
-        'summary-list',
-        'branch-list',
-        'hospital-list',
-        'leader-list',
-        'service-list',
-        'option-list',
-        'user-list',
-        'bill-closing'
-      ];
-    } else if (role === 'leader') {
-      userName = 'Store Manager';
-      loginId = data.user_id || 'manager_123';
-      allowedPages = [
-        'summary-list',
-        'completed-distribution-list',
-        'incomplete-distribution-list',
-        'user-list',
-        'hospital-list',
-        'service-list',
-        'option-list',
-        'bill-closing'
-      ];
-    } else if (role === 'staff') {
-      userName = 'POS Cashier';
-      loginId = data.branch_code || 'pos_123';
-      allowedPages = [
-        'delivery-request-list',
-        'completed-distribution-list',
-        'incomplete-distribution-list',
-        'user-list',
-        'hospital-list',
-        'service-list',
-        'option-list'
-      ];
-    } else if (role === 'hospital-staff') {
-      userName = 'Registered Customer';
-      loginId = data.branch_code || 'customer_123';
-      allowedPages = [
-        'after-delivery-list',
-        'user-list',
-        'hospital-staff-classification-list',
-        'option-list',
-        'invoice-confirmation-list'
-      ];
-    }
+    const userName: string = roleAcl?.name || 'NK Fashions User';
+    const loginId: string = data.user_id || data.branch_code || `${canonicalRole}_user`;
+    const allowedPages: string[] = roleAcl?.allowedPages || [];
+    const permissions: Record<string, boolean> = (roleAcl?.permissions as Record<string, boolean>) || {};
 
     const state: AuthState = {
-      role,
+      role: canonicalRole as UserType,
       user_name: userName,
       login_id: loginId,
       allowedPages,
       allowedActions: ['create', 'read', 'update', 'delete'],
+      permissions,
       hospital_code: data.hospital_code,
       branch_code: data.branch_code,
-      branch_name: data.branch_code ? `Store ${data.branch_code}` : undefined,
+      branch_name: data.branch_code ? `Store ${data.branch_code}` : 'Sydney Flagship Store',
     };
 
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(state));
@@ -127,3 +87,4 @@ export class AuthService {
     return of(undefined);
   }
 }
+

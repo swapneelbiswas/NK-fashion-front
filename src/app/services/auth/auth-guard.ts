@@ -63,31 +63,34 @@ export class RoleGuard implements CanActivate {
         }
         break;
 
+      case 'manager':
       case 'leader':
-        if (!url.startsWith(AppRoutes.LEADER)) {
+        if (!url.startsWith(AppRoutes.MANAGER) && !url.startsWith(AppRoutes.LEADER)) {
           this.router.navigate([
-            AppRoutes.LEADER,
-            AppRoutes.LEADER_CHILDREN.SUMMARY,
+            AppRoutes.MANAGER,
+            AppRoutes.MANAGER_CHILDREN.SUMMARY,
           ]);
           return false;
         }
         break;
 
+      case 'cashier':
       case 'staff':
-        if (!url.startsWith(AppRoutes.STAFF)) {
+        if (!url.startsWith(AppRoutes.CASHIER) && !url.startsWith(AppRoutes.STAFF)) {
           this.router.navigate([
-            AppRoutes.STAFF,
-            AppRoutes.STAFF_CHILDREN.DELIVERY_REQUEST,
+            AppRoutes.CASHIER,
+            AppRoutes.CASHIER_CHILDREN.TERMINAL,
           ]);
           return false;
         }
         break;
 
+      case 'customer':
       case 'hospital-staff':
-        if (!url.startsWith(AppRoutes.HOSPITAL_STAFF)) {
+        if (!url.startsWith(AppRoutes.CUSTOMER) && !url.startsWith(AppRoutes.HOSPITAL_STAFF)) {
           this.router.navigate([
-            AppRoutes.HOSPITAL_STAFF,
-            AppRoutes.HOSPITAL_STAFF_CHILDREN.AFTER_DELIVERY,
+            AppRoutes.CUSTOMER,
+            AppRoutes.CUSTOMER_CHILDREN.PORTAL,
           ]);
           return false;
         }
@@ -96,3 +99,4 @@ export class RoleGuard implements CanActivate {
     return true;
   }
 }
+

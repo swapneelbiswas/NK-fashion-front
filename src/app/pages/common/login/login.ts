@@ -9,10 +9,12 @@ import {
 import { ActivatedRoute, Router } from '@angular/router';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import { finalize } from 'rxjs';
-// models
+import { RoleAclConfig } from '@models/acl.model';
 import { AuthLoginRequest } from '@models/auth.model';
 // service
+import { AclService } from '@services/acl/acl.service';
 import { AuthState, UserType } from '@services/auth/auth-role';
+
 import { AuthService } from '@services/auth/auth-service';
 import { AuthStateService } from '@services/auth/auth-state';
 import { SessionSyncService } from '@services/auth/session-sync-service';
@@ -28,6 +30,9 @@ export type ApiRole = '0' | '1' | '2' | '3';
 
 export const UI_TO_API_ROLE: Record<UserType, ApiRole> = {
   admin: '0',
+  manager: '1',
+  cashier: '2',
+  customer: '3',
   leader: '1',
   staff: '2',
   'hospital-staff': '3',
@@ -53,11 +58,6 @@ interface DeviceInfo {
  * Login component responsible for displaying
  * role-based login information and handling
  * navigation after login.
- *
- * The component:
- * - Reads the `userType` from the route parameters
- * - Displays a corresponding image and label
- * - Navigates users based on their role
  */
 @Component({
   selector: 'app-login',
@@ -83,7 +83,7 @@ export class Login implements OnInit {
   showPasswordField: boolean = false;
 
   /**
-   * Current user role derived from the route parameter.
+   * Current user role derived from the route parameter or data.
    */
   userType!: UserType;
   /**
@@ -94,6 +94,8 @@ export class Login implements OnInit {
    * Localized text label displayed for the selected user role.
    */
   loginText: string | null = null;
+  loginTitle: string = 'LOGIN';
+  loginSubtitle: string = 'Enter credentials to proceed';
 
   loginForm!: ReturnType<FormBuilder['group']>;
 
@@ -101,6 +103,7 @@ export class Login implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private authState: AuthStateService,
+    private aclService: AclService,
     private router: Router,
     private route: ActivatedRoute,
     private sessionSync: SessionSyncService,
@@ -111,38 +114,40 @@ export class Login implements OnInit {
   /**
    * Indicates whether the currently authenticated user is an administrator.
    *
-   * @returns `true` if the user's role is `admin`, otherwise `false`.
+   * @returns True if admin.
    */
   get isAdmin(): boolean {
     return this.authState.role === 'admin';
   }
+
   /**
-   * Indicates whether the currently authenticated user is an Leader.
+   * Indicates whether the currently authenticated user is a Manager.
    *
-   * @returns `true` if the user's role is `leader`, otherwise `false`.
+   * @returns True if manager or leader.
    */
   get isLeader(): boolean {
-    return this.authState.role === 'leader';
+    return this.authState.role === 'manager' || this.authState.role === 'leader';
   }
+
   /**
-   * Indicates whether the currently authenticated user is an Staff.
+   * Indicates whether the currently authenticated user is a Cashier / Staff.
    *
-   * @returns `true` if the user's role is `staff`, otherwise `false`.
+   * @returns True if cashier or staff.
    */
   get isStaff(): boolean {
-    return this.authState.role === 'staff';
+    return this.authState.role === 'cashier' || this.authState.role === 'staff';
   }
 
   /**
    * Initializes the component by extracting the user type
-   * from the route and setting role-specific UI data.
+   * from the route data or param and setting role-specific UI data from ACL.
    */
-  ngOnInit() {
+  ngOnInit(): void {
     this.initForm();
 
     // Capture device info on init
     this.deviceInfo = {
-      userAgent: this.deviceService.userAgent(), // unwrap signal
+      userAgent: this.deviceService.userAgent(),
       os: this.deviceService.os(),
       os_version: this.deviceService.os_version(),
       browser: this.deviceService.browser(),
@@ -161,37 +166,31 @@ export class Login implements OnInit {
           : 'desktop',
     };
 
-    const type: UserType | null = this.route.snapshot.paramMap.get(
-      'userType',
-    ) as UserType | null;
+    // Extract role from route data or paramMap
+    const roleFromData: string | undefined = this.route.snapshot.data['role'] as string | undefined;
+    const roleFromParam: string | null = this.route.snapshot.paramMap.get('userType');
+    const urlSegment: string = this.router.url.split('/')[1]?.split('?')[0] || 'admin';
 
-    if (!type) return;
+    const rawRole: string = roleFromData || roleFromParam || urlSegment || 'admin';
+    const canonicalRole: string = this.aclService.resolveCanonicalRole(rawRole);
+    this.userType = canonicalRole as UserType;
 
-    this.userType = type;
+    const roleAcl: RoleAclConfig | null = this.aclService.getRoleConfigSync(canonicalRole);
+    if (roleAcl) {
+      this.loginTitle = roleAcl.loginTitle;
+      this.loginSubtitle = roleAcl.loginSubtitle;
+      this.loginImage = roleAcl.loginImage;
+      this.loginText = roleAcl.name;
+    } else {
+      this.loginImage = '/assets/images/head_offices_admin.webp';
+      this.loginText = 'System Admin';
+      this.loginTitle = 'LOGIN';
+      this.loginSubtitle = 'Enter your credentials to continue';
+    }
 
-    const config: Record<UserType, { image: string; text: string }> = {
-      admin: {
-        image: '/assets/images/head_offices_admin.webp',
-        text: LoginLabels.ROLE_TEXT_ADMIN,
-      },
-      leader: {
-        image: '/assets/images/head_office_leader.webp',
-        text: LoginLabels.ROLE_TEXT_LEADER,
-      },
-      staff: {
-        image: '/assets/images/admin_staff.webp',
-        text: LoginLabels.ROLE_TEXT_STAFF,
-      },
-      'hospital-staff': {
-        image: '/assets/images/hospital_staff.png',
-        text: LoginLabels.ROLE_TEXT_HOSPITAL_STAFF,
-      },
-    };
 
-    this.loginImage = config[type].image;
-    this.loginText = config[type].text;
     // Adjust validators dynamically
-    if (this.userType === 'staff' || this.userType === 'hospital-staff') {
+    if (this.userType === 'cashier' || this.userType === 'staff' || this.userType === 'hospital-staff') {
       this.loginForm.get('userId')?.clearValidators();
       this.loginForm.get('userId')?.updateValueAndValidity();
 
@@ -255,7 +254,7 @@ export class Login implements OnInit {
   }
 
   /**
-   * show/hide password” functionality
+   * show/hide password functionality
    */
   togglePassword() {
     this.passwordVisible = !this.passwordVisible;
@@ -277,21 +276,20 @@ export class Login implements OnInit {
 
     let payload: AuthLoginRequest;
 
-    if (this.userType === 'staff' || this.userType === 'hospital-staff') {
+    if (this.userType === 'cashier' || this.userType === 'staff' || this.userType === 'hospital-staff') {
       payload = {
         branch_code: this.loginForm.value.branchId!,
         hospital_code: this.loginForm.value.hospitalId!,
         password: this.loginForm.value.password!,
-        role: UI_TO_API_ROLE[this.userType],
+        role: UI_TO_API_ROLE[this.userType] || '2',
       };
     } else {
       payload = {
         user_id: this.loginForm.value.userId!,
         password: this.loginForm.value.password!,
-        role: UI_TO_API_ROLE[this.userType],
+        role: UI_TO_API_ROLE[this.userType] || '0',
       };
     }
-
 
     this.auth.loginApi(payload).pipe(
       finalize(() => {
@@ -300,33 +298,20 @@ export class Login implements OnInit {
       }),
     ).subscribe({
       next: (state: AuthState) => {
-        // Navigate based on role
-        const routes: Record<UserType, string> = {
-          admin: '/admin/summary',
-          leader: '/leader/summary',
-          staff: '/staff/delivery-request',
-          'hospital-staff': '/hospital-staff/after-delivery',
-        };
-
-        const target: string = routes[state.role];
-        if (!target) {
-          console.warn('[Login] no route mapped for role:', state.role);
-          this.triggerToaster(ToasterMessages['loginFailed'], 'error');
-          return;
-        }
+        const target: string = this.aclService.getDefaultRoute(state.role);
 
         this.authState.set(state);
         this.sessionSync.notifyChange();
 
-        this.router.navigate([target]);
+        this.router.navigateByUrl(target);
       },
       error: (err) => {
         console.error('[Login] onLogin error:', err);
-        // assuming err.error.message has the backend error
         this.triggerToaster(err.error?.message || ToasterMessages['loginFailed'], 'error');
       },
     });
   }
+
 
   /**
    * Shows a toaster notification and auto-clears it after 3 seconds.

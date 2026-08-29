@@ -87,25 +87,26 @@ export class Landing implements OnInit {
   public readonly roles = [
     {
       label: 'System Admin Portal',
-      link: '/login/admin',
+      link: '/admin',
       description: 'Manage catalogs, stores, staff accounts, and security logs.'
     },
     {
       label: 'Store Manager Portal',
-      link: '/login/leader',
+      link: '/manager',
       description: 'View sales metrics, local inventories, and stock transfers.'
     },
     {
       label: 'POS Cashier Terminal',
-      link: '/login/staff',
+      link: '/cashier',
       description: 'Fast cashier interface, barcode scanner inputs, and checkout.'
     },
     {
-      label: 'Customer Portal',
-      link: '/login/hospital-staff',
-      description: 'Track your personal purchases, wishlists, and loyalty metrics.'
+      label: 'Customer Boutique Lounge',
+      link: '/customer',
+      description: 'Track your personal purchases, wishlists, and boutique membership perks.'
     }
   ];
+
 
   constructor(private http: HttpClient) {}
 

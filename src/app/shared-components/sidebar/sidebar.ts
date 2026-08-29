@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { ChangeDetectorRef, Component, EventEmitter, HostListener, OnInit, Output } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs';
+import { AclService } from '@services/acl/acl.service';
 import { AuthState, UserType } from '@services/auth/auth-role';
 import { AuthService } from '@services/auth/auth-service';
 import { AuthStateService } from '@services/auth/auth-state';
@@ -85,6 +86,7 @@ export class Sidebar implements OnInit {
     private router: Router,
     private auth: AuthService,
     private authState: AuthStateService,
+    private aclService: AclService,
     private sessionSync: SessionSyncService,
     private cdr: ChangeDetectorRef,
   ) {}
@@ -102,11 +104,14 @@ export class Sidebar implements OnInit {
         this.userBranchName = state.branch_name;
 
         this.userType = state.role;
+        const navFromAcl: SidebarItem[] = this.aclService.getNavigation(state.role) as SidebarItem[];
+        const sourceNav: SidebarItem[] = navFromAcl.length > 0 ? navFromAcl : this.getSidebarForRole(state.role);
 
-          this.sidebarItems = this.getSidebarForRole(state.role).filter(
-          (item) => {
+
+        this.sidebarItems = sourceNav.filter(
+          (item: SidebarItem): boolean => {
             if (item.children) {
-              item.children = item.children.filter((child) =>
+              item.children = item.children.filter((child: SidebarItem): boolean =>
                 state.allowedPages.includes(child.page) || state.allowedPages.includes(item.page),
               );
               return item.children.length > 0;
@@ -115,9 +120,6 @@ export class Sidebar implements OnInit {
           },
         );
 
-        // Re-sync this component's already-checked view immediately: this subscription
-        // can fire after Sidebar's own view was checked but before Angular's dev-mode
-        // checkNoChanges verification pass in the same tick, which otherwise trips NG0100.
         this.cdr.detectChanges();
       });
   }
@@ -129,6 +131,165 @@ export class Sidebar implements OnInit {
    * @returns Sidebar items for that role
    */
   private getSidebarForRole(role: UserType): SidebarItem[] {
+    const managerItems: SidebarItem[] = [
+      {
+        label: this.labels.TOP,
+        route: '/manager/summary',
+        page: 'summary-list',
+        icon: 'fa-house',
+      },
+      {
+        label: this.labels.NK_COMPLETED_DISTRIBUTION_LIST,
+        route: '/manager/completed-distribution-list',
+        page: 'completed-distribution-list',
+        icon: 'fa-circle-check',
+      },
+      {
+        label: this.labels.NK_INCOMPLETE_DISTRIBUTION_LIST,
+        route: '/manager/incomplete-distribution-list',
+        page: 'incomplete-distribution-list',
+        icon: 'fa-clock',
+      },
+      {
+        label: this.labels.USER_LIST,
+        route: null,
+        page: 'user-list',
+        icon: 'fa-users',
+        children: [
+          {
+            label: this.labels.NK_STAFF,
+            route: '/manager/user-nk-staff',
+            page: 'user-nk-staff',
+            icon: 'fa-user',
+          },
+          {
+            label: this.labels.HOSPITAL_STAFF,
+            route: '/manager/user-hospital-staff',
+            page: 'user-hospital-staff',
+            icon: 'fa-user-nurse',
+          },
+        ],
+      },
+      {
+        label: this.labels.HOSPITAL_LIST,
+        route: '/manager/hospital',
+        page: 'hospital-list',
+        icon: 'fa-hospital',
+        activeRoutes: ['/manager/room-list'],
+      },
+      {
+        label: this.labels.SERVICE_LIST,
+        route: '/manager/service-list',
+        page: 'service-list',
+        icon: 'fa-list-check',
+        activeRoutes: ['/manager/set-list'],
+      },
+      {
+        label: this.labels.OPTION_LIST,
+        route: '/manager/option-list',
+        page: 'option-list',
+        icon: 'fa-sliders',
+      },
+      {
+        label: this.labels.BILL_CLOSING,
+        route: '/manager/bill-closing',
+        page: 'bill-closing',
+        icon: 'fa-file-invoice-dollar',
+      },
+    ];
+
+    const cashierItems: SidebarItem[] = [
+      {
+        label: 'POS Register',
+        route: '/cashier/terminal',
+        page: 'delivery-request-list',
+        icon: 'fa-cash-register',
+      },
+      {
+        label: this.labels.DELIVERY_REQUEST_LIST,
+        route: '/cashier/delivery-request',
+        page: 'delivery-request-list',
+        icon: 'fa-clipboard-list',
+      },
+      {
+        label: this.labels.COMPLETED_DISTRIBUTION_LIST,
+        route: '/cashier/completed-distribution-list',
+        page: 'completed-distribution-list',
+        icon: 'fa-circle-check',
+      },
+      {
+        label: this.labels.INCOMPLETE_DISTRIBUTION_LIST,
+        route: '/cashier/incomplete-distribution-list',
+        page: 'incomplete-distribution-list',
+        icon: 'fa-circle-xmark',
+      },
+      {
+        label: this.labels.USER_LIST,
+        route: '/cashier/user-list',
+        page: 'user-list',
+        icon: 'fa-users',
+      },
+      {
+        label: this.labels.HOSPITAL_LIST,
+        route: '/cashier/hospital',
+        page: 'hospital-list',
+        icon: 'fa-hospital',
+        activeRoutes: ['/cashier/room-list'],
+      },
+      {
+        label: this.labels.SERVICE_LIST,
+        route: '/cashier/service-list',
+        page: 'service-list',
+        icon: 'fa-list-check',
+        activeRoutes: ['/cashier/set-list'],
+      },
+      {
+        label: this.labels.OPTION_LIST,
+        route: '/cashier/option-list',
+        page: 'option-list',
+        icon: 'fa-sliders',
+      },
+    ];
+
+    const customerItems: SidebarItem[] = [
+      {
+        label: 'My Boutique Portal',
+        route: '/customer/portal',
+        page: 'after-delivery-list',
+        icon: 'fa-bag-shopping',
+      },
+      {
+        label: this.labels.AFTER_DELIVERY_LIST,
+        route: '/customer/after-delivery',
+        page: 'after-delivery-list',
+        icon: 'fa-circle-check',
+      },
+      {
+        label: this.labels.USER_LIST,
+        route: '/customer/user-list',
+        page: 'user-list',
+        icon: 'fa-users',
+      },
+      {
+        label: this.labels.INVOICE_CONFIRMATION_LIST,
+        route: '/customer/invoice-confirmation-list',
+        page: 'invoice-confirmation-list',
+        icon: 'fa-file-invoice',
+      },
+      {
+        label: this.labels.HOSPITAL_MASTER,
+        route: '/customer/hospital-classification-list',
+        page: 'hospital-staff-classification-list',
+        icon: 'fa-hospital',
+      },
+      {
+        label: this.labels.OPTION_MASTER,
+        route: '/customer/option-list',
+        page: 'option-list',
+        icon: 'fa-sliders',
+      },
+    ];
+
     const sidebars: Record<UserType, SidebarItem[]> = {
       admin: [
         {
@@ -148,7 +309,7 @@ export class Sidebar implements OnInit {
           route: '/admin/hospital',
           page: 'hospital-list',
           icon: 'fa-hospital',
-          activeRoutes: ['/admin/room-list'], // any URL prefix under which it stays active
+          activeRoutes: ['/admin/room-list'],
         },
         {
           label: this.labels.LEADER_LIST,
@@ -161,7 +322,7 @@ export class Sidebar implements OnInit {
           route: '/admin/service-list',
           page: 'service-list',
           icon: 'fa-list-check',
-          activeRoutes: ['/admin/set-list'], // any URL prefix under which it stays active
+          activeRoutes: ['/admin/set-list'],
         },
         {
           label: this.labels.OPTION_LIST,
@@ -196,159 +357,23 @@ export class Sidebar implements OnInit {
           icon: 'fa-file-invoice-dollar',
         },
       ],
-      leader: [
-        {
-          label: this.labels.TOP,
-          route: '/leader/summary',
-          page: 'summary-list',
-          icon: 'fa-house',
-        },
-        {
-          label: this.labels.NK_COMPLETED_DISTRIBUTION_LIST,
-          route: '/leader/completed-distribution-list',
-          page: 'completed-distribution-list',
-          icon: 'fa-circle-check',
-        },
-        {
-          label: this.labels.NK_INCOMPLETE_DISTRIBUTION_LIST,
-          route: '/leader/incomplete-distribution-list',
-          page: 'incomplete-distribution-list',
-          icon: 'fa-clock',
-        },
-        {
-          label: this.labels.USER_LIST,
-          route: null,
-          page: 'user-list',
-          icon: 'fa-users',
-          children: [
-            {
-              label: this.labels.NK_STAFF,
-              route: '/leader/user-nk-staff',
-              page: 'user-nk-staff',
-              icon: 'fa-user',
-            },
-            {
-              label: this.labels.HOSPITAL_STAFF,
-              route: '/leader/user-hospital-staff',
-              page: 'user-hospital-staff',
-              icon: 'fa-user-nurse',
-            },
-          ],
-        },
-        {
-          label: this.labels.HOSPITAL_LIST,
-          route: '/leader/hospital',
-          page: 'hospital-list',
-          icon: 'fa-hospital',
-          activeRoutes: ['/leader/room-list'], // any URL prefix under which it stays active
-        },
-        {
-          label: this.labels.SERVICE_LIST,
-          route: '/leader/service-list',
-          page: 'service-list',
-          icon: 'fa-list-check',
-          activeRoutes: ['/leader/set-list'], // any URL prefix under which it stays active
-        },
-        {
-          label: this.labels.OPTION_LIST,
-          route: '/leader/option-list',
-          page: 'option-list',
-          icon: 'fa-sliders',
-        },
-        {
-          label: this.labels.BILL_CLOSING,
-          route: '/leader/bill-closing',
-          page: 'bill-closing',
-          icon: 'fa-file-invoice-dollar',
-        },
-      ],
-      staff: [
-        {
-          label: this.labels.DELIVERY_REQUEST_LIST,
-          route: '/staff/delivery-request',
-          page: 'delivery-request-list',
-          icon: 'fa-clipboard-list',
-        },
-        {
-          label: this.labels.COMPLETED_DISTRIBUTION_LIST,
-          route: '/staff/completed-distribution-list',
-          page: 'completed-distribution-list',
-          icon: 'fa-circle-check',
-        },
-        {
-          label: this.labels.INCOMPLETE_DISTRIBUTION_LIST,
-          route: '/staff/incomplete-distribution-list',
-          page: 'incomplete-distribution-list',
-          icon: 'fa-circle-xmark',
-        },
-        {
-          label: this.labels.USER_LIST,
-          route: '/staff/user-list',
-          page: 'user-list',
-          icon: 'fa-users',
-        },
-        {
-          label: this.labels.HOSPITAL_LIST,
-          route: '/staff/hospital',
-          page: 'hospital-list',
-          icon: 'fa-hospital',
-          activeRoutes: ['/staff/room-list'], // any URL prefix under which it stays active
-        },
-        {
-          label: this.labels.SERVICE_LIST,
-          route: '/staff/service-list',
-          page: 'service-list',
-          icon: 'fa-list-check',
-          activeRoutes: ['/staff/set-list'], // any URL prefix under which it stays active
-        },
-        {
-          label: this.labels.OPTION_LIST,
-          route: '/staff/option-list',
-          page: 'option-list',
-          icon: 'fa-sliders',
-        },
-      ],
-      'hospital-staff': [
-        {
-          label: this.labels.AFTER_DELIVERY_LIST,
-          route: '/hospital-staff/after-delivery',
-          page: 'after-delivery-list',
-          icon: 'fa-circle-check',
-        },
-        {
-          label: this.labels.USER_LIST,
-          route: '/hospital-staff/user-list',
-          page: 'user-list',
-          icon: 'fa-users',
-        },
-        {
-          label: this.labels.INVOICE_CONFIRMATION_LIST,
-          route: '/hospital-staff/invoice-confirmation-list',
-          page: 'invoice-confirmation-list',
-          icon: 'fa-file-invoice',
-        },
-        {
-          label: this.labels.HOSPITAL_MASTER,
-          route: '/hospital-staff/hospital-classification-list',
-          page: 'hospital-staff-classification-list',
-          icon: 'fa-hospital',
-        },
-        {
-          label: this.labels.OPTION_MASTER,
-          route: '/hospital-staff/option-list',
-          page: 'option-list',
-          icon: 'fa-sliders',
-        },
-      ],
+      manager: managerItems,
+      leader: managerItems,
+      cashier: cashierItems,
+      staff: cashierItems,
+      customer: customerItems,
+      'hospital-staff': customerItems,
     };
 
-    return sidebars[role] || [];
+    const canonicalRole: UserType = this.aclService.resolveCanonicalRole(role) as UserType;
+    return sidebars[canonicalRole] || sidebars[role] || [];
   }
 
   /**
    * Toggles the sidebar collapsed/expanded state (desktop only).
    */
   toggleCollapse(): void {
+
     this.collapsed = !this.collapsed;
   }
 

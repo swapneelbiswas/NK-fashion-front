@@ -38,10 +38,21 @@ module.exports = {
           inverse: "var(--color-text-inverse)",
           brand: "var(--color-text-brand)",
           accent: "var(--color-text-accent)",
+          link: "var(--color-text-link)",
         },
+      },
+      textColor: {
+        primary: "var(--color-text-primary)",
+        secondary: "var(--color-text-secondary)",
+        muted: "var(--color-text-muted)",
+        inverse: "var(--color-text-inverse)",
+        brand: "var(--color-text-brand)",
+        accent: "var(--color-text-accent)",
+        link: "var(--color-text-link)",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
 };
+
 

@@ -1,4 +1,11 @@
-export type UserType = 'admin' | 'leader' | 'staff' | 'hospital-staff';
+export type UserType =
+  | 'admin'
+  | 'manager'
+  | 'cashier'
+  | 'customer'
+  | 'leader'
+  | 'staff'
+  | 'hospital-staff';
 
 /** Login & session response from API */
 export interface AuthMeResponse {
@@ -20,6 +27,7 @@ export interface AuthState {
   login_id?: string;
   allowedPages: string[];
   allowedActions: string[];
+  permissions?: Record<string, boolean>;
   hospital_code?: string;
   hospital_id?: string;
   branch_id?: string;
@@ -27,10 +35,11 @@ export interface AuthState {
   branch_name?: string;
 }
 
-/** Application user role */
+/** Application user role mapped from API code */
 export const ROLE_MAP: Record<string, UserType> = {
   '0': 'admin',
-  '1': 'leader',
-  '2': 'staff',
-  '3': 'hospital-staff',
+  '1': 'manager',
+  '2': 'cashier',
+  '3': 'customer',
 };
+

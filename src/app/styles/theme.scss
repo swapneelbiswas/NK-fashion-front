@@ -55,17 +55,20 @@
   --color-border-accent: #D4AF37;        // Gold accent border
 
   // ----------------------------------------------------------------------------
-  // 4. Typography & Text Hierarchy
+  // 4. Typography & Text Hierarchy (Australian Editorial Contrast)
   // ----------------------------------------------------------------------------
-  --color-text-primary: #1A1D20;         // Deep charcoal ink
-  --color-text-secondary: #565D64;       // Warm slate grey
-  --color-text-muted: #8C949D;           // Soft warm stone
+  --color-text-primary: #111827;         // Deep charcoal ink (High contrast readability)
+  --color-text-secondary: #374151;       // Refined slate neutral (Labels & subtitles)
+  --color-text-muted: #6B7280;           // Medium slate (Timestamps, hints, placeholders)
   --color-text-inverse: #FFFFFF;         // Pure white text on dark surfaces
-  --color-text-brand: #1B363C;           // Brand primary heading text
-  --color-text-accent: #9E7412;          // High-contrast gold text
+  --color-text-brand: #1B363C;           // Brand primary navy heading text
+  --color-text-accent: #9A7B1C;          // High-contrast antique gold text
+  --color-text-link: #1B363C;            // Interactive link text
+  --color-text-link-hover: #D4AF37;      // Link hover gold
 
   --font-family-header: "Tenor Sans", "Playfair Display", Georgia, serif;
   --font-family-base: "Outfit", "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
 
   // ----------------------------------------------------------------------------
   // 5. Semantic Status Colors (Australian Nature Inspired)
