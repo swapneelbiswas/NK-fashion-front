@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
-import { environment } from '@env/environment';
 
 export interface HealthStatus {
   status: string;
@@ -15,7 +14,7 @@ export interface HealthStatus {
  */
 @Injectable({ providedIn: 'root' })
 export class HealthCheckService {
-  private readonly apiUrl = `${environment.api_url}/api/healthcheck`;
+  private readonly apiUrl = '/api/healthcheck';
 
   constructor(private http: HttpClient) {}
 

@@ -1,10 +1,11 @@
 {
   "/api": {
-    "target": "https://d1szov22n1bdnc.cloudfront.net",
+    "target": "https://localhost:7205",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   },
+
   "/stage": {
     "target": "",
     "secure": false,
@@ -12,7 +13,7 @@
     "logLevel": "debug"
   },
   "/dev": {
-    "target": "https://d3c1zhpfmxxf2h.cloudfront.net/",
+    "target": "http://localhost:5263",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
