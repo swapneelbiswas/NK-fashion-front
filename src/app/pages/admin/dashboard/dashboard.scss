@@ -416,3 +416,110 @@ $font-sans: var(--font-family-base);
   }
 }
 
+// API Health Indicator
+.portal-header {
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.health-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background-color: var(--color-bg-alt);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 0.5rem 1rem;
+
+  .health-label {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+
+    i { font-size: 1rem; }
+  }
+
+  .health-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+
+    .health-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    &.online {
+      background-color: rgba(34, 197, 94, 0.12);
+      color: #16a34a;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+      .health-dot {
+        background-color: #22c55e;
+        box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+        animation: pulse-green 1.8s ease-in-out infinite;
+      }
+    }
+
+    &.offline {
+      background-color: rgba(239, 68, 68, 0.1);
+      color: #dc2626;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      .health-dot { background-color: #ef4444; }
+    }
+
+    &.loading {
+      background-color: var(--color-bg-surface);
+      color: var(--color-text-muted);
+      border: 1px solid var(--color-border-subtle);
+      .health-dot {
+        background-color: var(--color-text-muted);
+        animation: pulse-grey 1.2s ease-in-out infinite;
+      }
+    }
+  }
+
+  .health-refresh-btn {
+    background: none;
+    border: none;
+    padding: 0.2rem;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    border-radius: var(--radius-sm);
+    transition: color 0.2s, transform 0.3s;
+
+    i { font-size: 1.1rem; }
+
+    &:hover:not(:disabled) {
+      color: var(--color-accent);
+      transform: rotate(60deg);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@keyframes pulse-green {
+  0%, 100% { box-shadow: 0 0 4px rgba(34, 197, 94, 0.5); }
+  50%       { box-shadow: 0 0 10px rgba(34, 197, 94, 0.9); }
+}
+
+@keyframes pulse-grey {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}

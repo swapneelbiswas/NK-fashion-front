@@ -21,8 +21,8 @@ const target: Target = 'dev';
 const config: Record<Target, EnvConfig> = {
   /** Development API */
   dev: {
-    api_url: 'https://d1szov22n1bdnc.cloudfront.net/api',
-    ws_url: 'https://d1szov22n1bdnc.cloudfront.net/',
+    api_url: 'http://localhost:5263',
+    ws_url: 'http://localhost:4200/',
   },
 };
 

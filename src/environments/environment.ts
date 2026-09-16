@@ -18,7 +18,7 @@ const config: Record<Target, EnvConfig> = {
     ws_url: 'http://localhost:4200/',
   },
   dev: {
-    api_url: 'http://localhost:4200/api',
+    api_url: 'http://localhost:5263',
     ws_url: 'http://localhost:4200/',
   },
   device: {

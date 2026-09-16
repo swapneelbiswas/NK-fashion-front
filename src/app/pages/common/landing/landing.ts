@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { HealthCheckService, HealthStatus } from '@services/health/health-check.service';
 
 interface Product {
   id: string;
@@ -37,7 +39,7 @@ export type InfoModalType = 'shipping' | 'returns' | 'stores' | 'silk' | null;
   templateUrl: './landing.html',
   styleUrls: ['./landing.scss'],
 })
-export class Landing implements OnInit {
+export class Landing implements OnInit, OnDestroy {
   public products: Product[] = [];
   public cartItems: CartItem[] = [];
 
@@ -52,6 +54,12 @@ export class Landing implements OnInit {
   public newsletterEmail!: string;
   public newsletterSuccess: boolean = false;
   public newsletterError: string | null = null;
+
+  // API Health Check
+  public healthStatus: HealthStatus | null = null;
+  public healthLoading: boolean = true;
+  public healthError: boolean = false;
+  private healthSub?: Subscription;
 
 
 
@@ -119,10 +127,11 @@ export class Landing implements OnInit {
   ];
 
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private healthCheckService: HealthCheckService) {}
 
   /**
-   * Initializes the component by fetching product data and setting up the hero carousel timer.
+   * Initializes the component by fetching product data, setting up the hero carousel timer,
+   * and checking the backend API health status.
    */
   ngOnInit(): void {
     // Load products from simulated data JSON
@@ -139,6 +148,32 @@ export class Landing implements OnInit {
     setInterval((): void => {
       this.nextHeroSlide();
     }, 6000);
+
+    // Check backend API health
+    this.checkHealth();
+  }
+
+  /** Cleans up active subscriptions on component destroy. */
+  public ngOnDestroy(): void {
+    this.healthSub?.unsubscribe();
+  }
+
+  /**
+   * Calls the health check API and updates the health status state.
+   */
+  public checkHealth(): void {
+    this.healthLoading = true;
+    this.healthError = false;
+    this.healthSub = this.healthCheckService.getHealth().subscribe({
+      next: (data: HealthStatus): void => {
+        this.healthStatus = data;
+        this.healthLoading = false;
+      },
+      error: (): void => {
+        this.healthError = true;
+        this.healthLoading = false;
+      },
+    });
   }
 
   /**

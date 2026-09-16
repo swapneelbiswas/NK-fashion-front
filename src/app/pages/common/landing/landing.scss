@@ -125,6 +125,60 @@ button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {
     align-items: center;
     gap: 1.5rem;
 
+    // API Health Pill
+    .health-indicator {
+      display: flex;
+      align-items: center;
+    }
+
+    .health-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      white-space: nowrap;
+
+      .health-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        flex-shrink: 0;
+      }
+
+      &.online {
+        background-color: rgba(34, 197, 94, 0.12);
+        color: #16a34a;
+        border: 1px solid rgba(34, 197, 94, 0.35);
+        .health-dot {
+          background-color: #22c55e;
+          box-shadow: 0 0 5px rgba(34, 197, 94, 0.7);
+          animation: lp-pulse-green 1.8s ease-in-out infinite;
+        }
+      }
+
+      &.offline {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #dc2626;
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        .health-dot { background-color: #ef4444; }
+      }
+
+      &.loading {
+        background-color: rgba(0, 0, 0, 0.05);
+        color: var(--color-text-muted, #888);
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        .health-dot {
+          background-color: #aaa;
+          animation: lp-pulse-grey 1.2s ease-in-out infinite;
+        }
+      }
+    }
+
     .action-btn {
       background: none;
       border: none;
@@ -1494,4 +1548,14 @@ button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {
       }
     }
   }
+}
+
+@keyframes lp-pulse-green {
+  0%, 100% { box-shadow: 0 0 4px rgba(34, 197, 94, 0.5); }
+  50%       { box-shadow: 0 0 9px rgba(34, 197, 94, 0.9); }
+}
+
+@keyframes lp-pulse-grey {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
 }

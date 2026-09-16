@@ -19,6 +19,28 @@
     </nav>
     
     <div class="header-actions">
+      <!-- API Health Status Pill -->
+      <div class="health-indicator">
+        <ng-container *ngIf="healthLoading">
+          <span class="health-pill loading">
+            <span class="health-dot"></span>
+            API…
+          </span>
+        </ng-container>
+        <ng-container *ngIf="!healthLoading && !healthError && healthStatus">
+          <span class="health-pill online">
+            <span class="health-dot"></span>
+            {{ healthStatus.status ?? 'Online' }}
+          </span>
+        </ng-container>
+        <ng-container *ngIf="!healthLoading && healthError">
+          <span class="health-pill offline">
+            <span class="health-dot"></span>
+            Offline
+          </span>
+        </ng-container>
+      </div>
+
       <!-- Portal Dropdown Trigger -->
       <div class="action-item portal-trigger-wrapper">
         <button type="button" class="action-btn" (click)="toggleAccountDropdown()" aria-label="Portal Logins">
