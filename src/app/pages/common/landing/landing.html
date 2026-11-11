@@ -206,13 +206,62 @@
   <!-- Bestsellers Showcase -->
   <section id="products-catalog" class="products-section">
     <div class="section-header">
-      <h2 class="section-title">Bestselling Outfits</h2>
-      <span class="section-sub"
-        >Trending traditional handcrafts ({{ selectedCategory }})</span
-      >
+      <h2 class="section-title">Bestselling Outfits &amp; Collections</h2>
+      <span class="section-sub">
+        {{ isLiveApiCatalog ? 'Live Boutique Catalog' : 'Trending traditional handcrafts' }}
+        ({{ selectedCategory }})
+      </span>
     </div>
 
-    <div class="products-grid">
+    <!-- Live Metal Rate Ticker (when API metal rates exist) -->
+    <div class="metal-rates-strip" *ngIf="activeMetalRates.length > 0">
+      <span class="rates-label">
+        <i class="material-icons">diamond</i> Today's Live Metal Rates:
+      </span>
+      <span class="rate-chip" *ngFor="let rate of activeMetalRates">
+        {{ rate.metalType }} {{ rate.metalPurity }}:
+        <strong>{{ rate.currencyCode }} {{ rate.ratePerGram | number:'1.2-2' }}/g</strong>
+      </span>
+    </div>
+
+    <!-- Catalog Filter & Search Toolbar -->
+    <div class="catalog-toolbar">
+      <div class="catalog-filter-pills">
+        <button
+          type="button"
+          class="filter-pill"
+          *ngFor="let opt of productTypeOptions"
+          [class.active]="selectedProductType === opt.value"
+          (click)="selectProductType(opt.value)"
+        >
+          {{ opt.label }}
+        </button>
+        <button
+          type="button"
+          class="filter-pill"
+          *ngFor="let cat of flatCategories"
+          [class.active]="selectedCategory === cat.name"
+          (click)="selectCategory(cat.name)"
+        >
+          {{ cat.name }}
+        </button>
+      </div>
+      <div class="catalog-search-box">
+        <i class="material-icons">search</i>
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          placeholder="Search products, brands, or SKUs..."
+          aria-label="Search catalog"
+        />
+      </div>
+    </div>
+
+    <div class="catalog-loading" *ngIf="catalogLoading">
+      Loading boutique catalog...
+    </div>
+
+    <div class="products-grid" *ngIf="!catalogLoading">
       <div class="product-card" *ngFor="let product of getFilteredProducts()">
         <div class="product-image-box">
           <img
@@ -250,7 +299,43 @@
             <span class="count">({{ product.reviewCount }})</span>
           </div>
 
-          <div class="product-price">Rs. {{ product.price | number }}</div>
+          <div class="product-price">
+            {{ product.currencyCode ? product.currencyCode + ' ' : 'Rs. ' }}{{ product.price | number }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Tracked Fine Jewellery Showcase (from /api/jewellery-items) -->
+  <section class="products-section jewellery-showcase" *ngIf="jewelleryItems.length > 0">
+    <div class="section-header">
+      <h2 class="section-title">Fine Jewellery Vault</h2>
+      <span class="section-sub">Individually certified &amp; live-priced precious pieces</span>
+    </div>
+
+    <div class="products-grid">
+      <div class="product-card jewellery-card" *ngFor="let item of jewelleryItems">
+        <div class="jewellery-badge-row">
+          <span class="metal-badge">{{ item.metalType }} · {{ item.metalPurity }}</span>
+          <span class="barcode-badge">{{ item.barcode }}</span>
+        </div>
+        <div class="product-info">
+          <span class="product-brand">Gross: {{ item.grossWeightGrams }}g | Net: {{ item.netMetalWeightGrams }}g</span>
+          <h3 class="product-name">{{ item.productName }}</h3>
+          <div class="jewellery-breakdown">
+            <small>Metal: {{ item.currencyCode }} {{ item.goldValue | number:'1.2-2' }} + Making ({{ item.makingChargePercentage }}%)</small>
+          </div>
+          <div class="product-price">
+            {{ item.currencyCode }} {{ item.sellingPrice | number:'1.2-2' }}
+          </div>
+          <button
+            class="quick-add-jewel-btn"
+            type="button"
+            (click)="addJewelleryItemToCart(item)"
+          >
+            ADD TO BAG
+          </button>
         </div>
       </div>
     </div>

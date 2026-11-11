@@ -5,7 +5,7 @@
   <div class="portal-main">
     <header class="portal-header">
       <div class="header-title">
-        <h1>Store Manager Panel</h1>
+        <h1>Store Manager Operations Hub</h1>
         <span class="subtext">{{ storeName }}</span>
       </div>
       <div class="admin-profile">
@@ -20,16 +20,21 @@
     <!-- Tab Selectors Bar -->
     <nav class="portal-tabs">
       <button class="tab-btn" [class.active]="activeTab === 'stock'" (click)="switchTab('stock')">
-        <i class="material-icons">inventory</i>
+        <i class="material-icons">inventory_2</i>
         <span>Local Inventory</span>
+        <span class="badge-alert" *ngIf="lowStockCount > 0">{{ lowStockCount }}</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'transfers'" (click)="switchTab('transfers')">
         <i class="material-icons">local_shipping</i>
         <span>Stock Transfers</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'logs'" (click)="switchTab('logs')">
-        <i class="material-icons">summarize</i>
+        <i class="material-icons">history</i>
         <span>Cashier Logs</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'reconciliation'" (click)="switchTab('reconciliation')">
+        <i class="material-icons">account_balance_wallet</i>
+        <span>Drawer Reconciliation</span>
       </button>
     </nav>
     
@@ -39,7 +44,20 @@
       <!-- 1. Local Stock Tab -->
       <div class="tab-content" *ngIf="activeTab === 'stock'">
         <div class="content-header">
-          <h2>Local Store Stock Allocations</h2>
+          <div>
+            <h2>Local Store Stock Allocations</h2>
+            <p class="section-desc">Monitor live retail shelf stock, orders reserved, and restock thresholds.</p>
+          </div>
+          <div class="filter-actions-row">
+            <div class="filter-pills">
+              <button class="pill-btn" [class.active]="stockFilter === 'ALL'" (click)="stockFilter = 'ALL'">All Items ({{ stockItems.length }})</button>
+              <button class="pill-btn" [class.active]="stockFilter === 'LOW'" (click)="stockFilter = 'LOW'">Low Stock Warnings ({{ lowStockCount }})</button>
+              <button class="pill-btn" [class.active]="stockFilter === 'NORMAL'" (click)="stockFilter = 'NORMAL'">Healthy Stock</button>
+            </div>
+            <button class="btn-primary-action" (click)="showTransferModal = true">
+              <i class="material-icons">add_box</i> Request Transfer
+            </button>
+          </div>
         </div>
         
         <table class="data-table">
@@ -48,24 +66,32 @@
               <th>SKU</th>
               <th>Product Name</th>
               <th>Category</th>
-              <th>Physical Stock</th>
-              <th>Reserved (Orders)</th>
+              <th>Physical Count</th>
+              <th>Reserved (Online)</th>
               <th>Available for POS</th>
+              <th>Threshold</th>
               <th>Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let item of stockItems">
+            <tr *ngFor="let item of filteredStock">
               <td><span class="code-badge">{{ item.sku }}</span></td>
               <td><strong>{{ item.name }}</strong></td>
               <td><span class="category-tag">{{ item.category }}</span></td>
               <td>{{ item.physicalStock }} pcs</td>
               <td><span class="reserved-tag" [class.active]="item.reservedStock > 0">{{ item.reservedStock }} pcs</span></td>
               <td><strong class="available-val">{{ item.availableStock }} pcs</strong></td>
+              <td>{{ item.reorderPoint }} pcs</td>
               <td>
-                <span class="status-indicator" [class.low]="item.availableStock < 10">
-                  {{ item.availableStock < 10 ? 'Low Stock' : 'Good' }}
+                <span class="status-indicator" [class.low]="item.availableStock <= item.reorderPoint">
+                  {{ item.availableStock <= item.reorderPoint ? 'Low Stock' : 'In Stock' }}
                 </span>
+              </td>
+              <td>
+                <button class="btn-table-action" (click)="openAdjustStock(item)">
+                  <i class="material-icons">tune</i> Adjust
+                </button>
               </td>
             </tr>
           </tbody>
@@ -75,38 +101,52 @@
       <!-- 2. Transfers Tab -->
       <div class="tab-content" *ngIf="activeTab === 'transfers'">
         <div class="content-header">
-          <h2>Pending Stock Transfers</h2>
+          <div>
+            <h2>Inter-Store & Warehouse Stock Transfers</h2>
+            <p class="section-desc">Receive inbound shipments from central warehouses or sister retail outlets.</p>
+          </div>
+          <button class="btn-primary-action" (click)="showTransferModal = true">
+            <i class="material-icons">add</i> New Transfer Request
+          </button>
         </div>
         
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>From Location</th>
-              <th>To Location</th>
-              <th>Product Variant</th>
-              <th>Qty Requested</th>
+              <th>Transfer ID</th>
+              <th>Origin Location</th>
+              <th>Destination</th>
+              <th>SKU / Product</th>
+              <th>Qty</th>
+              <th>Requested Date</th>
               <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let tr of transfers">
-              <td>#{{ tr.id }}</td>
+              <td><strong>#{{ tr.id }}</strong></td>
               <td>{{ tr.from }}</td>
               <td>{{ tr.to }}</td>
-              <td><strong>{{ tr.product }}</strong></td>
+              <td>
+                <div><strong>{{ tr.product }}</strong></div>
+                <small class="text-muted">{{ tr.sku }}</small>
+              </td>
               <td>{{ tr.quantity }} pcs</td>
+              <td>{{ tr.requestedAt }}</td>
               <td>
                 <span class="transfer-status" [ngClass]="tr.status.toLowerCase()">{{ tr.status }}</span>
               </td>
               <td>
-                <button type="button" class="btn-approve" 
-                        *ngIf="tr.status === 'Pending'" 
-                        (click)="approveTransfer(tr)">
-                  Approve & Receive
-                </button>
-                <span class="action-done" *ngIf="tr.status !== 'Pending'">Complete</span>
+                <div class="btn-group-actions" *ngIf="tr.status === 'Pending'">
+                  <button type="button" class="btn-approve" (click)="approveTransfer(tr)">
+                    <i class="material-icons">check</i> Receive
+                  </button>
+                  <button type="button" class="btn-reject" (click)="rejectTransfer(tr)">
+                    <i class="material-icons">close</i> Reject
+                  </button>
+                </div>
+                <span class="action-done" *ngIf="tr.status !== 'Pending'">{{ tr.status }}</span>
               </td>
             </tr>
           </tbody>
@@ -116,19 +156,135 @@
       <!-- 3. Cashier Logs Tab -->
       <div class="tab-content" *ngIf="activeTab === 'logs'">
         <div class="content-header">
-          <h2>Cashier Override & Register Logs</h2>
+          <div>
+            <h2>Cashier Security, Override & Register Logs</h2>
+            <p class="section-desc">Auditing drawer events, discount overrides, and held carts.</p>
+          </div>
         </div>
         
         <div class="logs-list">
           <div class="log-row" *ngFor="let log of cashierLogs">
             <span class="log-time">{{ log.timestamp }}</span>
-            <span class="log-action override">{{ log.action }}</span>
+            <span class="log-action" [ngClass]="log.action.toLowerCase()">{{ log.action }}</span>
             <span class="log-user">{{ log.cashier }}</span>
             <span class="log-target">{{ log.details }}</span>
           </div>
         </div>
       </div>
+
+      <!-- 4. Drawer Reconciliation Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'reconciliation'">
+        <div class="content-header">
+          <div>
+            <h2>Shift Drawer & Cash Reconciliation</h2>
+            <p class="section-desc">Verify daily drawer totals before shift close.</p>
+          </div>
+        </div>
+
+        <div class="reconciliation-grid">
+          <div class="recon-card">
+            <h4>Shift Opening Float</h4>
+            <div class="recon-val">₹{{ reconciliation.openingFloat | number }}</div>
+            <small>Initial cash inside counter drawer</small>
+          </div>
+          <div class="recon-card">
+            <h4>Cash Sales Collected</h4>
+            <div class="recon-val">₹{{ reconciliation.cashSales | number }}</div>
+            <small>Total cash payments taken</small>
+          </div>
+          <div class="recon-card">
+            <h4>Card & UPI Collections</h4>
+            <div class="recon-val">₹{{ reconciliation.cardSales + reconciliation.upiSales | number }}</div>
+            <small>Digital payments (Card: ₹{{ reconciliation.cardSales | number }}, UPI: ₹{{ reconciliation.upiSales | number }})</small>
+          </div>
+          <div class="recon-card highlight">
+            <h4>Expected Cash in Drawer</h4>
+            <div class="recon-val">₹{{ reconciliation.expectedCashInDrawer | number }}</div>
+            <small>Float + Cash Sales</small>
+          </div>
+        </div>
+
+        <div class="reconciliation-form">
+          <h3>Physical Cash Count Input</h3>
+          <div class="recon-input-row">
+            <label>Counted Cash (₹):</label>
+            <input type="number" [(ngModel)]="reconciliation.actualCountedCash" (ngModelChange)="verifyReconciliation()" />
+            <span class="recon-status-badge" [class.balanced]="reconciliation.isBalanced" [class.unbalanced]="!reconciliation.isBalanced">
+              {{ reconciliation.isBalanced ? '✓ Drawer Balanced (₹0 Variance)' : '⚠ Discrepancy Detected' }}
+            </span>
+          </div>
+        </div>
+      </div>
       
+    </div>
+  </div>
+</div>
+
+<!-- Stock Adjustment Modal -->
+<div class="admin-modal" *ngIf="showStockAdjustModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Adjust Local Stock: {{ selectedStockItem?.sku }}</h3>
+      <button class="close-btn" (click)="showStockAdjustModal = false">×</button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Item:</strong> {{ selectedStockItem?.name }}</p>
+      <p><strong>Current Available:</strong> {{ selectedStockItem?.availableStock }} pcs</p>
+
+      <div class="form-group">
+        <label>Quantity Delta (+/-):</label>
+        <input type="number" [(ngModel)]="adjustQuantity" placeholder="e.g. 5 or -2" />
+      </div>
+
+      <div class="form-group">
+        <label>Reason for Adjustment:</label>
+        <select [(ngModel)]="adjustReason">
+          <option value="Store Restock">Store Restock / Shipment</option>
+          <option value="Damaged Item">Damaged / Defective Item</option>
+          <option value="Physical Audit Count">Physical Audit Count Reconciliation</option>
+          <option value="Display Sample">Floor Display Sample</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="showStockAdjustModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="saveStockAdjustment()">Confirm Adjustment</button>
+    </div>
+  </div>
+</div>
+
+<!-- Transfer Request Modal -->
+<div class="admin-modal" *ngIf="showTransferModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Request Stock Transfer</h3>
+      <button class="close-btn" (click)="showTransferModal = false">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Source Location:</label>
+        <select [(ngModel)]="newTransferFrom">
+          <option value="Central Warehouse (Salt Lake)">Central Warehouse (Salt Lake, Kolkata)</option>
+          <option value="NK Fashions Mumbai Hub">NK Fashions Mumbai Hub (Bandra)</option>
+          <option value="NK Fashions Delhi Outlet">NK Fashions Delhi Outlet (Connaught Place)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Product Variant SKU:</label>
+        <select [(ngModel)]="newTransferSku">
+          <option *ngFor="let s of stockItems" [value]="s.sku">{{ s.sku }} - {{ s.name }} (Available: {{ s.availableStock }})</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Transfer Quantity:</label>
+        <input type="number" [(ngModel)]="newTransferQty" min="1" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="showTransferModal = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="createTransferRequest()">Submit Transfer Request</button>
     </div>
   </div>
 </div>

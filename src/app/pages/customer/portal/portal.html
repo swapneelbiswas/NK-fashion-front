@@ -3,16 +3,21 @@
   <app-sidebar></app-sidebar>
   
   <div class="portal-main">
+    <div class="toast-banner" *ngIf="toastMessage">
+      <i class="material-icons">check_circle</i>
+      <span>{{ toastMessage }}</span>
+    </div>
+
     <header class="portal-header">
       <div class="header-title">
-        <h1>Customer Account Portal</h1>
-        <span class="subtext">Loyalty Card ID: <strong>{{ loyaltyId }}</strong> · 5% Tier Discount Active</span>
+        <h1>Customer Account Hub</h1>
+        <span class="subtext">Loyalty ID: <strong>{{ loyaltyId }}</strong> · <span class="tier-pill">{{ loyaltyTier }} Tier Member</span> ({{ loyaltyPoints }} Points)</span>
       </div>
       <div class="admin-profile">
         <span class="avatar-tag">SR</span>
         <div class="profile-details">
           <span class="username">{{ customerName }}</span>
-          <span class="role">Registered Client</span>
+          <span class="role">Verified Club Client</span>
         </div>
       </div>
     </header>
@@ -21,15 +26,19 @@
     <nav class="portal-tabs">
       <button class="tab-btn" [class.active]="activeTab === 'orders'" (click)="switchTab('orders')">
         <i class="material-icons">local_mall</i>
-        <span>My Purchases</span>
+        <span>My Purchases & Tracking</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'addresses'" (click)="switchTab('addresses')">
         <i class="material-icons">location_on</i>
-        <span>Shipping Addresses</span>
+        <span>Address Book</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'wishlist'" (click)="switchTab('wishlist')">
         <i class="material-icons">favorite</i>
-        <span>My Wishlist</span>
+        <span>Saved Wishlist ({{ wishlistItems.length }})</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'loyalty'" (click)="switchTab('loyalty')">
+        <i class="material-icons">stars</i>
+        <span>NK Loyalty Rewards</span>
       </button>
     </nav>
     
@@ -39,54 +48,78 @@
       <!-- 1. Orders Tab -->
       <div class="tab-content" *ngIf="activeTab === 'orders'">
         <div class="content-header">
-          <h2>Purchase & Delivery Tracking</h2>
+          <div>
+            <h2>Purchase History & Live Courier Tracking</h2>
+            <p class="section-desc">Track real-time shipment dispatch and download invoice receipts.</p>
+          </div>
         </div>
         
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Order Number</th>
-              <th>Order Date</th>
-              <th>Total Paid</th>
-              <th>Shipping Status</th>
-              <th>Courier Tracking Reference</th>
-              <th>Receipt</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let order of orders">
-              <td><strong>{{ order.orderNumber }}</strong></td>
-              <td>{{ order.date }}</td>
-              <td>Rs. {{ order.total | number }}</td>
-              <td>
+        <div class="orders-cards-list">
+          <div class="order-card" *ngFor="let order of orders">
+            <div class="order-card-header">
+              <div class="order-header-meta">
+                <span class="order-num">Order #{{ order.orderNumber }}</span>
+                <span class="order-date">Placed on {{ order.date }}</span>
+              </div>
+              <div class="order-header-right">
+                <span class="order-total">₹{{ order.total | number }}</span>
                 <span class="status-indicator" 
-                      [class.processing]="order.status === 'Processing'"
-                      [class.shipped]="order.status === 'Shipped'"
+                      [class.processing]="order.status === 'Confirmed'"
+                      [class.shipped]="order.status === 'Dispatched'"
                       [class.delivered]="order.status === 'Delivered'">
                   {{ order.status }}
                 </span>
-              </td>
-              <td>
-                <a class="tracking-link" href="javascript:void(0)">
-                  {{ order.trackingNumber }}
-                </a>
-              </td>
-              <td>
-                <button class="btn-invoice-download" type="button">
-                  <i class="material-icons">download</i> PDF
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+            </div>
+
+            <!-- Multi-step Tracking Stepper -->
+            <div class="stepper-wrapper">
+              <div class="stepper-step" [class.completed]="order.stepIndex >= 1" [class.active]="order.stepIndex === 1">
+                <div class="step-circle"><i class="material-icons">shopping_bag</i></div>
+                <span class="step-label">Order Placed</span>
+              </div>
+              <div class="stepper-line" [class.active]="order.stepIndex >= 2"></div>
+              <div class="stepper-step" [class.completed]="order.stepIndex >= 2" [class.active]="order.stepIndex === 2">
+                <div class="step-circle"><i class="material-icons">verified</i></div>
+                <span class="step-label">Confirmed</span>
+              </div>
+              <div class="stepper-line" [class.active]="order.stepIndex >= 3"></div>
+              <div class="stepper-step" [class.completed]="order.stepIndex >= 3" [class.active]="order.stepIndex === 3">
+                <div class="step-circle"><i class="material-icons">local_shipping</i></div>
+                <span class="step-label">Dispatched</span>
+              </div>
+              <div class="stepper-line" [class.active]="order.stepIndex >= 4"></div>
+              <div class="stepper-step" [class.completed]="order.stepIndex >= 4" [class.active]="order.stepIndex === 4">
+                <div class="step-circle"><i class="material-icons">check_circle</i></div>
+                <span class="step-label">Delivered</span>
+              </div>
+            </div>
+
+            <!-- Items & Courier Row -->
+            <div class="order-card-footer">
+              <div class="order-items-preview">
+                <span class="item-tag" *ngFor="let it of order.items">
+                  {{ it.name }} (x{{ it.qty }})
+                </span>
+              </div>
+              <div class="order-courier-meta">
+                <span>Courier: <strong>{{ order.courier }}</strong></span>
+                <span class="tracking-code">AWB: {{ order.trackingNumber }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       
       <!-- 2. Address Book Tab -->
       <div class="tab-content" *ngIf="activeTab === 'addresses'">
         <div class="content-header">
-          <h2>My Shipping Addresses</h2>
-          <button class="action-add-btn" (click)="showAddAddress = true">
-            <i class="material-icons">add</i> Add Address
+          <div>
+            <h2>My Delivery Addresses</h2>
+            <p class="section-desc">Manage primary and secondary shipping destinations for orders.</p>
+          </div>
+          <button class="btn-primary-action" (click)="showAddAddress = true">
+            <i class="material-icons">add_location</i> Add Address
           </button>
         </div>
         
@@ -94,7 +127,7 @@
           <div class="address-card" *ngFor="let addr of addresses" [class.default]="addr.isDefault">
             <div class="card-header">
               <h3>{{ addr.label }}</h3>
-              <span class="default-badge" *ngIf="addr.isDefault">Default</span>
+              <span class="default-badge" *ngIf="addr.isDefault">Primary Address</span>
             </div>
             <div class="card-body">
               <p class="recipient"><strong>{{ addr.recipientName }}</strong></p>
@@ -103,45 +136,9 @@
               <p class="phone">Phone: {{ addr.phone }}</p>
             </div>
             <div class="card-actions">
+              <button class="btn-set-default" *ngIf="!addr.isDefault" (click)="setDefaultAddress(addr.id)">Make Default</button>
               <button class="btn-delete" (click)="deleteAddress(addr.id)">Delete</button>
             </div>
-          </div>
-        </div>
-        
-        <!-- Add Address Modal -->
-        <div class="admin-modal" *ngIf="showAddAddress">
-          <div class="modal-card">
-            <h3>Add New Shipping Address</h3>
-            <form (submit)="addAddress(); $event.preventDefault()">
-              <div class="form-group">
-                <label for="addrLabel">Address Label (e.g. Home, Work)</label>
-                <input id="addrLabel" name="label" [(ngModel)]="newAddress.label" placeholder="My Flat" required />
-              </div>
-              <div class="form-group">
-                <label for="addrName">Recipient Full Name</label>
-                <input id="addrName" name="recipientName" [(ngModel)]="newAddress.recipientName" placeholder="Siddharth Roy" required />
-              </div>
-              <div class="form-group">
-                <label for="addrPhone">Phone Number</label>
-                <input id="addrPhone" name="phone" [(ngModel)]="newAddress.phone" placeholder="+91 98300 12345" required />
-              </div>
-              <div class="form-group">
-                <label for="addrZip">Postal Code (6 digits)</label>
-                <input id="addrZip" name="postalCode" [(ngModel)]="newAddress.postalCode" placeholder="700016" required />
-              </div>
-              <div class="form-group">
-                <label for="addrStreet">Street Address</label>
-                <input id="addrStreet" name="street" [(ngModel)]="newAddress.street" placeholder="12A, Park Street" required />
-              </div>
-              <div class="form-group checkbox-group">
-                <input id="addrDefault" type="checkbox" name="isDefault" [(ngModel)]="newAddress.isDefault" />
-                <label for="addrDefault">Set as default shipping address</label>
-              </div>
-              <div class="modal-actions">
-                <button type="button" class="btn-cancel" (click)="showAddAddress = false">Cancel</button>
-                <button type="submit" class="btn-save">Save Address</button>
-              </div>
-            </form>
           </div>
         </div>
       </div>
@@ -149,7 +146,10 @@
       <!-- 3. Wishlist Tab -->
       <div class="tab-content" *ngIf="activeTab === 'wishlist'">
         <div class="content-header">
-          <h2>My Saved Items Wishlist</h2>
+          <div>
+            <h2>My Saved Items Wishlist</h2>
+            <p class="section-desc">Handpicked styles saved for upcoming festive celebrations.</p>
+          </div>
         </div>
         
         <div class="wishlist-grid" *ngIf="wishlistItems.length > 0">
@@ -161,19 +161,118 @@
               </button>
             </div>
             <div class="wishlist-info">
+              <span class="category-tag">{{ item.category }}</span>
               <h4>{{ item.name }}</h4>
-              <div class="wishlist-price">Rs. {{ item.price | number }}</div>
-              <button class="btn-shop-link" [routerLink]="['/']">Buy Now</button>
+              <div class="wishlist-price">₹{{ item.price | number }}</div>
+              <button class="btn-move-cart" (click)="moveToCart(item)">
+                <i class="material-icons">shopping_bag</i> Add to Bag
+              </button>
             </div>
           </div>
         </div>
         
         <div class="cart-empty" *ngIf="wishlistItems.length === 0">
           <i class="material-icons">favorite_border</i>
-          <p>Your wishlist is currently empty. Shop the bestsellers and tap the heart icon to save products.</p>
+          <p>Your wishlist is currently empty. Browse the boutique storefront and tap the heart icon to save products.</p>
+        </div>
+      </div>
+
+      <!-- 4. Loyalty Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'loyalty'">
+        <div class="content-header">
+          <div>
+            <h2>NK Loyalty Club & Rewards Ledger</h2>
+            <p class="section-desc">Earn points on every store & online purchase and redeem for instant discounts.</p>
+          </div>
+        </div>
+
+        <div class="loyalty-hero-card">
+          <div class="loyalty-left">
+            <span class="tier-label">{{ loyaltyTier }} Tier Member</span>
+            <div class="points-val">{{ loyaltyPoints }} <span>Reward Points</span></div>
+            <p class="points-worth">Redeemable Value: <strong>₹{{ loyaltyPoints }}</strong> on your next purchase</p>
+          </div>
+          <div class="loyalty-perks">
+            <h4>Your Member Privileges:</h4>
+            <ul>
+              <li>✓ 5% extra discount on seasonal handloom sarees</li>
+              <li>✓ Complimentary priority tailoring & express delivery</li>
+              <li>✓ Early access to Durga Puja festive collections</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="content-sub-section">
+          <h3>Points Transaction History</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Activity Description</th>
+                <th>Type</th>
+                <th>Points Delta</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of loyaltyLedger">
+                <td>{{ item.date }}</td>
+                <td>{{ item.description }}</td>
+                <td><span class="role-tag" [class.earned]="item.type === 'Earned'">{{ item.type }}</span></td>
+                <td>
+                  <strong [style.color]="item.type === 'Earned' ? '#15803d' : '#b91c1c'">
+                    {{ item.type === 'Earned' ? '+' : '-' }}{{ item.points }} pts
+                  </strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
       
     </div>
+  </div>
+</div>
+
+<!-- Add Address Modal -->
+<div class="admin-modal" *ngIf="showAddAddress">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Add New Shipping Address</h3>
+      <button class="close-btn" (click)="showAddAddress = false">×</button>
+    </div>
+    <form (submit)="addAddress(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Address Label (e.g. Home, Office)</label>
+          <input name="label" [(ngModel)]="newAddress.label" placeholder="e.g. Residence" required />
+        </div>
+        <div class="form-group">
+          <label>Recipient Full Name</label>
+          <input name="recipientName" [(ngModel)]="newAddress.recipientName" placeholder="e.g. Siddharth Roy" required />
+        </div>
+        <div class="form-group">
+          <label>Contact Phone Number</label>
+          <input name="phone" [(ngModel)]="newAddress.phone" placeholder="e.g. +91 98300 12345" required />
+        </div>
+        <div class="form-group">
+          <label>Postal Code (PIN)</label>
+          <input name="postalCode" [(ngModel)]="newAddress.postalCode" placeholder="e.g. 700016" required />
+        </div>
+        <div class="form-group">
+          <label>Street Address & Landmark</label>
+          <input name="street" [(ngModel)]="newAddress.street" placeholder="e.g. 12A Park Street, Flat 4B" required />
+        </div>
+        <div class="form-group checkbox-group">
+          <label>
+            <input type="checkbox" name="isDefault" [(ngModel)]="newAddress.isDefault" />
+            Set as default shipping address
+          </label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showAddAddress = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Address</button>
+      </div>
+    </form>
   </div>
 </div>

@@ -1,14 +1,16 @@
-# Koyama Shokai Frontend
+# NK Fashions — Frontend Platform
 
-This is the Angular frontend application for the Koyama Shokai hospital delivery request management system.
+This is the Angular frontend application for the **NK Fashions** multi-channel retail management and e-commerce platform.
 
 ## Project Summary
 
-This application serves as a fulfillment and oversight portal organizing delivery jobs (such as linen and patient items requests). It is structured around three primary access roles:
+NK Fashions integrates online storefront shopping with in-store POS checkout and multi-tier retail business administration. It is structured around five primary access roles and portals:
 
-- **Admin**: Full operational management (Branches, Hospitals, Services, Options, Sets).
-- **Leader**: Data oversight (Summary tables and distribution views).
-- **Staff**: Fulfillment engine (Creation, processing, and completion of user delivery requests).
+- **Public Storefront (`/`, `/shop`, `/product/:slug`, `/cart`, `/checkout`)**: High-conversion e-commerce catalog, faceted search/filtering, interactive product showcase, cart drawer, and guest/customer checkout.
+- **Registered Customer Hub (`/account`)**: Customer profile, live order tracking, address book, wishlist, and loyalty points ledger.
+- **POS Cashier Terminal (`/pos`)**: High-speed touch and barcode-scanner checkout terminal, speed keys, split tender (Cash, Card, UPI), held/parked orders, and thermal receipt printing.
+- **Store Manager Portal (`/manager`)**: Local branch inventory tracking, low-stock alerts, inter-branch stock transfers, cashier audit logs, and drawer reconciliation.
+- **System Administrator Center (`/admin`)**: Global analytics dashboard, multi-store/warehouse location management, central product catalog & SKU variant matrix, suppliers & purchase orders (PO), staff RBAC permissions, and immutable audit trails.
 
 ## How to Run Locally
 
@@ -74,4 +76,4 @@ Group and space out your imports vertically in exactly the following structured 
 6. **Shared Components** (`@shared-components/*`)
 7. **Utilities and Configs** (`@utils/*`, `@env/*`)
 
-> **Developer Note:** For extremely comprehensive architectural blueprints, state management requirements (such as ChangeDetection and Job Polling), and structural rules, you must consult the [RULES.md](./RULES.md) brain-file located in the root directory.
+> **Developer Note:** For detailed architectural plans, feature roadmap specifications, and domain entity mappings, consult [planning.md](./planning.md) and [RULES.md](./RULES.md).

@@ -1,62 +1,641 @@
 <div class="portal-layout">
   <!-- Shared Navigation Sidebar -->
   <app-sidebar></app-sidebar>
-  
+
   <div class="portal-main">
     <header class="portal-header">
       <div class="header-title">
-        <h1>System Admin Control Room</h1>
-        <span class="subtext">Global catalog, store locations, and audit trail ledger</span>
+        <h1>System Admin Control Center</h1>
+        <span class="subtext">Live NK Fashion catalog, brands, categories, metals, jewellery, and store operations</span>
       </div>
-      <div class="admin-profile">
-        <span class="avatar-tag">SA</span>
-        <div class="profile-details">
-          <span class="username">System Admin</span>
-          <span class="role">Global Administrator</span>
+      <div class="header-actions-right">
+        <button class="btn-refresh-api" type="button" (click)="loadAllApiData()" [disabled]="apiLoading">
+          <i class="material-icons">refresh</i>
+          <span>{{ apiLoading ? 'Syncing...' : 'Sync API' }}</span>
+        </button>
+        <div class="admin-profile">
+          <span class="avatar-tag">SA</span>
+          <div class="profile-details">
+            <span class="username">System Administrator</span>
+            <span class="role">Global Operations Executive</span>
+          </div>
         </div>
       </div>
     </header>
 
-    
+    <!-- API Feedback Banners -->
+    <div class="api-banner error" *ngIf="apiError">
+      <i class="material-icons">error_outline</i>
+      <span>{{ apiError }}</span>
+      <button type="button" class="banner-close" (click)="apiError = null">×</button>
+    </div>
+    <div class="api-banner success" *ngIf="apiSuccess">
+      <i class="material-icons">check_circle</i>
+      <span>{{ apiSuccess }}</span>
+    </div>
+
     <!-- Tab Selectors Bar -->
     <nav class="portal-tabs">
-      <button class="tab-btn" [class.active]="activeTab === 'locations'" (click)="switchTab('locations')">
-        <i class="material-icons">storefront</i>
-        <span>Stores & Warehouses</span>
-      </button>
       <button class="tab-btn" [class.active]="activeTab === 'products'" (click)="switchTab('products')">
         <i class="material-icons">inventory_2</i>
-        <span>Products Catalog</span>
+        <span>Catalog &amp; Variants</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'brands-categories'" (click)="switchTab('brands-categories')">
+        <i class="material-icons">category</i>
+        <span>Brands &amp; Categories</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'jewellery'" (click)="switchTab('jewellery')">
+        <i class="material-icons">diamond</i>
+        <span>Jewellery &amp; Metals</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'locations'" (click)="switchTab('locations')">
+        <i class="material-icons">storefront</i>
+        <span>Stores &amp; Warehouses</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'pos'" (click)="switchTab('pos')">
+        <i class="material-icons">local_shipping</i>
+        <span>Purchase Orders</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'staff'" (click)="switchTab('staff')">
         <i class="material-icons">badge</i>
-        <span>Staff Accounts</span>
+        <span>Staff &amp; RBAC</span>
       </button>
       <button class="tab-btn" [class.active]="activeTab === 'audit'" (click)="switchTab('audit')">
         <i class="material-icons">history_edu</i>
         <span>Audit Logs</span>
       </button>
     </nav>
-    
+
     <!-- Tab Contents -->
     <div class="portal-body">
-      
-      <!-- 1. Locations Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'locations'">
+
+      <!-- 1. Catalog & Variants Tab (/api/products & /api/products/{id}/variants) -->
+      <div class="tab-content" *ngIf="activeTab === 'products'">
         <div class="content-header">
-          <h2>Store Locations & Warehouses</h2>
-          <button class="action-add-btn" (click)="showAddLocation = true">
-            <i class="material-icons">add</i> Add Location
+          <div>
+            <h2>Global Product &amp; Variant Catalog</h2>
+            <p class="section-desc">Live catalog connected to /api/products and /api/products/&#123;productId&#125;/variants.</p>
+          </div>
+          <button class="btn-primary-action" type="button" (click)="openCreateProductModal()">
+            <i class="material-icons">add_box</i> Add Master Product
           </button>
         </div>
-        
+
+        <!-- Product Search & Filters -->
+        <div class="api-filter-bar">
+          <input
+            type="text"
+            [(ngModel)]="productFilterSearch"
+            placeholder="Search name or description..."
+            (keyup.enter)="searchProducts()"
+          />
+          <select [(ngModel)]="productFilterCategoryId">
+            <option [ngValue]="null">All Categories</option>
+            <option *ngFor="let c of flatCategories" [ngValue]="c.id">
+              {{ c.depth > 0 ? '— '.repeat(c.depth) : '' }}{{ c.name }}
+            </option>
+          </select>
+          <select [(ngModel)]="productFilterBrandId">
+            <option [ngValue]="null">All Brands</option>
+            <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.name }}</option>
+          </select>
+          <select [(ngModel)]="productFilterType">
+            <option [ngValue]="null">All Types</option>
+            <option *ngFor="let pt of productTypesList" [ngValue]="pt.value">{{ pt.label }}</option>
+          </select>
+          <select [(ngModel)]="productFilterActive">
+            <option [ngValue]="null">All Statuses</option>
+            <option [ngValue]="true">Active Only</option>
+            <option [ngValue]="false">Inactive Only</option>
+          </select>
+          <button type="button" class="btn-approve" (click)="searchProducts()">
+            <i class="material-icons">search</i> Filter
+          </button>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Product &amp; Slug</th>
+              <th>Type</th>
+              <th>Brand</th>
+              <th>Categories</th>
+              <th>Featured</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let prod of apiProducts">
+              <td>#{{ prod.id }}</td>
+              <td>
+                <strong>{{ prod.name }}</strong>
+                <div class="text-muted"><small>{{ prod.slug }}</small></div>
+              </td>
+              <td><span class="type-tag">{{ productTypeLabels[prod.productType] }}</span></td>
+              <td>{{ prod.brand || '—' }}</td>
+              <td><span class="category-tag">{{ formatProductCategories(prod) }}</span></td>
+              <td>{{ prod.isFeatured ? 'Yes' : 'No' }}</td>
+              <td>
+                <span class="status-indicator" [class.inactive]="!prod.isActive">
+                  {{ prod.isActive ? 'Active' : 'Inactive' }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="btn-secondary-sm" (click)="openVariantsPanel(prod)">
+                    Variants
+                  </button>
+                  <button type="button" class="btn-secondary-sm" (click)="openEditProductModal(prod)">
+                    Edit
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="apiProducts.length === 0">
+              <td colspan="8" class="empty-cell">No products found. Create one or check API connection.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Variants Sub-Panel -->
+        <div class="content-sub-section" *ngIf="selectedProductForVariants">
+          <div class="content-header">
+            <div>
+              <h3>Variants for: {{ selectedProductForVariants.name }}</h3>
+              <p class="section-desc">Manage SKUs, sizes, colours, and prices via /api/products/{{ selectedProductForVariants.id }}/variants.</p>
+            </div>
+            <div class="row-actions">
+              <button type="button" class="btn-primary-action" (click)="openCreateVariantModal()">
+                <i class="material-icons">add</i> Add Variant
+              </button>
+              <button type="button" class="btn-secondary-sm" (click)="selectedProductForVariants = null">
+                Close
+              </button>
+            </div>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>SKU</th>
+                <th>Size</th>
+                <th>Colour</th>
+                <th>Price</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of productVariants">
+                <td>#{{ v.id }}</td>
+                <td><span class="code-badge">{{ v.sku }}</span></td>
+                <td>{{ v.size || '—' }}</td>
+                <td>{{ v.colour || '—' }}</td>
+                <td><strong>{{ v.price | number:'1.2-2' }}</strong></td>
+                <td>
+                  <span class="status-indicator" [class.inactive]="!v.isActive">
+                    {{ v.isActive ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <div class="row-actions">
+                    <button type="button" class="btn-secondary-sm" (click)="openEditVariantModal(v)">
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      class="delete-icon-btn"
+                      *ngIf="v.isActive"
+                      (click)="deactivateVariant(v)"
+                      title="Deactivate Variant"
+                    >
+                      <i class="material-icons">block</i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="productVariants.length === 0">
+                <td colspan="7" class="empty-cell">No variants configured for this product yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. Brands & Categories Tab (/api/brands & /api/categories) -->
+      <div class="tab-content" *ngIf="activeTab === 'brands-categories'">
+        <div class="split-grid-2">
+          <!-- Brands Section -->
+          <div class="panel-card">
+            <div class="content-header">
+              <div>
+                <h2>Product Brands</h2>
+                <p class="section-desc">GET / POST / PUT / DELETE /api/brands</p>
+              </div>
+              <button type="button" class="btn-primary-action" (click)="openCreateBrandModal()">
+                <i class="material-icons">add</i> Add Brand
+              </button>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Slug</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let b of brands">
+                  <td>
+                    <strong>{{ b.name }}</strong>
+                    <div class="text-muted" *ngIf="b.description"><small>{{ b.description }}</small></div>
+                  </td>
+                  <td><span class="code-badge">{{ b.slug }}</span></td>
+                  <td>
+                    <span class="status-indicator" [class.inactive]="!b.isActive">
+                      {{ b.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="btn-secondary-sm" (click)="openEditBrandModal(b)">Edit</button>
+                      <button
+                        type="button"
+                        class="delete-icon-btn"
+                        *ngIf="b.isActive"
+                        (click)="deactivateBrand(b)"
+                        title="Deactivate Brand"
+                      >
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="brands.length === 0">
+                  <td colspan="4" class="empty-cell">No brands available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Categories Tree Section -->
+          <div class="panel-card">
+            <div class="content-header">
+              <div>
+                <h2>Category Hierarchy</h2>
+                <p class="section-desc">GET / POST / PUT / DELETE /api/categories</p>
+              </div>
+              <button type="button" class="btn-primary-action" (click)="openCreateCategoryModal()">
+                <i class="material-icons">add</i> Add Category
+              </button>
+            </div>
+
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Category Name</th>
+                  <th>Slug</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let cat of flatCategories">
+                  <td>
+                    <span [style.padding-left.px]="cat.depth * 18">
+                      {{ cat.depth > 0 ? '↳ ' : '' }}<strong>{{ cat.name }}</strong>
+                    </span>
+                  </td>
+                  <td><span class="code-badge">{{ cat.slug }}</span></td>
+                  <td>
+                    <span class="status-indicator" [class.inactive]="!cat.isActive">
+                      {{ cat.isActive ? 'Active' : 'Inactive' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" class="btn-secondary-sm" (click)="openEditCategoryModal(cat)">Edit</button>
+                      <button
+                        type="button"
+                        class="delete-icon-btn"
+                        *ngIf="cat.isActive"
+                        (click)="deactivateCategory(cat)"
+                        title="Deactivate Category"
+                      >
+                        <i class="material-icons">delete</i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+                <tr *ngIf="flatCategories.length === 0">
+                  <td colspan="4" class="empty-cell">No categories available.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Jewellery & Metals Tab (/api/metal*, /api/jewellerydetails, /api/jewellery-items) -->
+      <div class="tab-content" *ngIf="activeTab === 'jewellery'">
+        <!-- Metal Types & Purities -->
+        <div class="split-grid-2">
+          <div class="panel-card">
+            <div class="content-header">
+              <div>
+                <h2>Metal Types</h2>
+                <p class="section-desc">/api/metaltypes</p>
+              </div>
+              <button type="button" class="btn-primary-action" (click)="showMetalTypeModal = true">
+                <i class="material-icons">add</i> Add Metal
+              </button>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Code</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let mt of metalTypes">
+                  <td>#{{ mt.id }}</td>
+                  <td><strong>{{ mt.name }}</strong></td>
+                  <td><span class="code-badge">{{ mt.code }}</span></td>
+                  <td><span class="status-indicator" [class.inactive]="!mt.isActive">{{ mt.isActive ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+                <tr *ngIf="metalTypes.length === 0">
+                  <td colspan="4" class="empty-cell">No metal types configured.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="panel-card">
+            <div class="content-header">
+              <div>
+                <h2>Metal Purities</h2>
+                <p class="section-desc">/api/metalpurities</p>
+              </div>
+              <button type="button" class="btn-primary-action" (click)="showMetalPurityModal = true">
+                <i class="material-icons">add</i> Add Purity
+              </button>
+            </div>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Metal</th>
+                  <th>Purity</th>
+                  <th>Percentage</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let mp of metalPurities">
+                  <td>{{ mp.metalType }}</td>
+                  <td><strong>{{ mp.name }}</strong></td>
+                  <td>{{ mp.purityPercentage }}%</td>
+                  <td><span class="status-indicator" [class.inactive]="!mp.isActive">{{ mp.isActive ? 'Active' : 'Inactive' }}</span></td>
+                </tr>
+                <tr *ngIf="metalPurities.length === 0">
+                  <td colspan="4" class="empty-cell">No purities configured.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Metal Rates & Current Rate Lookup -->
+        <div class="content-sub-section">
+          <div class="content-header">
+            <div>
+              <h3>Metal Rates Timeline &amp; Current Rate Lookup</h3>
+              <p class="section-desc">/api/metalrates &amp; /api/metalrates/current</p>
+            </div>
+            <button type="button" class="btn-primary-action" (click)="showMetalRateModal = true">
+              <i class="material-icons">trending_up</i> Add Metal Rate
+            </button>
+          </div>
+
+          <div class="api-filter-bar">
+            <select [(ngModel)]="currentRateLookupMetalTypeId">
+              <option [ngValue]="null">Select Metal Type</option>
+              <option *ngFor="let mt of metalTypes" [ngValue]="mt.id">{{ mt.name }}</option>
+            </select>
+            <select [(ngModel)]="currentRateLookupPurityId">
+              <option [ngValue]="null">Select Purity</option>
+              <option *ngFor="let mp of metalPurities" [ngValue]="mp.id">{{ mp.metalType }} - {{ mp.name }}</option>
+            </select>
+            <input type="text" [(ngModel)]="currentRateLookupCurrency" maxlength="3" placeholder="AUD" />
+            <button type="button" class="btn-approve" (click)="lookupCurrentMetalRate()">Check Active Rate</button>
+            <span class="rate-lookup-badge" *ngIf="currentMetalRateResult">
+              Active Rate: <strong>{{ currentMetalRateResult.currencyCode }} {{ currentMetalRateResult.ratePerGram | number:'1.2-2' }}/g</strong>
+              ({{ currentMetalRateResult.rateSource }}{{ currentMetalRateResult.isManualOverride ? ' · Manual Override' : '' }})
+            </span>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Metal &amp; Purity</th>
+                <th>Rate / Gram</th>
+                <th>Source</th>
+                <th>Effective From</th>
+                <th>Effective To</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of metalRates">
+                <td><strong>{{ r.metalType }} {{ r.metalPurity }}</strong></td>
+                <td><strong>{{ r.currencyCode }} {{ r.ratePerGram | number:'1.2-2' }}</strong></td>
+                <td>{{ r.rateSource }} {{ r.isManualOverride ? '(Override)' : '' }}</td>
+                <td>{{ r.effectiveFromUtc | date:'medium' }}</td>
+                <td>{{ r.effectiveToUtc ? (r.effectiveToUtc | date:'medium') : 'Active Now' }}</td>
+              </tr>
+              <tr *ngIf="metalRates.length === 0">
+                <td colspan="5" class="empty-cell">No metal rates recorded.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Jewellery Variant Details -->
+        <div class="content-sub-section">
+          <div class="content-header">
+            <div>
+              <h3>Jewellery Variant Configurations</h3>
+              <p class="section-desc">Configure metal, purity, pricing method, and charges via /api/jewellerydetails</p>
+            </div>
+            <button type="button" class="btn-primary-action" (click)="openCreateJewelleryDetailModal()">
+              <i class="material-icons">settings</i> Configure Variant
+            </button>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Variant SKU</th>
+                <th>Metal &amp; Purity</th>
+                <th>Pricing Method</th>
+                <th>Making %</th>
+                <th>Stone Charge</th>
+                <th>Certification</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let jd of jewelleryDetails">
+                <td>#{{ jd.id }}</td>
+                <td><span class="code-badge">{{ jd.sku }}</span></td>
+                <td>{{ jd.metalType }} {{ jd.metalPurity }} ({{ jd.purityPercentage }}%)</td>
+                <td><span class="type-tag">{{ pricingMethodLabels[jd.pricingMethod] }}</span></td>
+                <td>{{ jd.makingChargePercentage }}%</td>
+                <td>{{ jd.stoneCharge | number:'1.2-2' }}</td>
+                <td>{{ jd.certificationNumber || '—' }}</td>
+                <td>
+                  <button type="button" class="btn-secondary-sm" (click)="openCreateJewelleryItemModal(jd.id)">
+                    + Mint Item
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="jewelleryDetails.length === 0">
+                <td colspan="8" class="empty-cell">No jewellery variant configurations yet.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Tracked Jewellery Items -->
+        <div class="content-sub-section">
+          <div class="content-header">
+            <div>
+              <h3>Individually Tracked Jewellery Items</h3>
+              <p class="section-desc">Barcoded pieces (NKJ...) with live pricing via /api/jewellery-items</p>
+            </div>
+            <button type="button" class="btn-primary-action" (click)="openCreateJewelleryItemModal()">
+              <i class="material-icons">qr_code_2</i> Create Tracked Piece
+            </button>
+          </div>
+
+          <div class="api-filter-bar">
+            <input type="text" [(ngModel)]="jewellerySearch" placeholder="Search barcode, SKU, or product..." (keyup.enter)="searchJewelleryItems(1)" />
+            <select [(ngModel)]="jewelleryFilterMetalTypeId">
+              <option [ngValue]="null">All Metals</option>
+              <option *ngFor="let mt of metalTypes" [ngValue]="mt.id">{{ mt.name }}</option>
+            </select>
+            <select [(ngModel)]="jewelleryFilterStatus">
+              <option [ngValue]="null">All Statuses</option>
+              <option *ngFor="let st of jewelleryStatusOptions" [ngValue]="st.value">{{ st.label }}</option>
+            </select>
+            <select [(ngModel)]="jewellerySortBy">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="price_low">Price: Low to High</option>
+              <option value="price_high">Price: High to Low</option>
+              <option value="name">Name</option>
+            </select>
+            <button type="button" class="btn-approve" (click)="searchJewelleryItems(1)">Search</button>
+
+            <div class="barcode-lookup-group">
+              <input type="text" [(ngModel)]="barcodeLookupInput" placeholder="Barcode lookup (NKJ...)" (keyup.enter)="lookupJewelleryByBarcode()" />
+              <button type="button" class="btn-secondary-sm" (click)="lookupJewelleryByBarcode()">Lookup</button>
+            </div>
+          </div>
+
+          <div class="barcode-result-card" *ngIf="barcodeLookupResult">
+            <strong>Barcode Match:</strong> {{ barcodeLookupResult.barcode }} — {{ barcodeLookupResult.productName }}
+            ({{ barcodeLookupResult.metalType }} {{ barcodeLookupResult.metalPurity }},
+            Net {{ barcodeLookupResult.netMetalWeightGrams }}g) ·
+            <strong>{{ barcodeLookupResult.currencyCode }} {{ barcodeLookupResult.sellingPrice | number:'1.2-2' }}</strong>
+            [{{ barcodeLookupResult.status }}]
+            <button type="button" class="banner-close" (click)="barcodeLookupResult = null">×</button>
+          </div>
+
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Barcode</th>
+                <th>Product</th>
+                <th>Metal &amp; Purity</th>
+                <th>Weights (G / Net)</th>
+                <th>Selling Price</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let ji of jewelleryItems">
+                <td><span class="code-badge">{{ ji.barcode }}</span></td>
+                <td><strong>{{ ji.productName }}</strong></td>
+                <td>{{ ji.metalType }} {{ ji.metalPurity }}</td>
+                <td>{{ ji.grossWeightGrams }}g / {{ ji.netMetalWeightGrams }}g</td>
+                <td><strong>{{ ji.currencyCode }} {{ ji.sellingPrice | number:'1.2-2' }}</strong></td>
+                <td>
+                  <select
+                    class="inline-status-select"
+                    [ngModel]="getStatusEnumFromName(ji.status)"
+                    (ngModelChange)="updateJewelleryItemStatus(ji, $event)"
+                  >
+                    <option *ngFor="let st of jewelleryStatusOptions" [ngValue]="st.value">
+                      {{ st.label }}
+                    </option>
+                  </select>
+                </td>
+              </tr>
+              <tr *ngIf="jewelleryItems.length === 0">
+                <td colspan="6" class="empty-cell">No individually tracked jewellery items found.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="pagination-row" *ngIf="pagedJewelleryItems && pagedJewelleryItems.totalPages > 1">
+            <button
+              type="button"
+              class="btn-secondary-sm"
+              [disabled]="!pagedJewelleryItems.hasPreviousPage"
+              (click)="searchJewelleryItems(jewelleryPage - 1)"
+            >
+              Previous
+            </button>
+            <span>Page {{ pagedJewelleryItems.page }} of {{ pagedJewelleryItems.totalPages }} ({{ pagedJewelleryItems.totalItems }} items)</span>
+            <button
+              type="button"
+              class="btn-secondary-sm"
+              [disabled]="!pagedJewelleryItems.hasNextPage"
+              (click)="searchJewelleryItems(jewelleryPage + 1)"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Locations Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'locations'">
+        <div class="content-header">
+          <div>
+            <h2>Store Locations &amp; Central Warehouses</h2>
+            <p class="section-desc">Manage retail boutiques and regional logistics fulfillment warehouses.</p>
+          </div>
+          <button class="btn-primary-action" (click)="showAddLocation = true">
+            <i class="material-icons">add_business</i> Add Location
+          </button>
+        </div>
+
         <table class="data-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Location Name</th>
-              <th>Code</th>
-              <th>Type</th>
+              <th>Branch Code</th>
+              <th>Facility Type</th>
               <th>Address</th>
               <th>Actions</th>
             </tr>
@@ -76,86 +655,93 @@
             </tr>
           </tbody>
         </table>
-        
-        <!-- Add Location Modal -->
-        <div class="admin-modal" *ngIf="showAddLocation">
-          <div class="modal-card">
-            <h3>Add New Location</h3>
-            <form (submit)="addLocation(); $event.preventDefault()">
-              <div class="form-group">
-                <label for="locName">Location Name</label>
-                <input id="locName" name="name" [(ngModel)]="newLocation.name" placeholder="NK Fashions Delhi Store" required />
-              </div>
-              <div class="form-group">
-                <label for="locCode">Location Code</label>
-                <input id="locCode" name="code" [(ngModel)]="newLocation.code" placeholder="NK-DEL-03" required />
-              </div>
-              <div class="form-group">
-                <label for="locType">Type</label>
-                <select id="locType" name="type" [(ngModel)]="newLocation.type">
-                  <option value="Store">Store</option>
-                  <option value="Warehouse">Warehouse</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="locAddress">Address</label>
-                <input id="locAddress" name="address" [(ngModel)]="newLocation.address" placeholder="Connaught Place, New Delhi" />
-              </div>
-              <div class="modal-actions">
-                <button type="button" class="btn-cancel" (click)="showAddLocation = false">Cancel</button>
-                <button type="submit" class="btn-save">Save Location</button>
-              </div>
-            </form>
-          </div>
-        </div>
       </div>
-      
-      <!-- 2. Products Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'products'">
+
+      <!-- 5. Purchase Orders & Suppliers Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'pos'">
         <div class="content-header">
-          <h2>Boutique Product Catalog</h2>
+          <div>
+            <h2>Purchase Orders &amp; Vendor Shipments</h2>
+            <p class="section-desc">Generate purchase requisitions and post stock increases to warehouses upon receipt.</p>
+          </div>
+          <button class="btn-primary-action" (click)="showCreatePO = true">
+            <i class="material-icons">post_add</i> Create Purchase Order
+          </button>
         </div>
-        
+
         <table class="data-table">
           <thead>
             <tr>
-              <th>ID</th>
-              <th>Product Name</th>
-              <th>Brand</th>
-              <th>Category</th>
-              <th>Retail Price</th>
-              <th>Available Stock</th>
+              <th>PO Number</th>
+              <th>Supplier</th>
+              <th>Destination Warehouse</th>
+              <th>Product Item</th>
+              <th>Quantity</th>
+              <th>Total Cost</th>
               <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let prod of products">
-              <td>#{{ prod.id }}</td>
-              <td><strong>{{ prod.name }}</strong></td>
-              <td>{{ prod.brand }}</td>
-              <td><span class="category-tag">{{ prod.category }}</span></td>
-              <td>Rs. {{ prod.price | number }}</td>
-              <td>{{ prod.stock }} units</td>
-              <td><span class="status-indicator active">In Stock</span></td>
+            <tr *ngFor="let po of purchaseOrders">
+              <td><strong>{{ po.poNumber }}</strong></td>
+              <td>{{ po.supplierName }}</td>
+              <td>{{ po.destination }}</td>
+              <td>
+                <strong>{{ po.productName }}</strong>
+                <small class="text-muted">({{ po.sku }})</small>
+              </td>
+              <td>{{ po.quantity }} pcs</td>
+              <td>₹{{ po.totalCost | number }}</td>
+              <td>
+                <span class="transfer-status" [ngClass]="po.status.toLowerCase()">{{ po.status }}</span>
+              </td>
+              <td>
+                <button class="btn-approve" *ngIf="po.status !== 'Received'" (click)="receivePurchaseOrder(po)">
+                  <i class="material-icons">inventory</i> Receive Goods
+                </button>
+                <span class="action-done" *ngIf="po.status === 'Received'">Stock Added ✓</span>
+              </td>
             </tr>
           </tbody>
         </table>
+
+        <div class="content-sub-section">
+          <h3>Registered Artisan Guilds &amp; Fabric Suppliers</h3>
+          <div class="suppliers-grid">
+            <div class="supplier-card" *ngFor="let s of suppliers">
+              <div class="supplier-card-header">
+                <h4>{{ s.companyName }}</h4>
+                <span class="lead-time">Lead: {{ s.leadTime }}</span>
+              </div>
+              <p class="supplier-cat">Category: {{ s.category }}</p>
+              <p class="supplier-contact">Contact: {{ s.contactPerson }} ({{ s.phone }})</p>
+              <p class="supplier-email">{{ s.email }}</p>
+            </div>
+          </div>
+        </div>
       </div>
-      
-      <!-- 3. Staff Tab -->
+
+      <!-- 6. Staff Tab -->
       <div class="tab-content" *ngIf="activeTab === 'staff'">
         <div class="content-header">
-          <h2>Staff Account Access</h2>
+          <div>
+            <h2>Staff Accounts &amp; RBAC Permissions</h2>
+            <p class="section-desc">Assign employee access roles and branch bindings across stores.</p>
+          </div>
+          <button class="btn-primary-action" (click)="showAddStaff = true">
+            <i class="material-icons">person_add</i> Add Staff Member
+          </button>
         </div>
-        
+
         <table class="data-table">
           <thead>
             <tr>
               <th>ID</th>
               <th>Employee Name</th>
-              <th>Role</th>
-              <th>Email Address</th>
-              <th>Assigned Store</th>
+              <th>Designation Role</th>
+              <th>Work Email</th>
+              <th>Assigned Store Branch</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -171,23 +757,535 @@
           </tbody>
         </table>
       </div>
-      
-      <!-- 4. Audit Logs Tab -->
+
+      <!-- 7. Audit Logs Tab -->
       <div class="tab-content" *ngIf="activeTab === 'audit'">
         <div class="content-header">
-          <h2>System Audit Trail Ledger</h2>
+          <div>
+            <h2>Immutable System Audit Trail</h2>
+            <p class="section-desc">Traceable ledger of all price overrides, manual inventory adjustments, and role updates.</p>
+          </div>
+          <div class="filter-pills">
+            <button class="pill-btn" [class.active]="auditFilter === 'ALL'" (click)="auditFilter = 'ALL'">All Events</button>
+            <button class="pill-btn" [class.active]="auditFilter === 'STOCK_ADJUSTMENT'" (click)="auditFilter = 'STOCK_ADJUSTMENT'">Stock</button>
+            <button class="pill-btn" [class.active]="auditFilter === 'PO_RECEIVED'" (click)="auditFilter = 'PO_RECEIVED'">PO Receipts</button>
+            <button class="pill-btn" [class.active]="auditFilter === 'PRICE_OVERRIDE'" (click)="auditFilter = 'PRICE_OVERRIDE'">Price Overrides</button>
+            <button class="pill-btn" [class.active]="auditFilter === 'STAFF_ROLE_CHANGE'" (click)="auditFilter = 'STAFF_ROLE_CHANGE'">Staff</button>
+          </div>
         </div>
-        
+
         <div class="logs-list">
-          <div class="log-row" *ngFor="let log of auditLogs">
+          <div class="log-row" *ngFor="let log of filteredAuditLogs">
             <span class="log-time">{{ log.timestamp }}</span>
-            <span class="log-action" [class.override]="log.action.includes('OVERRIDE')">{{ log.action }}</span>
+            <span class="log-action" [ngClass]="log.action.toLowerCase()">{{ log.action }}</span>
             <span class="log-user">{{ log.user }}</span>
             <span class="log-target">{{ log.target }}</span>
           </div>
         </div>
       </div>
-      
+
     </div>
+  </div>
+</div>
+
+<!-- Modal: Create / Edit Product -->
+<div class="admin-modal" *ngIf="showProductModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>{{ editingProductId === null ? 'Create Product' : 'Update Product' }}</h3>
+      <button type="button" class="close-btn" (click)="showProductModal = false">×</button>
+    </div>
+    <form (submit)="saveProduct(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Product Name *</label>
+          <input name="prodName" [(ngModel)]="productForm.name" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input name="prodDesc" [(ngModel)]="productForm.description" />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Product Type</label>
+            <select name="prodType" [(ngModel)]="productForm.productType">
+              <option *ngFor="let pt of productTypesList" [ngValue]="pt.value">{{ pt.label }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Brand</label>
+            <select name="prodBrand" [(ngModel)]="productForm.brandId">
+              <option [ngValue]="null">None</option>
+              <option *ngFor="let b of brands" [ngValue]="b.id">{{ b.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Categories * (select at least one)</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-pill" *ngFor="let cat of flatCategories">
+              <input
+                type="checkbox"
+                [checked]="productForm.categoryIds.includes(cat.id)"
+                (change)="toggleProductCategory(cat.id)"
+              />
+              <span>{{ cat.name }}</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <label class="checkbox-inline">
+            <input type="checkbox" name="prodFeatured" [(ngModel)]="productForm.isFeatured" />
+            <span>Featured Product</span>
+          </label>
+          <label class="checkbox-inline" *ngIf="editingProductId !== null">
+            <input type="checkbox" name="prodActive" [(ngModel)]="productForm.isActive" />
+            <span>Active</span>
+          </label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showProductModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Product</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create / Edit Variant -->
+<div class="admin-modal" *ngIf="showVariantModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>{{ editingVariantId === null ? 'Add Variant' : 'Edit Variant' }}</h3>
+      <button type="button" class="close-btn" (click)="showVariantModal = false">×</button>
+    </div>
+    <form (submit)="saveVariant(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>SKU *</label>
+          <input name="varSku" [(ngModel)]="variantForm.sku" required />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Size</label>
+            <input name="varSize" [(ngModel)]="variantForm.size" />
+          </div>
+          <div class="form-group">
+            <label>Colour</label>
+            <input name="varColour" [(ngModel)]="variantForm.colour" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Price</label>
+          <input type="number" step="0.01" min="0" name="varPrice" [(ngModel)]="variantForm.price" />
+        </div>
+        <label class="checkbox-inline" *ngIf="editingVariantId !== null">
+          <input type="checkbox" name="varActive" [(ngModel)]="variantForm.isActive" />
+          <span>Active</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showVariantModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Variant</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create / Edit Brand -->
+<div class="admin-modal" *ngIf="showBrandModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>{{ editingBrandId === null ? 'Create Brand' : 'Edit Brand' }}</h3>
+      <button type="button" class="close-btn" (click)="showBrandModal = false">×</button>
+    </div>
+    <form (submit)="saveBrand(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Brand Name *</label>
+          <input name="bName" [(ngModel)]="brandForm.name" required />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input name="bDesc" [(ngModel)]="brandForm.description" />
+        </div>
+        <label class="checkbox-inline" *ngIf="editingBrandId !== null">
+          <input type="checkbox" name="bActive" [(ngModel)]="brandForm.isActive" />
+          <span>Active</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showBrandModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Brand</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create / Edit Category -->
+<div class="admin-modal" *ngIf="showCategoryModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>{{ editingCategoryId === null ? 'Create Category' : 'Edit Category' }}</h3>
+      <button type="button" class="close-btn" (click)="showCategoryModal = false">×</button>
+    </div>
+    <form (submit)="saveCategory(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Category Name *</label>
+          <input name="cName" [(ngModel)]="categoryForm.name" required />
+        </div>
+        <div class="form-group">
+          <label>Parent Category</label>
+          <select name="cParent" [(ngModel)]="categoryForm.parentCategoryId">
+            <option [ngValue]="null">None (Top-Level)</option>
+            <option *ngFor="let c of flatCategories" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+        </div>
+        <label class="checkbox-inline" *ngIf="editingCategoryId !== null">
+          <input type="checkbox" name="cActive" [(ngModel)]="categoryForm.isActive" />
+          <span>Active</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showCategoryModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Category</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create Metal Type -->
+<div class="admin-modal" *ngIf="showMetalTypeModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create Metal Type</h3>
+      <button type="button" class="close-btn" (click)="showMetalTypeModal = false">×</button>
+    </div>
+    <form (submit)="createMetalType(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Metal Name * (e.g., Gold)</label>
+          <input name="mtName" [(ngModel)]="metalTypeForm.name" required />
+        </div>
+        <div class="form-group">
+          <label>Code * (e.g., AU)</label>
+          <input name="mtCode" [(ngModel)]="metalTypeForm.code" required />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showMetalTypeModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Metal Type</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create Metal Purity -->
+<div class="admin-modal" *ngIf="showMetalPurityModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create Metal Purity</h3>
+      <button type="button" class="close-btn" (click)="showMetalPurityModal = false">×</button>
+    </div>
+    <form (submit)="createMetalPurity(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Metal Type *</label>
+          <select name="mpType" [(ngModel)]="metalPurityForm.metalTypeId">
+            <option *ngFor="let mt of metalTypes" [ngValue]="mt.id">{{ mt.name }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Purity Name * (e.g., 22K)</label>
+          <input name="mpName" [(ngModel)]="metalPurityForm.name" required />
+        </div>
+        <div class="form-group">
+          <label>Purity Percentage</label>
+          <input type="number" step="0.01" name="mpPct" [(ngModel)]="metalPurityForm.purityPercentage" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showMetalPurityModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Metal Purity</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create Metal Rate -->
+<div class="admin-modal" *ngIf="showMetalRateModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create Metal Rate</h3>
+      <button type="button" class="close-btn" (click)="showMetalRateModal = false">×</button>
+    </div>
+    <form (submit)="createMetalRate(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Metal Type *</label>
+            <select name="mrType" [(ngModel)]="metalRateForm.metalTypeId">
+              <option *ngFor="let mt of metalTypes" [ngValue]="mt.id">{{ mt.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Metal Purity *</label>
+            <select name="mrPurity" [(ngModel)]="metalRateForm.metalPurityId">
+              <option *ngFor="let mp of metalPurities" [ngValue]="mp.id">{{ mp.metalType }} {{ mp.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Rate Per Gram *</label>
+            <input type="number" step="0.01" name="mrRate" [(ngModel)]="metalRateForm.ratePerGram" required />
+          </div>
+          <div class="form-group">
+            <label>Currency (3-letter)</label>
+            <input name="mrCurr" maxlength="3" [(ngModel)]="metalRateForm.currencyCode" required />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Rate Source</label>
+          <input name="mrSource" [(ngModel)]="metalRateForm.rateSource" required />
+        </div>
+        <label class="checkbox-inline">
+          <input type="checkbox" name="mrOverride" [(ngModel)]="metalRateForm.isManualOverride" />
+          <span>Manual Override (takes priority over automatic rates)</span>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showMetalRateModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Rate</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Configure Jewellery Detail -->
+<div class="admin-modal" *ngIf="showJewelleryDetailModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Configure Jewellery Variant</h3>
+      <button type="button" class="close-btn" (click)="showJewelleryDetailModal = false">×</button>
+    </div>
+    <form (submit)="createJewelleryDetail(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Product Variant *</label>
+          <select name="jdVar" [(ngModel)]="jewelleryDetailForm.productVariantId" *ngIf="allVariantsCache.length > 0">
+            <option *ngFor="let v of allVariantsCache" [ngValue]="v.id">
+              #{{ v.id }} - {{ v.sku }} ({{ v.price }})
+            </option>
+          </select>
+          <input
+            *ngIf="allVariantsCache.length === 0"
+            type="number"
+            name="jdVarId"
+            [(ngModel)]="jewelleryDetailForm.productVariantId"
+            placeholder="Enter Product Variant ID"
+            required
+          />
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Metal Type *</label>
+            <select name="jdType" [(ngModel)]="jewelleryDetailForm.metalTypeId">
+              <option *ngFor="let mt of metalTypes" [ngValue]="mt.id">{{ mt.name }}</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Metal Purity *</label>
+            <select name="jdPurity" [(ngModel)]="jewelleryDetailForm.metalPurityId">
+              <option *ngFor="let mp of metalPurities" [ngValue]="mp.id">{{ mp.metalType }} {{ mp.name }}</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Pricing Method</label>
+            <select name="jdMethod" [(ngModel)]="jewelleryDetailForm.pricingMethod">
+              <option [ngValue]="2">Weight Based</option>
+              <option [ngValue]="1">Fixed Price</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Making Charge %</label>
+            <input type="number" step="0.01" name="jdMaking" [(ngModel)]="jewelleryDetailForm.makingChargePercentage" />
+          </div>
+          <div class="form-group">
+            <label>Stone Charge</label>
+            <input type="number" step="0.01" name="jdStone" [(ngModel)]="jewelleryDetailForm.stoneCharge" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Certification Number</label>
+          <input name="jdCert" [(ngModel)]="jewelleryDetailForm.certificationNumber" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showJewelleryDetailModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Configuration</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create Tracked Jewellery Item -->
+<div class="admin-modal" *ngIf="showJewelleryItemModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create &amp; Price Jewellery Item</h3>
+      <button type="button" class="close-btn" (click)="showJewelleryItemModal = false">×</button>
+    </div>
+    <form (submit)="createJewelleryItem(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Jewellery Detail Config *</label>
+          <select name="jiDetail" [(ngModel)]="targetJewelleryDetailId">
+            <option *ngFor="let jd of jewelleryDetails" [ngValue]="jd.id">
+              #{{ jd.id }} - {{ jd.sku }} ({{ jd.metalType }} {{ jd.metalPurity }})
+            </option>
+          </select>
+        </div>
+        <div class="form-row-3">
+          <div class="form-group">
+            <label>Gross Wt (g)</label>
+            <input type="number" step="0.001" name="jiGross" [(ngModel)]="jewelleryItemForm.grossWeightGrams" />
+          </div>
+          <div class="form-group">
+            <label>Net Metal Wt (g)</label>
+            <input type="number" step="0.001" name="jiNet" [(ngModel)]="jewelleryItemForm.netMetalWeightGrams" />
+          </div>
+          <div class="form-group">
+            <label>Stone Wt (ct)</label>
+            <input type="number" step="0.001" name="jiStone" [(ngModel)]="jewelleryItemForm.stoneWeightCarats" />
+          </div>
+        </div>
+        <div class="form-row-2">
+          <div class="form-group">
+            <label>Fixed Selling Price (FixedPrice only)</label>
+            <input type="number" step="0.01" name="jiFixed" [(ngModel)]="jewelleryItemForm.fixedSellingPrice" />
+          </div>
+          <div class="form-group">
+            <label>Currency</label>
+            <input name="jiCurr" maxlength="3" [(ngModel)]="jewelleryItemForm.currencyCode" />
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showJewelleryItemModal = false">Cancel</button>
+        <button type="submit" class="btn-save">Mint &amp; Price Item</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Add Location -->
+<div class="admin-modal" *ngIf="showAddLocation">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Add New Retail Location</h3>
+      <button class="close-btn" (click)="showAddLocation = false">×</button>
+    </div>
+    <form (submit)="addLocation(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Location Name</label>
+          <input name="name" [(ngModel)]="newLocation.name" placeholder="e.g. NK Fashions Delhi Outlet" required />
+        </div>
+        <div class="form-group">
+          <label>Location Code</label>
+          <input name="code" [(ngModel)]="newLocation.code" placeholder="e.g. NK-DEL-03" required />
+        </div>
+        <div class="form-group">
+          <label>Facility Type</label>
+          <select name="type" [(ngModel)]="newLocation.type">
+            <option value="Store">Retail Store Boutique</option>
+            <option value="Warehouse">Central Logistics Warehouse</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Physical Address</label>
+          <input name="address" [(ngModel)]="newLocation.address" placeholder="e.g. Connaught Place, New Delhi" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showAddLocation = false">Cancel</button>
+        <button type="submit" class="btn-save">Save Location</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal: Create Purchase Order -->
+<div class="admin-modal" *ngIf="showCreatePO">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Create Vendor Purchase Order</h3>
+      <button class="close-btn" (click)="showCreatePO = false">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Select Supplier Guild:</label>
+        <select [(ngModel)]="newPoSupplier">
+          <option *ngFor="let s of suppliers" [value]="s.companyName">{{ s.companyName }} ({{ s.category }})</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Product SKU:</label>
+        <input type="text" [(ngModel)]="newPoSku" placeholder="SKU" />
+      </div>
+      <div class="form-group">
+        <label>Quantity to Order:</label>
+        <input type="number" [(ngModel)]="newPoQty" min="1" />
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn-cancel" (click)="showCreatePO = false">Cancel</button>
+      <button type="button" class="btn-save" (click)="createPurchaseOrder()">Dispatch PO to Supplier</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Add Staff Member -->
+<div class="admin-modal" *ngIf="showAddStaff">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h3>Add Staff Member &amp; RBAC Assignment</h3>
+      <button class="close-btn" (click)="showAddStaff = false">×</button>
+    </div>
+    <form (submit)="addStaff(); $event.preventDefault()">
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Full Employee Name</label>
+          <input name="stName" [(ngModel)]="newStaff.name" placeholder="e.g. Tanmoy Ganguly" required />
+        </div>
+        <div class="form-group">
+          <label>Work Email</label>
+          <input type="email" name="stEmail" [(ngModel)]="newStaff.email" placeholder="e.g. tanmoy@nkfashions.com" required />
+        </div>
+        <div class="form-group">
+          <label>Assigned System Role</label>
+          <select name="stRole" [(ngModel)]="newStaff.role">
+            <option value="POS Cashier">POS Cashier / Operator</option>
+            <option value="Store Manager">Store Supervisor / Manager</option>
+            <option value="Warehouse Lead">Warehouse &amp; Stock Lead</option>
+            <option value="Admin">System Administrator</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Assigned Store Location</label>
+          <select name="stStore" [(ngModel)]="newStaff.store">
+            <option *ngFor="let loc of locations" [value]="loc.code">{{ loc.name }} ({{ loc.code }})</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-cancel" (click)="showAddStaff = false">Cancel</button>
+        <button type="submit" class="btn-save">Create Staff Account</button>
+      </div>
+    </form>
   </div>
 </div>

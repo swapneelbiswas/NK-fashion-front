@@ -1,126 +1,259 @@
-# Migration & Refactoring Plan: Hospital Delivery to Retail Management Platform
+# NK Fashions — Retail Management Platform & E-Commerce Architecture Plan
 
-This document outlines the systematic refactoring plan to transform the Koyama Shokai hospital delivery Angular frontend codebase into the frontend client for the **Retail Management Platform** (featuring an Online Store, Admin Control Panel, and POS client). 
+## 1. Executive Summary & Vision
 
-We will adapt the role and feature architecture of the old project as a template, mapping the existing modules to the equivalent retail modules.
+**NK Fashions** is an enterprise multi-channel retail management ecosystem integrating a public high-conversion e-commerce storefront, an ultra-fast in-store Point-of-Sale (POS) cashier terminal, a localized store manager portal, a personalized customer membership hub, and a centralized system administration control center.
 
----
-
-## 1. Role Mapping Strategy
-
-The old codebase defines four roles (`admin`, `leader`, `staff`, `hospital-staff`) using role-based routing prefixes and guards. We will map these directly to the retail system roles:
-
-| Old Role | Old Route | New Retail Role | New Route | Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **Admin** | `/admin` | **System Administrator** | `/admin` | Manages global catalog, multi-store locations, staff credentials, database audits, and suppliers. |
-| **Leader** | `/leader` | **Store Manager** | `/manager` | Accesses local store sales metrics, stock counts, inter-store transfers, and local staff logs. |
-| **Staff** | `/staff` | **POS Cashier / Operator** | `/pos` | Operates the cashier terminal, performs barcode scanning, splits payments, and prints receipts. |
-| **Hospital Staff** | `/hospital-staff` | **Registered Customer** | `/account` | Manages registered customer profiles, wishlists, address books, order tracking, and loyalty points. |
-| **Guest / Anonymous** | `/landing` | **Public Customer** | `/` | Browses the storefront homepage, product catalog, manages shopping cart, and executes checkout. |
+The architecture is built on **Angular (Standalone Components, Signals, SCSS, RxJS)** connecting to a high-performance **.NET 8+ C# Web API** backend.
 
 ---
 
-## 2. Shared Infrastructure Adaptation
+## 2. Unified Role-Based Access & Routing Matrix
 
-Before refactoring specific pages, we will adapt the shared components, services, and models.
+The system provides 5 role-based contexts protected by authentication guards, section entry guards, and granular role permissions (`RoleGuard`, `PageGuard`, `RoleRedirectGuard`):
 
-### 2.1 Route Guard and Authentication Refactoring
-* **`RoleGuard` (`src/app/routing/guards/role.guard.ts`):** Update roles checking to handle `admin`, `manager` (old `leader`), `pos` (old `staff`), and `customer` (old `hospital-staff`).
-* **`PageGuard` (`src/app/routing/guards/page.guard.ts`):** Keep the server-driven ACL checks. Update permission keys to match the new retail page keys.
-* **`AuthService` (`src/app/services/auth.service.ts`):** 
-  * Update `login` request parameters to match the new login requirements (e.g., username/email and password for Admin/Manager, PIN/card barcode scan for POS, email/password for Customer).
-  * Map response fields: numeric roles (`0` = Admin, `1` = Manager, `2` = POS, `3` = Customer).
-
-### 2.2 Shared UI Components (`src/app/shared-components/`)
-* **`Sidebar`:** Update navigation configuration data arrays to match the new page structure and permissions.
-* **`DropdownService` & `app-searchable-dropdown`:** Modify `DROPDOWN_TABLE` to map to retail entities:
-  * `hospitals` $\to$ `locations` (Stores/Warehouses)
-  * `services` $\to$ `products` (Product listings)
-  * `sets` $\to$ `variants` (Specific product sizes/colors/SKUs)
-  * `options` $\to$ `suppliers`
-* **`PostcodeService`:** Retain for autofilling customer checkout and shipping profile addresses.
-* **Localization (`src/app/utils/ln/jp-localization.ts`):** Translate terms from Japanese hospital context (e.g., 病院, 配送, 区分) to English/Japanese retail context (e.g., Store, Product, POS, Stock, Customer).
+| Role | Route Prefix | Target Persona | Key Capabilities |
+| :--- | :--- | :--- | :--- |
+| **Public Storefront** | `/`, `/landing`, `/shop`, `/product/:id`, `/cart`, `/checkout` | Guests & Online Shoppers | Product browsing, faceted filtering, dynamic cart drawer, voucher discounts, guest/user checkout. |
+| **Registered Customer** | `/account` (`/hospital-staff` legacy alias) | Verified Club Members | Order timeline tracking, saved wishlist, multi-address management, loyalty points ledger. |
+| **POS Cashier / Operator**| `/pos` (`/staff` legacy alias) | Cashiers & Floor Staff | Barcode scanner input, speed-keys, split payments (Cash/Card/UPI), order parking/held carts, thermal receipt printing. |
+| **Store Manager** | `/manager` (`/leader` legacy alias) | Store Supervisors | Local store inventory tracking, inter-branch stock transfers, cashier drawer reconciliation, shift activity logs. |
+| **System Administrator** | `/admin` | Head Office & Operations | Multi-store & warehouse locations, global catalog & variant SKU matrix, staff credentials, purchase orders, audit trails. |
 
 ---
 
-## 3. Feature-by-Feature Migration Blueprint
+## 3. Module & Feature Specifications
 
-We will repurpose the existing Angular page directories to build the equivalent retail features.
+### 3.1 Public E-Commerce Storefront (`src/app/pages/common/landing/` & Storefront Extensions)
 
+* **Hero Showcase & Curated Collections:**
+  * Dynamic banners highlighting seasonal promotions (Festive Sarees, Designer Kurta Sets, Premium Cotton Polos, Couple Sets).
+  * Category navigation tiles with responsive imagery and quick-jump filters.
+* **Product Catalog & Search:**
+  * Live instant search with debounce for keyword and SKU queries.
+  * Faceted filters: Category (Saree, Men's Ethnic, Casual, Couple Sets), Price Range Slider, Size, Color, In-Stock only.
+  * Product card interactions: Quick View modal, hover secondary image swap, one-click add to cart, and wishlist toggle.
+* **Product Details View (`/product/:slug`):**
+  * High-resolution image zoom and thumbnail gallery.
+  * Dynamic variant selector (Color, Size) with live price update and SKU stock availability indicator.
+  * Fabric & Care instructions, size guide modal, customer reviews and star ratings.
+* **Shopping Cart & Checkout Flow:**
+  * Slide-out persistent Cart Drawer with live subtotal calculation, free shipping threshold progress bar, and item quantity controls.
+  * Checkout page with address selection/postcode autofill, promo code verification, payment gateway integration, and instant order confirmation.
+
+---
+
+### 3.2 POS Cashier Terminal (`src/app/pages/cashier/terminal/`)
+
+Designed for speed, high transaction volume, and keyboard/barcode scanner accessibility:
+
+* **Barcode Scanner & Fast Lookup:**
+  * Hardware USB/Bluetooth barcode scanner support (auto-focus enter-key listener).
+  * Quick-touch item grid categorized by high-velocity products.
+* **Active Cart & Transaction Operations:**
+  * Real-time line item editing: quantity adjustments, line discounts (fixed amount / percentage), and removal.
+  * Customer association: Quick lookup by phone number/name or default to "Walk-in Customer".
+  * Loyalty points redemption toggle directly inside checkout drawer.
+* **Split & Multi-tender Payments:**
+  * Tender modes: Cash (with exact change calculator), Credit/Debit Card, UPI / QR Scan, Store Credit / Loyalty.
+* **Held Sales / Parked Orders:**
+  * Hold/suspend current cart to serve another customer and resume later with zero data loss.
+* **Receipts & Returns:**
+  * Direct thermal 80mm / 58mm receipt layout formatting.
+  * Fast order lookup for processing item returns, exchanges, and partial refunds with manager override.
+
+---
+
+### 3.3 Store Manager Portal (`src/app/pages/manager/dashboard/`)
+
+Equips store supervisors with local store visibility and operational controls:
+
+* **Local Stock Oversight:**
+  * Real-time physical, reserved, and available stock levels for the assigned branch.
+  * Low-stock warnings and reorder trigger notifications.
+* **Inter-Store Stock Transfers:**
+  * Inbound shipment receiving with discrepancy reporting.
+  * Outbound stock transfer requests to central warehouse or other retail branches.
+* **Cashier Logs & Shift Audits:**
+  * Real-time cashier activity log (price overrides, drawer openings, suspended carts, refunds).
+  * Shift opening/closing balance declaration and drawer reconciliation.
+
+---
+
+### 3.4 Customer Account & Membership Hub (`src/app/pages/customer/portal/`)
+
+Self-service portal for registered shoppers:
+
+* **Order History & Delivery Tracking:**
+  * Detailed order timeline: `Placed` $\to$ `Confirmed` $\to$ `Dispatched` $\to$ `Out for Delivery` $\to$ `Delivered`.
+  * Invoice PDF download and parcel courier tracking link integration.
+* **Wishlist Management:**
+  * Visual collection of saved favorite items with single-click "Move to Cart" action.
+* **Address Book:**
+  * Multiple saved delivery and billing addresses with default tag and postal code autofill.
+* **NK Loyalty Club Ledger:**
+  * Tier status badge (Silver, Gold, Platinum).
+  * Current points balance with a transaction ledger (points earned per purchase, points redeemed).
+
+---
+
+### 3.5 System Administrator Control Center (`src/app/pages/admin/dashboard/`)
+
+Central operational cockpit for business management:
+
+* **Executive Analytics & KPI Dashboard:**
+  * Multi-store revenue comparison, top-selling SKUs, inventory gross margins, and daily sales metrics.
+* **Store Locations & Warehouses:**
+  * Management of physical retail outlets and fulfillment warehouses (codes, tax GSTINs, addresses, geo-coordinates).
+* **Catalog & Master Variant Matrix:**
+  * Hierarchy: Categories $\to$ Subcategories $\to$ Master Products $\to$ SKUs / Variants.
+  * Attribute management: Colors, Sizes, Fabrics, HSN/Tax Codes, Standard Cost, Retail Price.
+* **Suppliers & Purchase Orders (PO):**
+  * Vendor registry and contact management.
+  * Purchase order wizard: Create PO $\to$ Approve $\to$ Receive Goods $\to$ Auto-increment warehouse inventory.
+* **Staff & RBAC Security:**
+  * User credentials, assigned roles (`Admin`, `Manager`, `POS Cashier`, `Warehouse Staff`), and store bindings.
+* **Comprehensive Audit Trail:**
+  * Immutable event log capturing all critical administrative actions (price changes, manual stock adjustments, refunds, role updates).
+
+---
+
+## 4. Domain Data Model & Interface Mapping
+
+```typescript
+// Core Data Models Overview
+
+// 1. Store / Warehouse Location
+export interface StoreLocation {
+  id: string;
+  code: string;
+  name: string;
+  type: 'Store' | 'Warehouse';
+  address: string;
+  phone: string;
+  isActive: boolean;
+}
+
+// 2. Product Master & Variant
+export interface Product {
+  id: string;
+  code: string;
+  name: string;
+  brand: string;
+  categoryId: string;
+  categoryName: string;
+  description: string;
+  basePrice: number;
+  images: string[];
+  isActive: boolean;
+  variants: ProductVariant[];
+}
+
+export interface ProductVariant {
+  id: string;
+  productId: string;
+  sku: string;
+  barcode: string;
+  size: string;
+  color: string;
+  fabric?: string;
+  price: number;
+  costPrice: number;
+  stockQuantity: number;
+}
+
+// 3. Multi-Store Inventory Level
+export interface InventoryItem {
+  id: string;
+  locationId: string;
+  locationName: string;
+  variantId: string;
+  sku: string;
+  productName: string;
+  physicalQty: number;
+  reservedQty: number;
+  availableQty: number;
+  reorderPoint: number;
+}
+
+// 4. Orders & Sales
+export interface Order {
+  id: string;
+  orderNumber: string;
+  customerId?: string;
+  customerName: string;
+  customerPhone?: string;
+  locationId: string;
+  channel: 'Online' | 'POS';
+  status: 'Pending' | 'Processing' | 'Shipped' | 'Delivered' | 'Cancelled';
+  paymentStatus: 'Paid' | 'Unpaid' | 'Refunded';
+  paymentMethod: 'Cash' | 'Card' | 'UPI' | 'Split';
+  subtotal: number;
+  discountAmount: number;
+  taxAmount: number;
+  totalAmount: number;
+  items: OrderItem[];
+  createdAt: string;
+}
+
+export interface OrderItem {
+  id: string;
+  orderId: string;
+  variantId: string;
+  productName: string;
+  sku: string;
+  unitPrice: number;
+  quantity: number;
+  discount: number;
+  totalPrice: number;
+}
+
+// 5. Stock Transfer
+export interface StockTransfer {
+  id: string;
+  transferNumber: string;
+  fromLocationId: string;
+  toLocationId: string;
+  variantId: string;
+  productName: string;
+  sku: string;
+  quantity: number;
+  status: 'Draft' | 'InTransit' | 'Received' | 'Rejected';
+  requestedBy: string;
+  createdAt: string;
+}
 ```
-src/app/pages/
-├── admin/               --> Admin Control Panel (Global catalog, multi-store, staff, POs, reports)
-├── leader/              --> Store Manager Portal (Store metrics, local stock, transfers)
-├── staff/               --> POS Cashier Terminal (Scanning, carts, payments, receipt printing)
-└── hospital-staff/      --> Customer Portal (Orders list, wishlist, profile, loyalty ledger)
+
+---
+
+## 5. Implementation & Delivery Roadmap
+
+```mermaid
+gantt
+    title NK Fashions Development Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 1: Shared Core & Auth
+    Route Guards & RBAC Alignment       :done,    des1, 2026-09-01, 2026-09-05
+    Shared Design Tokens & Sidebar      :done,    des2, 2026-09-06, 2026-09-10
+    section Phase 2: Core Storefront
+    Hero & Catalog Grid Showcase        :done,    des3, 2026-09-11, 2026-09-15
+    Cart Drawer & Modal System          :done,    des4, 2026-09-16, 2026-09-18
+    section Phase 3: POS Cashier Terminal
+    Barcode Scanning & Fast Cart        :active,  des5, 2026-09-19, 2026-09-25
+    Split Tender & Thermal Receipts     :         des6, 2026-09-26, 2026-10-02
+    section Phase 4: Manager & Admin
+    Inter-Store Stock Transfers         :         des7, 2026-10-03, 2026-10-10
+    Suppliers, Purchase Orders & ACL    :         des8, 2026-10-11, 2026-10-20
+    section Phase 5: Customer Portal & API Sync
+    Order Tracking & Loyalty Ledger     :         des9, 2026-10-21, 2026-10-30
+    End-to-End API Integration          :         des10, 2026-11-01, 2026-11-10
 ```
 
 ---
 
-### 3.1 Admin Portal Refactoring (`src/app/pages/admin/`)
+## 6. Verification & Quality Assurance
 
-| Old Feature & Route | New Feature | Description | Migration Task |
-| :--- | :--- | :--- | :--- |
-| **`summary`** | **Dashboard** | Business overview showing sales, profit margins, low stock alerts, pending orders, and graphs. | Replace static billing text with charts (using chart libraries or SVG bars) showing revenue, margins, and low stock items. |
-| **`branch`** | **Locations (Stores/Warehouses)** | CRUD for stores (retail branches) and warehouses. | Modify fields to support location type designation (`Store` vs `Warehouse`), address, and store phone contact details. |
-| **`hospital`** | **Product Catalog** | CRUD for parent products, categories, subcategories, and collections. | Convert hospital details form to catalog form: Name, Description, Category/Subcategory, Brand, and tax status. |
-| **`room-list`** | **Product Variants & SKUs** | CRUD for specific variant configurations (e.g., Red/Medium) under a parent product. | Modify fields to support: SKU, Barcode, Color, Size, Material, Purity (for jewelry), Price, Cost, and Weight. |
-| **`leader-list`** | **Staff & Roles** | CRUD for staff accounts, store assignment, and permissions mapping. | Adapt employee form with Role designation (`Admin`, `Manager`, `POS`, `Warehouse`) and store location assignments. |
-| **`service-list` / `set-list`** | **Inventory Levels** | Multi-store inventory monitoring and low-stock alerts dashboard. | Modify service/set templates to list inventory items. Show: Store/Warehouse, Variant SKU, Quantity, Reserved, and Available Stock. |
-| **`option-list`** | **Suppliers & Purchase Orders** | CRUD for suppliers and managing PO documents (creation, sending, receiving stock). | Convert options list to Supplier list. Add PO wizard to generate order sheets for variants and post stock increases. |
-| **`user-koyama-staff`** | **Audit Logs** | Logging database changes (e.g., manual stock overrides, price changes) for accountability. | Display audit trails: User, Action, Timestamp, Target, Old Value, and New Value. |
-| **`acl`** | **Access Control** | Role-permission matrix configuration tool. | Uncomment and wire `/admin/acl` route back into `app.routes.ts`. Adapt permission keys for retail actions (e.g., `canChangeCostPrice`, `canAdjustStock`). |
-
----
-
-### 3.2 POS / Cashier Portal Refactoring (`src/app/pages/staff/` $\to$ `/pos/`)
-
-This portal requires high speed and keyboard-friendly navigation.
-
-| Old Feature & Route | New Feature | Description | Migration Task |
-| :--- | :--- | :--- | :--- |
-| **`delivery-request`** | **POS Cashier Terminal** | POS checkout terminal with barcode scanner lookup, cart, coupons, and split payments. | Replace three-table delivery layout with a split layout: left side for cart list, right side for numeric keypad, customer selector, and payment actions. Add barcode listener. |
-| **`completed-distribution-list`**| **Sales History** | Read-only historical sales register for auditing and thermal receipt reprint. | Refactor completed delivery list to show Sales orders, Invoice reference numbers, Date, Total, Payment Method, and Cashier ID. |
-| **`incomplete-distribution-list`**| **Held Sales** | List of pending transactions that have been suspended/held to resume later. | Convert incomplete deliveries table to a list of held orders with a "Resume Sale" action button. |
-| **`user-list`** | **Returns & Refunds** | Interface to locate past orders by receipt barcode and process refunds or items exchanges. | Refactor editable list to allow search by Order ID. Implement refund validation logic (prevent refunding more than purchased). |
-
----
-
-### 3.3 Customer Portal Refactoring (`src/app/pages/hospital-staff/` $\to$ `/account/`)
-
-| Old Feature & Route | New Feature | Description | Migration Task |
-| :--- | :--- | :--- | :--- |
-| **`after-delivery`** | **Orders Tracking** | Order history tracking showing shipping status updates from backend state machine. | Convert classification rows to Order rows showing: Order #, Order Date, Status Badge (Paid, Processing, Shipped, Delivered), and Tracking Link. |
-| **`invoice-confirmation-list`**| **Wishlist** | Customer's saved wishlist of products with "Add to Cart" quick actions. | Adapt confirmation checkboxes to act as wishlist items with quick links to buy. |
-| **`hospital-classification-list`**| **Address Book** | Registered shipping/billing address book management. | Convert classification/ward lists to shipping addresses (Name, Address, Phone, Postcode lookup). |
-| **`option-list`** | **Loyalty & Rewards** | Points balance dashboard with loyalty points ledger (history of points earned/spent). | Convert options catalog template to a card showing loyalty points balance and a table of points logs. |
-
----
-
-### 3.4 Public Portal Development (`src/app/pages/common/` & `/landing`)
-
-The public storefront acts as the homepage and primary e-commerce customer pipeline.
-
-1. **`landing` (Homepage):** Refactor the old login gateway landing page into the store homepage featuring hero sliders, featured categories, new arrivals, and promotional banners.
-2. **`shop` (Catalog Browse):** Create a grid view listing product cards (Image, Name, Price, Brand, Quick View link). Include sidebar filters (category, price range, attributes like size/color).
-3. **`product/:slug` (Product Details):** Product presentation detail page. Renders product images, variant selectors (changing color/size updates price and SKU stock availability), description, and customer reviews.
-4. **`cart` & `checkout`:** 
-  * Cart page handles quantity changes, item removal, and subtotal calculation.
-  * Checkout page captures shipping details, coupon code validations, payment method selection, and submits order creation payload.
-
----
-
-## 4. Models (Interfaces) Transformation Map
-
-Update `src/app/models/` definitions to map the data models:
-
-| Old Interface | New Interface | Core Fields |
-| :--- | :--- | :--- |
-| `Branch` | `StoreLocation` | `id`, `code`, `name`, `type` ('Store' \| 'Warehouse'), `address`, `phone` |
-| `Hospital` | `Product` | `id`, `code`, `name`, `categoryId`, `brand`, `description`, `taxStatus` |
-| `Room` / `Classification` | `ProductVariant` | `id`, `productId`, `sku`, `barcode`, `price`, `cost`, `color`, `size`, `weight` |
-| `Service` | `InventoryItem` | `id`, `locationId`, `variantId`, `physicalQty`, `reservedQty`, `availableQty` |
-| `Set` | `StockMovement` | `id`, `inventoryItemId`, `changeQty`, `beforeQty`, `afterQty`, `reason`, `userId`, `timestamp` |
-| `Option` | `Supplier` | `id`, `name`, `companyName`, `email`, `phone`, `address` |
-| `DeliveryRequest` | `Order` | `id`, `orderNumber`, `customerId`, `locationId`, `status`, `totalAmount`, `paymentMethod`, `createdAt` |
-| `DeliveryList` | `OrderItem` | `id`, `orderId`, `variantId`, `quantity`, `unitPrice`, `discountAmount`, `taxAmount` |
+* **Unit & Component Testing:** Validate reactive state, cart arithmetic (subtotals, discounts, taxes), and barcode scanner listeners.
+* **RBAC & Guard Testing:** Verify that unauthenticated or unauthorized users cannot access restricted `/admin`, `/manager`, or `/pos` routes.
+* **Responsive Viewport Testing:** Test mobile storefront responsiveness and desktop POS wide-screen keyboard workflows.
+* **API Health Check Sync:** Real-time ping to backend `/health-check` service to ensure zero-downtime microservice connectivity.

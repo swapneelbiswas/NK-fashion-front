@@ -1559,3 +1559,156 @@ button, .slide-cta-btn, .quick-add-btn, .checkout-action-btn, .shop-btn {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.3; }
 }
+
+.metal-rates-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  background-color: #faf6f0;
+  border: 1px solid rgba($gold, 0.35);
+  padding: 0.7rem 1.2rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.82rem;
+
+  .rates-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    color: $maroon;
+
+    i {
+      font-size: 1rem;
+      color: $gold-dark;
+    }
+  }
+
+  .rate-chip {
+    background-color: #ffffff;
+    border: 1px solid #e6dcc8;
+    padding: 0.25rem 0.65rem;
+    color: $text-dark;
+  }
+}
+
+.catalog-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  .catalog-filter-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+
+    .filter-pill {
+      background-color: #ffffff;
+      border: 1px solid #dddddd;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: $text-dark;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &.active,
+      &:hover {
+        background-color: $maroon;
+        border-color: $maroon;
+        color: #ffffff;
+      }
+    }
+  }
+
+  .catalog-search-box {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1px solid #cccccc;
+    background-color: #ffffff;
+    padding: 0.4rem 0.8rem;
+    min-width: 240px;
+
+    i {
+      font-size: 1.1rem;
+      color: #888888;
+    }
+
+    input {
+      border: none;
+      outline: none;
+      font-size: 0.85rem;
+      width: 100%;
+    }
+  }
+}
+
+.catalog-loading {
+  text-align: center;
+  padding: 2.5rem;
+  color: #777777;
+  font-size: 0.95rem;
+}
+
+.jewellery-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem !important;
+  background-color: #fffdf9;
+  border: 1px solid #e6dcc8 !important;
+
+  .jewellery-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 0.4rem;
+    margin-bottom: 0.8rem;
+
+    .metal-badge {
+      background-color: $maroon;
+      color: $gold;
+      font-size: 0.7rem;
+      font-weight: 600;
+      padding: 0.2rem 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .barcode-badge {
+      font-family: monospace;
+      font-size: 0.72rem;
+      color: #555555;
+      background-color: #f3f3f3;
+      padding: 0.2rem 0.45rem;
+    }
+  }
+
+  .jewellery-breakdown {
+    color: #666666;
+    margin: 0.35rem 0;
+  }
+
+  .quick-add-jewel-btn {
+    margin-top: 0.8rem;
+    width: 100%;
+    background-color: $maroon;
+    color: #ffffff;
+    border: none;
+    padding: 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+
+    &:hover {
+      background-color: $gold-dark;
+    }
+  }
+}

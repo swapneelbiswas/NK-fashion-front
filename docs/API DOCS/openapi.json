@@ -1,0 +1,1559 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "NK Fashion API",
+    "version": "v1",
+    "description": "REST API for NK Fashion products, variants, categories, brands, metals, and individually tracked jewellery items.\n\n**Local Development Notes:**\n- Default HTTP URL: `http://localhost:5173`\n- Default HTTPS URL: `https://localhost:7211`\n- Interactive Swagger UI (when API is running): `http://localhost:5173/swagger`\n- Live Swagger OpenAPI JSON: `http://localhost:5173/swagger/v1/swagger.json`\n- Enum fields use integer values unless noted otherwise (for example, `JewelleryItemResponse.status` returns a string such as `\"InStock\"`)."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5173",
+      "description": "Local HTTP development server"
+    },
+    {
+      "url": "https://localhost:7211",
+      "description": "Local HTTPS development server"
+    }
+  ],
+  "tags": [
+    { "name": "Brands", "description": "Manage product brands" },
+    { "name": "Categories", "description": "Manage hierarchical product categories" },
+    { "name": "Products", "description": "Manage fashion, jewellery, and accessory products" },
+    { "name": "ProductVariants", "description": "Manage SKU, size, colour, and price variants for a product" },
+    { "name": "MetalTypes", "description": "Manage precious metal types (e.g., Gold, Silver)" },
+    { "name": "MetalPurities", "description": "Manage metal purities linked to a metal type (e.g., 22K, 18K)" },
+    { "name": "MetalRates", "description": "Manage time-effective metal rates per gram and manual overrides" },
+    { "name": "JewelleryDetails", "description": "Configure metal, purity, pricing method, and charges for a jewellery product variant" },
+    { "name": "JewelleryItems", "description": "Manage individually tracked, barcoded jewellery pieces and live pricing" },
+    { "name": "WeatherForecast", "description": "Default ASP.NET Core template health/sample endpoint" }
+  ],
+  "paths": {
+    "/api/brands": {
+      "get": {
+        "tags": ["Brands"],
+        "summary": "List all brands",
+        "operationId": "getBrands",
+        "responses": {
+          "200": {
+            "description": "List of brands ordered by name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/BrandResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Brands"],
+        "summary": "Create a new brand",
+        "operationId": "createBrand",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateBrandRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Brand created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BrandResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error or duplicate brand name",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/brands/{id}": {
+      "get": {
+        "tags": ["Brands"],
+        "summary": "Get a brand by ID",
+        "operationId": "getBrandById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Brand found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BrandResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Brands"],
+        "summary": "Update an existing brand",
+        "operationId": "updateBrand",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateBrandRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Brand updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/BrandResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation error, duplicate name, or brand still has assigned products when deactivating",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Brands"],
+        "summary": "Deactivate a brand (soft delete)",
+        "operationId": "deactivateBrand",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "204": { "description": "Brand deactivated" },
+          "400": {
+            "description": "Brand still has assigned products",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": {
+            "description": "Brand not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get all categories as a nested tree (includes inactive)",
+        "operationId": "getCategories",
+        "responses": {
+          "200": {
+            "description": "Nested category tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoryResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Categories"],
+        "summary": "Create a category",
+        "operationId": "createCategory",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateCategoryRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Category created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CategoryResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Duplicate category name under parent or invalid/inactive parent",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/tree": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get active categories as a nested tree",
+        "operationId": "getActiveCategoryTree",
+        "responses": {
+          "200": {
+            "description": "Active nested category tree",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/CategoryResponse" }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/categories/{id}": {
+      "get": {
+        "tags": ["Categories"],
+        "summary": "Get a category by ID",
+        "operationId": "getCategoryById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Category found (subCategories is empty on single lookup)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CategoryResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Categories"],
+        "summary": "Update a category",
+        "operationId": "updateCategory",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateCategoryRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Category updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/CategoryResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid hierarchy, duplicate name, or active children/products prevent deactivation",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Categories"],
+        "summary": "Deactivate a category (soft delete)",
+        "operationId": "deactivateCategory",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "204": { "description": "Category deactivated" },
+          "400": {
+            "description": "Category has active subcategories or assigned products",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Search and list products",
+        "operationId": "getProducts",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Case-sensitive/SQL substring match against product name or description",
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "description": "Filter by assigned category ID (> 0)",
+            "schema": { "type": "integer", "format": "int32", "nullable": true }
+          },
+          {
+            "name": "brandId",
+            "in": "query",
+            "description": "Filter by brand ID (> 0)",
+            "schema": { "type": "integer", "format": "int32", "nullable": true }
+          },
+          {
+            "name": "productType",
+            "in": "query",
+            "description": "Filter by ProductType (1=Clothing, 2=Jewellery, 3=Accessories)",
+            "schema": { "$ref": "#/components/schemas/ProductType" }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "schema": { "type": "boolean", "nullable": true }
+          },
+          {
+            "name": "isFeatured",
+            "in": "query",
+            "schema": { "type": "boolean", "nullable": true }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of matching products ordered by name",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProductResponse" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid filter value",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Products"],
+        "summary": "Create a product",
+        "operationId": "createProduct",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProductRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Product created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation or business rule error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{id}": {
+      "get": {
+        "tags": ["Products"],
+        "summary": "Get a product by ID",
+        "operationId": "getProductById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductResponse" }
+              }
+            }
+          },
+          "404": { "description": "Product not found" }
+        }
+      },
+      "put": {
+        "tags": ["Products"],
+        "summary": "Update a product",
+        "operationId": "updateProduct",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProductRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation or business rule error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/variants": {
+      "get": {
+        "tags": ["ProductVariants"],
+        "summary": "List all variants for a product",
+        "operationId": "getProductVariants",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of variants ordered by size and colour",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/ProductVariantResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["ProductVariants"],
+        "summary": "Create a variant for a product",
+        "operationId": "createProductVariant",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateProductVariantRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Variant created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductVariantResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Inactive/missing product or duplicate SKU",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/{productId}/variants/{id}": {
+      "get": {
+        "tags": ["ProductVariants"],
+        "summary": "Get a specific product variant by ID",
+        "operationId": "getProductVariantById",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductVariantResponse" }
+              }
+            }
+          },
+          "404": { "description": "Variant not found or does not belong to productId" }
+        }
+      },
+      "put": {
+        "tags": ["ProductVariants"],
+        "summary": "Update a product variant",
+        "operationId": "updateProductVariant",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateProductVariantRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Variant updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ProductVariantResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Duplicate SKU or validation error",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          },
+          "404": { "description": "Variant not found or does not belong to productId" }
+        }
+      },
+      "delete": {
+        "tags": ["ProductVariants"],
+        "summary": "Deactivate a product variant (soft delete)",
+        "operationId": "deactivateProductVariant",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "204": { "description": "Variant deactivated" },
+          "404": { "description": "Variant not found or does not belong to productId" }
+        }
+      }
+    },
+    "/api/metaltypes": {
+      "get": {
+        "tags": ["MetalTypes"],
+        "summary": "List all metal types",
+        "operationId": "getMetalTypes",
+        "responses": {
+          "200": {
+            "description": "List of metal types",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MetalTypeResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["MetalTypes"],
+        "summary": "Create a metal type",
+        "operationId": "createMetalType",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateMetalTypeRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metal type created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalTypeResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Duplicate metal type name or code",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/metaltypes/{id}": {
+      "get": {
+        "tags": ["MetalTypes"],
+        "summary": "Get a metal type by ID",
+        "operationId": "getMetalTypeById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metal type found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalTypeResponse" }
+              }
+            }
+          },
+          "404": { "description": "Metal type not found" }
+        }
+      }
+    },
+    "/api/metalpurities": {
+      "get": {
+        "tags": ["MetalPurities"],
+        "summary": "List all metal purities",
+        "operationId": "getMetalPurities",
+        "responses": {
+          "200": {
+            "description": "List of metal purities",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MetalPurityResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["MetalPurities"],
+        "summary": "Create a metal purity",
+        "operationId": "createMetalPurity",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateMetalPurityRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metal purity created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalPurityResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid metal type or duplicate purity for metal",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/metalpurities/{id}": {
+      "get": {
+        "tags": ["MetalPurities"],
+        "summary": "Get a metal purity by ID",
+        "operationId": "getMetalPurityById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Metal purity found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalPurityResponse" }
+              }
+            }
+          },
+          "404": { "description": "Metal purity not found" }
+        }
+      }
+    },
+    "/api/metalrates": {
+      "get": {
+        "tags": ["MetalRates"],
+        "summary": "List all historical and active metal rates",
+        "operationId": "getMetalRates",
+        "responses": {
+          "200": {
+            "description": "List of metal rates",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/MetalRateResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["MetalRates"],
+        "summary": "Create a new metal rate and maintain rate timeline",
+        "operationId": "createMetalRate",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateMetalRateRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Metal rate created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalRateResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid metal/purity, currency, or duplicate effective timestamp",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/metalrates/current": {
+      "get": {
+        "tags": ["MetalRates"],
+        "summary": "Get currently applicable metal rate",
+        "description": "Returns the rate active as of now (UTC). Manual overrides take priority over automatic rates.",
+        "operationId": "getCurrentMetalRate",
+        "parameters": [
+          {
+            "name": "metalTypeId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "metalPurityId",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          },
+          {
+            "name": "currencyCode",
+            "in": "query",
+            "required": false,
+            "schema": { "type": "string", "default": "AUD" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Applicable metal rate found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/MetalRateResponse" }
+              }
+            }
+          },
+          "404": {
+            "description": "No applicable metal rate found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jewellerydetails": {
+      "get": {
+        "tags": ["JewelleryDetails"],
+        "summary": "List all jewellery detail configurations",
+        "operationId": "getJewelleryDetails",
+        "responses": {
+          "200": {
+            "description": "List of jewellery details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/JewelleryDetailResponse" }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["JewelleryDetails"],
+        "summary": "Create jewellery configuration for a product variant",
+        "operationId": "createJewelleryDetail",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateJewelleryDetailRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Jewellery detail created",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryDetailResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Variant is not Jewellery, already configured, or invalid metal/purity",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jewellerydetails/{id}": {
+      "get": {
+        "tags": ["JewelleryDetails"],
+        "summary": "Get a jewellery detail by ID",
+        "operationId": "getJewelleryDetailById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jewellery detail found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryDetailResponse" }
+              }
+            }
+          },
+          "404": { "description": "Jewellery detail not found" }
+        }
+      }
+    },
+    "/api/jewellery-items": {
+      "get": {
+        "tags": ["JewelleryItems"],
+        "summary": "Search, filter, sort, and paginate individually tracked jewellery items",
+        "operationId": "getJewelleryItems",
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "description": "Matches barcode, variant SKU, or product name",
+            "schema": { "type": "string", "nullable": true }
+          },
+          {
+            "name": "metalTypeId",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32", "nullable": true }
+          },
+          {
+            "name": "metalPurityId",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32", "nullable": true }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Filter by status (1=InStock, 2=Reserved, 3=Sold, 4=Returned, 5=Damaged, 6=Transferred)",
+            "schema": { "$ref": "#/components/schemas/JewelleryItemStatus" }
+          },
+          {
+            "name": "minPrice",
+            "in": "query",
+            "schema": { "type": "number", "format": "double", "minimum": 0, "maximum": 999999999, "nullable": true }
+          },
+          {
+            "name": "maxPrice",
+            "in": "query",
+            "schema": { "type": "number", "format": "double", "minimum": 0, "maximum": 999999999, "nullable": true }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "default": "newest",
+              "enum": ["newest", "oldest", "price_low", "price_high", "name"]
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32", "default": 1, "minimum": 1 }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": { "type": "integer", "format": "int32", "default": 20, "minimum": 1, "maximum": 100 }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paged list of jewellery items",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/PagedJewelleryItemResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid query parameter or minPrice > maxPrice",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jewellery-items/{id}": {
+      "get": {
+        "tags": ["JewelleryItems"],
+        "summary": "Get an individually tracked jewellery item by ID",
+        "operationId": "getJewelleryItemById",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jewellery item found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryItemResponse" }
+              }
+            }
+          },
+          "404": { "description": "Jewellery item not found" }
+        }
+      }
+    },
+    "/api/jewellery-items/barcode/{barcode}": {
+      "get": {
+        "tags": ["JewelleryItems"],
+        "summary": "Look up a jewellery item by its barcode",
+        "operationId": "getJewelleryItemByBarcode",
+        "parameters": [
+          {
+            "name": "barcode",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Jewellery item found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryItemResponse" }
+              }
+            }
+          },
+          "404": { "description": "Jewellery item not found" }
+        }
+      }
+    },
+    "/api/jewellery-items/{jewelleryDetailId}": {
+      "post": {
+        "tags": ["JewelleryItems"],
+        "summary": "Create and price an individually tracked jewellery item",
+        "description": "Generates a Code 128-compatible barcode (`NKJ...`) and prices the item either via the active metal rate (WeightBased) or `fixedSellingPrice` (FixedPrice).",
+        "operationId": "createJewelleryItem",
+        "parameters": [
+          {
+            "name": "jewelleryDetailId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer", "format": "int32" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateJewelleryItemRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Jewellery item created and priced",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryItemResponse" }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid weights, missing metal rate, or pricing method mismatch",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/jewellery-items/{id}/status": {
+      "patch": {
+        "tags": ["JewelleryItems"],
+        "summary": "Update inventory status of a jewellery item",
+        "operationId": "updateJewelleryItemStatus",
+        "parameters": [
+          { "$ref": "#/components/parameters/IdPathParam" }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateJewelleryItemStatusRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/JewelleryItemResponse" }
+              }
+            }
+          },
+          "400": { "description": "Invalid status enum value" },
+          "404": {
+            "description": "Jewellery item not found",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorMessage" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/WeatherForecast": {
+      "get": {
+        "tags": ["WeatherForecast"],
+        "summary": "Get sample weather forecast",
+        "operationId": "GetWeatherForecast",
+        "responses": {
+          "200": {
+            "description": "Sample forecast array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/WeatherForecast" }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "IdPathParam": {
+        "name": "id",
+        "in": "path",
+        "required": true,
+        "schema": { "type": "integer", "format": "int32" }
+      }
+    },
+    "schemas": {
+      "ErrorMessage": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        },
+        "required": ["message"]
+      },
+      "ProductType": {
+        "type": "integer",
+        "format": "int32",
+        "enum": [1, 2, 3],
+        "description": "1 = Clothing, 2 = Jewellery, 3 = Accessories",
+        "x-enumNames": ["Clothing", "Jewellery", "Accessories"]
+      },
+      "JewelleryPricingMethod": {
+        "type": "integer",
+        "format": "int32",
+        "enum": [1, 2],
+        "description": "1 = FixedPrice, 2 = WeightBased",
+        "x-enumNames": ["FixedPrice", "WeightBased"]
+      },
+      "JewelleryItemStatus": {
+        "type": "integer",
+        "format": "int32",
+        "enum": [1, 2, 3, 4, 5, 6],
+        "description": "1 = InStock, 2 = Reserved, 3 = Sold, 4 = Returned, 5 = Damaged, 6 = Transferred",
+        "x-enumNames": ["InStock", "Reserved", "Sold", "Returned", "Damaged", "Transferred"]
+      },
+      "BrandResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string", "nullable": true },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "CreateBrandRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 150 },
+          "description": { "type": "string", "maxLength": 1000, "nullable": true }
+        }
+      },
+      "UpdateBrandRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 150 },
+          "description": { "type": "string", "maxLength": 1000, "nullable": true },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "CategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "parentCategoryId": { "type": "integer", "format": "int32", "nullable": true },
+          "isActive": { "type": "boolean" },
+          "subCategories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/CategoryResponse" }
+          }
+        }
+      },
+      "CreateCategoryRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 150 },
+          "parentCategoryId": { "type": "integer", "format": "int32", "nullable": true }
+        }
+      },
+      "UpdateCategoryRequest": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 150 },
+          "parentCategoryId": { "type": "integer", "format": "int32", "nullable": true },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "ProductCategoryResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" }
+        }
+      },
+      "ProductResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "slug": { "type": "string" },
+          "description": { "type": "string" },
+          "productType": { "$ref": "#/components/schemas/ProductType" },
+          "categories": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/ProductCategoryResponse" }
+          },
+          "brandId": { "type": "integer", "format": "int32", "nullable": true },
+          "brand": { "type": "string", "nullable": true },
+          "isActive": { "type": "boolean" },
+          "isFeatured": { "type": "boolean" },
+          "createdAtUtc": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateProductRequest": {
+        "type": "object",
+        "required": ["name", "categoryIds"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 200 },
+          "description": { "type": "string", "maxLength": 4000, "nullable": true },
+          "categoryIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "brandId": { "type": "integer", "format": "int32", "nullable": true },
+          "productType": { "$ref": "#/components/schemas/ProductType" },
+          "isFeatured": { "type": "boolean", "default": false }
+        }
+      },
+      "UpdateProductRequest": {
+        "type": "object",
+        "required": ["name", "categoryIds"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 200 },
+          "description": { "type": "string", "maxLength": 4000, "nullable": true },
+          "categoryIds": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "integer", "format": "int32" }
+          },
+          "brandId": { "type": "integer", "format": "int32", "nullable": true },
+          "productType": { "$ref": "#/components/schemas/ProductType" },
+          "isFeatured": { "type": "boolean" },
+          "isActive": { "type": "boolean", "default": true }
+        }
+      },
+      "ProductVariantResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "productId": { "type": "integer", "format": "int32" },
+          "sku": { "type": "string" },
+          "size": { "type": "string", "nullable": true },
+          "colour": { "type": "string", "nullable": true },
+          "price": { "type": "number", "format": "double" },
+          "isActive": { "type": "boolean" },
+          "createdAtUtc": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateProductVariantRequest": {
+        "type": "object",
+        "required": ["sku"],
+        "properties": {
+          "sku": { "type": "string", "minLength": 2, "maxLength": 64 },
+          "size": { "type": "string", "maxLength": 50, "nullable": true },
+          "colour": { "type": "string", "maxLength": 50, "nullable": true },
+          "price": { "type": "number", "format": "double", "minimum": 0 }
+        }
+      },
+      "UpdateProductVariantRequest": {
+        "type": "object",
+        "required": ["sku"],
+        "properties": {
+          "sku": { "type": "string", "minLength": 2, "maxLength": 64 },
+          "size": { "type": "string", "maxLength": 50, "nullable": true },
+          "colour": { "type": "string", "maxLength": 50, "nullable": true },
+          "price": { "type": "number", "format": "double", "minimum": 0 },
+          "isActive": { "type": "boolean", "default": true }
+        }
+      },
+      "MetalTypeResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "name": { "type": "string" },
+          "code": { "type": "string" },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "CreateMetalTypeRequest": {
+        "type": "object",
+        "required": ["name", "code"],
+        "properties": {
+          "name": { "type": "string", "minLength": 2, "maxLength": 100 },
+          "code": { "type": "string", "minLength": 2, "maxLength": 30 }
+        }
+      },
+      "MetalPurityResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "metalType": { "type": "string" },
+          "name": { "type": "string" },
+          "purityPercentage": { "type": "number", "format": "double" },
+          "isActive": { "type": "boolean" }
+        }
+      },
+      "CreateMetalPurityRequest": {
+        "type": "object",
+        "required": ["metalTypeId", "name"],
+        "properties": {
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 50 },
+          "purityPercentage": { "type": "number", "format": "double", "minimum": 0.0001, "maximum": 100 }
+        }
+      },
+      "MetalRateResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "metalType": { "type": "string" },
+          "metalPurityId": { "type": "integer", "format": "int32" },
+          "metalPurity": { "type": "string" },
+          "ratePerGram": { "type": "number", "format": "double" },
+          "currencyCode": { "type": "string" },
+          "effectiveFromUtc": { "type": "string", "format": "date-time" },
+          "effectiveToUtc": { "type": "string", "format": "date-time", "nullable": true },
+          "rateSource": { "type": "string" },
+          "isManualOverride": { "type": "boolean" },
+          "createdAtUtc": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateMetalRateRequest": {
+        "type": "object",
+        "required": ["metalTypeId", "metalPurityId", "currencyCode", "rateSource"],
+        "properties": {
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "metalPurityId": { "type": "integer", "format": "int32" },
+          "ratePerGram": { "type": "number", "format": "double", "minimum": 0.0001 },
+          "currencyCode": { "type": "string", "minLength": 3, "maxLength": 3, "default": "AUD" },
+          "effectiveFromUtc": { "type": "string", "format": "date-time" },
+          "rateSource": { "type": "string", "maxLength": 50, "default": "Manual" },
+          "isManualOverride": { "type": "boolean", "default": true }
+        }
+      },
+      "JewelleryDetailResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "productVariantId": { "type": "integer", "format": "int32" },
+          "sku": { "type": "string" },
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "metalType": { "type": "string" },
+          "metalPurityId": { "type": "integer", "format": "int32" },
+          "metalPurity": { "type": "string" },
+          "purityPercentage": { "type": "number", "format": "double" },
+          "pricingMethod": { "$ref": "#/components/schemas/JewelleryPricingMethod" },
+          "makingChargePercentage": { "type": "number", "format": "double" },
+          "stoneCharge": { "type": "number", "format": "double" },
+          "certificationNumber": { "type": "string", "nullable": true },
+          "isIndividuallyTracked": { "type": "boolean" }
+        }
+      },
+      "CreateJewelleryDetailRequest": {
+        "type": "object",
+        "required": ["productVariantId", "metalTypeId", "metalPurityId"],
+        "properties": {
+          "productVariantId": { "type": "integer", "format": "int32" },
+          "metalTypeId": { "type": "integer", "format": "int32" },
+          "metalPurityId": { "type": "integer", "format": "int32" },
+          "pricingMethod": { "$ref": "#/components/schemas/JewelleryPricingMethod" },
+          "makingChargePercentage": { "type": "number", "format": "double", "minimum": 0, "maximum": 100 },
+          "stoneCharge": { "type": "number", "format": "double", "minimum": 0 },
+          "certificationNumber": { "type": "string", "maxLength": 100, "nullable": true },
+          "isIndividuallyTracked": { "type": "boolean", "default": true }
+        }
+      },
+      "JewelleryItemResponse": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "integer", "format": "int32" },
+          "jewelleryDetailId": { "type": "integer", "format": "int32" },
+          "barcode": { "type": "string" },
+          "productName": { "type": "string" },
+          "metalType": { "type": "string" },
+          "metalPurity": { "type": "string" },
+          "grossWeightGrams": { "type": "number", "format": "double" },
+          "netMetalWeightGrams": { "type": "number", "format": "double" },
+          "stoneWeightCarats": { "type": "number", "format": "double" },
+          "goldRatePerGram": { "type": "number", "format": "double" },
+          "goldValue": { "type": "number", "format": "double" },
+          "makingChargePercentage": { "type": "number", "format": "double" },
+          "makingChargeAmount": { "type": "number", "format": "double" },
+          "stoneCharge": { "type": "number", "format": "double" },
+          "sellingPrice": { "type": "number", "format": "double" },
+          "currencyCode": { "type": "string" },
+          "rateSource": { "type": "string" },
+          "pricedAtUtc": { "type": "string", "format": "date-time" },
+          "status": {
+            "type": "string",
+            "enum": ["InStock", "Reserved", "Sold", "Returned", "Damaged", "Transferred"]
+          },
+          "createdAtUtc": { "type": "string", "format": "date-time" }
+        }
+      },
+      "PagedJewelleryItemResponse": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/JewelleryItemResponse" }
+          },
+          "page": { "type": "integer", "format": "int32" },
+          "pageSize": { "type": "integer", "format": "int32" },
+          "totalItems": { "type": "integer", "format": "int32" },
+          "totalPages": { "type": "integer", "format": "int32" },
+          "hasPreviousPage": { "type": "boolean", "readOnly": true },
+          "hasNextPage": { "type": "boolean", "readOnly": true }
+        }
+      },
+      "CreateJewelleryItemRequest": {
+        "type": "object",
+        "properties": {
+          "grossWeightGrams": { "type": "number", "format": "double", "minimum": 0.001, "maximum": 999999 },
+          "netMetalWeightGrams": { "type": "number", "format": "double", "minimum": 0.001, "maximum": 999999 },
+          "stoneWeightCarats": { "type": "number", "format": "double", "minimum": 0, "maximum": 999999 },
+          "fixedSellingPrice": { "type": "number", "format": "double", "minimum": 0, "maximum": 999999999, "nullable": true },
+          "makingChargePercentage": { "type": "number", "format": "double", "minimum": 0, "maximum": 100, "nullable": true },
+          "stoneCharge": { "type": "number", "format": "double", "minimum": 0, "maximum": 999999999, "nullable": true },
+          "currencyCode": { "type": "string", "minLength": 3, "maxLength": 3, "default": "AUD" }
+        }
+      },
+      "UpdateJewelleryItemStatusRequest": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "status": { "$ref": "#/components/schemas/JewelleryItemStatus" }
+        }
+      },
+      "WeatherForecast": {
+        "type": "object",
+        "properties": {
+          "date": { "type": "string", "format": "date" },
+          "temperatureC": { "type": "integer", "format": "int32" },
+          "temperatureF": { "type": "integer", "format": "int32", "readOnly": true },
+          "summary": { "type": "string", "nullable": true }
+        }
+      }
+    }
+  }
+}
+

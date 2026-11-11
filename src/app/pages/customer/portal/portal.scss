@@ -585,3 +585,333 @@ $font-sans: var(--font-family-base);
   }
 }
 
+// Toast Notification Banner
+.toast-banner {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #15803d;
+  color: #fff;
+  padding: 0.8rem 1.4rem;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: var(--shadow-lg);
+  font-weight: 600;
+  font-size: 0.88rem;
+  z-index: 2000;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-20px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+.tier-pill {
+  background: #fef3c7;
+  color: #92400e;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.section-desc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin: 0.3rem 0 0;
+}
+
+.btn-primary-action {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--color-primary-hover);
+    box-shadow: 0 4px 12px var(--color-primary-glow);
+  }
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+// Orders Cards & Stepper
+.orders-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.order-card {
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+
+  .order-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--color-border-light);
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+
+    .order-num {
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--color-text-primary);
+    }
+
+    .order-date {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--color-text-muted);
+      margin-top: 0.2rem;
+    }
+
+    .order-total {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-brand);
+      margin-right: 0.8rem;
+    }
+  }
+}
+
+.stepper-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1.5rem 1rem;
+
+  .stepper-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    position: relative;
+    z-index: 2;
+
+    .step-circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--color-bg-subtle);
+      border: 2px solid var(--color-border-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text-muted);
+      transition: all 0.3s;
+
+      i { font-size: 1.1rem; }
+    }
+
+    .step-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--color-text-muted);
+    }
+
+    &.completed {
+      .step-circle {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: #fff;
+      }
+      .step-label {
+        color: var(--color-text-primary);
+      }
+    }
+
+    &.active {
+      .step-circle {
+        border-color: var(--color-accent);
+        box-shadow: 0 0 0 4px rgba(180, 83, 9, 0.15);
+      }
+    }
+  }
+
+  .stepper-line {
+    flex: 1;
+    height: 3px;
+    background: var(--color-border-light);
+    margin: 0 0.5rem;
+    margin-bottom: 1.2rem;
+    transition: all 0.3s;
+
+    &.active {
+      background: var(--color-primary);
+    }
+  }
+}
+
+.order-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--color-border-light);
+  padding-top: 1rem;
+  margin-top: 1rem;
+
+  .order-items-preview {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+
+    .item-tag {
+      background: var(--color-bg-subtle);
+      border: 1px solid var(--color-border-light);
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: var(--radius-sm);
+    }
+  }
+
+  .order-courier-meta {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+
+    .tracking-code {
+      margin-left: 0.6rem;
+      background: #e0f2fe;
+      color: #0369a1;
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+  }
+}
+
+.btn-set-default {
+  background: var(--color-bg-subtle);
+  border: 1px solid var(--color-border-light);
+  color: var(--color-text-secondary);
+  font-size: 0.78rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  margin-right: 0.4rem;
+
+  &:hover {
+    background: var(--color-primary);
+    color: #fff;
+  }
+}
+
+.btn-move-cart {
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  width: 100%;
+  margin-top: 0.6rem;
+  transition: all 0.2s;
+
+  &:hover {
+    background: var(--color-primary-hover);
+  }
+
+  i { font-size: 1rem; }
+}
+
+// Loyalty Hero
+.loyalty-hero-card {
+  background: linear-gradient(135deg, #1b363c, #102327);
+  color: #fff;
+  border-radius: var(--radius-xl);
+  padding: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+
+  .loyalty-left {
+    .tier-label {
+      background: #fde68a;
+      color: #78350f;
+      font-size: 0.8rem;
+      padding: 0.2rem 0.6rem;
+      border-radius: 9999px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .points-val {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin: 0.5rem 0 0.2rem;
+      color: #fef08a;
+
+      span {
+        font-size: 1rem;
+        font-weight: 500;
+        color: #e2e8f0;
+      }
+    }
+
+    .points-worth {
+      font-size: 0.85rem;
+      color: #cbd5e1;
+      margin: 0;
+
+      strong { color: #fff; }
+    }
+  }
+
+  .loyalty-perks {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.2rem 1.5rem;
+
+    h4 {
+      margin: 0 0 0.6rem;
+      font-size: 0.9rem;
+      color: #fde68a;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      color: #e2e8f0;
+    }
+  }
+}
+
+.content-sub-section {
+  margin-top: 2rem;
+
+  h3 {
+    font-size: 1.15rem;
+    margin-bottom: 1rem;
+    color: var(--color-text-brand);
+  }
+}
+
+

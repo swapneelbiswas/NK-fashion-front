@@ -5,14 +5,14 @@
   <div class="portal-main">
     <header class="portal-header">
       <div class="header-title">
-        <h1>POS Cashier Terminal</h1>
-        <span class="subtext">Register Counter 01 · NK Fashions Kolkata Store</span>
+        <h1>POS Cashier Terminal & Operations</h1>
+        <span class="subtext">Counter 01 · NK Fashions Kolkata Flagship (Park Street)</span>
       </div>
       <div class="admin-profile">
         <span class="avatar-tag">PC</span>
         <div class="profile-details">
           <span class="username">Suhana Das</span>
-          <span class="role">POS Cashier</span>
+          <span class="role">Active Cashier Shift</span>
         </div>
       </div>
     </header>
@@ -23,9 +23,25 @@
         <i class="material-icons">point_of_sale</i>
         <span>Register Checkout</span>
       </button>
+      <button class="tab-btn" [class.active]="activeTab === 'parked'" (click)="switchTab('parked')">
+        <i class="material-icons">pause_circle_outline</i>
+        <span>Parked Orders ({{ parkedOrders.length }})</span>
+      </button>
       <button class="tab-btn" [class.active]="activeTab === 'history'" (click)="switchTab('history')">
         <i class="material-icons">receipt_long</i>
-        <span>Counter Receipt History</span>
+        <span>Sales Journal</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'returns'" (click)="switchTab('returns')">
+        <i class="material-icons">assignment_return</i>
+        <span>Returns & Refunds</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'catalog'" (click)="switchTab('catalog')">
+        <i class="material-icons">inventory</i>
+        <span>Multi-Store Stock</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'shift'" (click)="switchTab('shift')">
+        <i class="material-icons">account_balance_wallet</i>
+        <span>Cash Drawer Float</span>
       </button>
     </nav>
     
@@ -36,7 +52,13 @@
       <div class="terminal-container" *ngIf="activeTab === 'terminal'">
         <!-- Left Cart Panel -->
         <div class="cart-panel">
-          <h3>Checkout Register Cart</h3>
+          <div class="cart-panel-header">
+            <h3>Active Register Cart</h3>
+            <button class="btn-park-order" *ngIf="cartItems.length > 0" (click)="parkCurrentCart()">
+              <i class="material-icons">pause</i> Park Sale
+            </button>
+          </div>
+
           <div class="cart-empty" *ngIf="cartItems.length === 0">
             <i class="material-icons">qr_code_scanner</i>
             <p>Scan barcode or tap quick product lookup buttons on the right to start transaction checkout.</p>
@@ -49,8 +71,8 @@
                   <th>Product Details</th>
                   <th>SKU</th>
                   <th>Quantity</th>
-                  <th>Retail Price</th>
-                  <th>Discount</th>
+                  <th>Unit Price</th>
+                  <th>Item Discount</th>
                   <th>Total</th>
                   <th>Action</th>
                 </tr>
@@ -66,14 +88,14 @@
                       <button class="qty-btn" (click)="updateQuantity(item.product.id, 1)">+</button>
                     </div>
                   </td>
-                  <td>Rs. {{ item.product.price | number }}</td>
+                  <td>₹{{ item.product.price | number }}</td>
                   <td>
                     <input class="discount-input" type="number" 
                            [(ngModel)]="item.discount" 
                            (ngModelChange)="applyItemDiscount(item.product.id, item.discount)" 
                            placeholder="0" min="0" />
                   </td>
-                  <td><strong>Rs. {{ (item.product.price * item.quantity) - item.discount | number }}</strong></td>
+                  <td><strong>₹{{ (item.product.price * item.quantity) - item.discount | number }}</strong></td>
                   <td>
                     <button class="delete-icon-btn" (click)="removeCartItem(item.product.id)">
                       <i class="material-icons">delete</i>
@@ -87,12 +109,16 @@
           <!-- Totals Panel -->
           <div class="totals-panel" *ngIf="cartItems.length > 0">
             <div class="totals-row">
-              <span>Checkout Subtotal:</span>
-              <span>Rs. {{ getSubtotal() | number }}</span>
+              <span>Included GST (12%):</span>
+              <span>₹{{ getTaxAmount() | number }}</span>
             </div>
             <div class="totals-row grand">
-              <span>Grand Total Due:</span>
-              <span>Rs. {{ getSubtotal() | number }}</span>
+              <span>Grand Total Payable:</span>
+              <span>₹{{ getSubtotal() | number }}</span>
+            </div>
+            <div class="totals-row change-row" *ngIf="paymentMethod === 'Cash' && getChangeDue() > 0">
+              <span class="change-label">Change Return Due:</span>
+              <span class="change-amount">₹{{ getChangeDue() | number }}</span>
             </div>
           </div>
         </div>
@@ -101,99 +127,129 @@
         <div class="action-panel">
           <!-- 1. Barcode Field (Mimics physical scanner) -->
           <div class="action-box">
-            <h4>Barcode Scanner Input</h4>
+            <h4>Barcode / SKU Scanner</h4>
             <form (submit)="scanBarcode(); $event.preventDefault()">
               <div class="scanner-input-row">
                 <input class="scanner-field" name="barcode" [(ngModel)]="barcodeInput" 
-                       placeholder="Scan barcode or type SKU (e.g. NF-SAR-001)" autofocus />
-                <button type="submit" class="scanner-btn">Scan</button>
+                       placeholder="Scan barcode or enter SKU (e.g. NF-SAR-001)" autofocus />
+                <button type="submit" class="scanner-btn">Add SKU</button>
               </div>
             </form>
           </div>
           
-          <!-- 2. Customer Selector -->
+          <!-- 2. Customer Selector & Loyalty -->
           <div class="action-box">
-            <h4>Registered Customer Loyalty</h4>
+            <h4>Customer Account & Loyalty</h4>
             <select class="form-select" [(ngModel)]="selectedCustomer">
-              <option value="Walk-in Customer">Walk-in Customer</option>
-              <option value="Siddharth Roy (Loyalty ID: NK-CUST-102)">Siddharth Roy (Loyalty: NK-CUST-102)</option>
-              <option value="Priyal Sen (Loyalty ID: NK-CUST-105)">Priyal Sen (Loyalty: NK-CUST-105)</option>
+              <option value="Walk-in Customer">Walk-in Customer (General)</option>
+              <option value="Siddharth Roy (NK-CUST-102 - Gold Member)">Siddharth Roy (Gold Member · 450 pts)</option>
+              <option value="Priyal Sen (NK-CUST-105 - Platinum Member)">Priyal Sen (Platinum Member · 890 pts)</option>
             </select>
           </div>
           
-          <!-- 3. Quick Lookup Catalog -->
+          <!-- 3. Quick Lookup Catalog with Categories -->
           <div class="action-box">
-            <h4>Quick Product Lookup</h4>
+            <div class="box-header-row">
+              <h4>Quick Speed Keys</h4>
+              <div class="category-pills">
+                <button type="button" class="pill-btn" [class.active]="selectedCategory === 'All'" (click)="selectedCategory = 'All'">All</button>
+                <button type="button" class="pill-btn" [class.active]="selectedCategory === 'Saree'" (click)="selectedCategory = 'Saree'">Sarees</button>
+                <button type="button" class="pill-btn" [class.active]="selectedCategory === 'Men'" (click)="selectedCategory = 'Men'">Men</button>
+                <button type="button" class="pill-btn" [class.active]="selectedCategory === 'Polos'" (click)="selectedCategory = 'Polos'">Polos</button>
+                <button type="button" class="pill-btn" [class.active]="selectedCategory === 'Jewellery'" (click)="selectedCategory = 'Jewellery'">Jewellery</button>
+              </div>
+            </div>
             <div class="quick-lookup-grid">
               <button type="button" class="quick-lookup-btn" 
-                      *ngFor="let prod of productsCatalog" 
+                      *ngFor="let prod of filteredProducts" 
                       (click)="addProductToCart(prod)">
-                + {{ prod.sku }} ({{ prod.name.substring(0, 15) }}...)
+                <span class="btn-sku">{{ prod.sku }}</span>
+                <span class="btn-name">{{ prod.name }}</span>
+                <span class="btn-price">₹{{ prod.price | number }}</span>
               </button>
             </div>
           </div>
           
           <!-- 4. Payment & Finalize Checkout -->
           <div class="action-box payment-box" *ngIf="cartItems.length > 0">
-            <h4>Finalize Payment</h4>
+            <h4>Payment Tender Selection</h4>
             <div class="payment-method-selector">
               <button type="button" class="pay-method-btn" 
                       [class.active]="paymentMethod === 'Cash'" 
                       (click)="paymentMethod = 'Cash'">Cash</button>
               <button type="button" class="pay-method-btn" 
                       [class.active]="paymentMethod === 'Card'" 
-                      (click)="paymentMethod = 'Card'">Credit Card</button>
+                      (click)="paymentMethod = 'Card'">Credit/Debit</button>
+              <button type="button" class="pay-method-btn" 
+                      [class.active]="paymentMethod === 'UPI'" 
+                      (click)="paymentMethod = 'UPI'">UPI / QR</button>
               <button type="button" class="pay-method-btn" 
                       [class.active]="paymentMethod === 'Split'" 
                       (click)="paymentMethod = 'Split'">Split</button>
+            </div>
+
+            <!-- Quick Cash Denominations -->
+            <div class="quick-cash-row" *ngIf="paymentMethod === 'Cash'">
+              <span class="quick-label">Tender:</span>
+              <button type="button" class="tender-btn" (click)="setQuickTender(getSubtotal())">Exact</button>
+              <button type="button" class="tender-btn" (click)="setQuickTender(1000)">₹1,000</button>
+              <button type="button" class="tender-btn" (click)="setQuickTender(2000)">₹2,000</button>
+              <button type="button" class="tender-btn" (click)="setQuickTender(5000)">₹5,000</button>
+              <input type="number" class="tender-custom-input" [(ngModel)]="cashTendered" placeholder="₹ Amount" />
             </div>
             
             <!-- Split controls -->
             <div class="split-inputs" *ngIf="paymentMethod === 'Split'">
               <div class="split-row">
-                <label>Cash Paid:</label>
-                <input type="number" [(ngModel)]="cashPaid" placeholder="Cash Amount" />
+                <label>Cash Amount:</label>
+                <input type="number" [(ngModel)]="cashSplitPaid" placeholder="Cash Amount" />
               </div>
               <div class="split-row">
-                <label>Card Paid:</label>
-                <strong class="card-balance">Rs. {{ getSubtotal() - cashPaid | number }}</strong>
+                <label>Card / UPI Balance:</label>
+                <strong class="card-balance">₹{{ getSubtotal() - cashSplitPaid | number }}</strong>
               </div>
             </div>
             
             <button type="button" class="finalize-checkout-btn" (click)="processCheckout()">
-              FINALIZE & PRINT RECEIPT
+              <i class="material-icons">receipt</i>
+              COMPLETE SALE & PRINT THERMAL RECEIPT
             </button>
           </div>
         </div>
       </div>
-      
-      <!-- 2. Completed History Tab -->
-      <div class="tab-content" *ngIf="activeTab === 'history'">
+
+      <!-- 2. Parked Orders Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'parked'">
         <div class="content-header">
-          <h2>Completed Invoices & Duplicate Receipts</h2>
+          <div>
+            <h2>Parked & Suspended Register Sales</h2>
+            <p class="section-desc">Resume held carts when the shopper is ready to conclude payment.</p>
+          </div>
         </div>
-        
-        <table class="data-table">
+        <div class="empty-state" *ngIf="parkedOrders.length === 0">
+          <p>No suspended transactions currently parked. Use "Park Sale" in register to hold an active order.</p>
+        </div>
+        <table class="data-table" *ngIf="parkedOrders.length > 0">
           <thead>
             <tr>
-              <th>Invoice #</th>
+              <th>Hold ID</th>
               <th>Customer</th>
-              <th>Total Paid</th>
-              <th>Payment Type</th>
-              <th>Checkout Date</th>
-              <th>Actions</th>
+              <th>Items Count</th>
+              <th>Estimated Subtotal</th>
+              <th>Parked Time</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
-            <tr *ngFor="let sale of salesHistory">
-              <td><strong>{{ sale.invoice }}</strong></td>
-              <td>{{ sale.customerName }}</td>
-              <td>Rs. {{ sale.total | number }}</td>
-              <td><span class="role-tag">{{ sale.paymentMethod }}</span></td>
-              <td>{{ sale.timestamp }}</td>
+            <tr *ngFor="let order of parkedOrders">
+              <td><strong>{{ order.id }}</strong></td>
+              <td>{{ order.customerName }}</td>
+              <td>{{ order.items.length }} items</td>
+              <td>₹{{ order.subtotal | number }}</td>
+              <td>{{ order.parkedAt }}</td>
               <td>
-                <button class="btn-approve" type="button" (click)="activeTab = 'terminal'; completedInvoice = sale.invoice; checkoutComplete = true">
-                  Reprint Receipt
+                <button class="btn-resume-parked" (click)="resumeParkedOrder(order)">
+                  <i class="material-icons">play_arrow</i> Resume Cart
                 </button>
               </td>
             </tr>
@@ -201,57 +257,345 @@
         </table>
       </div>
       
+      <!-- 3. Completed History Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'history'">
+        <div class="content-header">
+          <div>
+            <h2>Completed Invoices & Duplicate Thermal Receipts</h2>
+            <p class="section-desc">Search historical sales and print duplicate cashier receipts.</p>
+          </div>
+        </div>
+        
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Total Paid</th>
+              <th>Payment Tender</th>
+              <th>Checkout Timestamp</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let sale of salesHistory">
+              <td><strong>{{ sale.invoice }}</strong></td>
+              <td>{{ sale.customerName }}</td>
+              <td>{{ sale.items.length || 1 }} line items</td>
+              <td>₹{{ sale.total | number }}</td>
+              <td><span class="role-tag">{{ sale.paymentMethod }}</span></td>
+              <td>{{ sale.timestamp }}</td>
+              <td>
+                <button class="btn-reprint" type="button" (click)="openReceipt(sale)">
+                  <i class="material-icons">print</i> Reprint
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 4. Returns & Exchanges Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'returns'">
+        <div class="content-header">
+          <div>
+            <h2>Returns, Exchanges & Credit Vouchers</h2>
+            <p class="section-desc">Locate past customer invoices, validate line items, and issue store credit vouchers.</p>
+          </div>
+        </div>
+
+        <div class="returns-container">
+          <div class="returns-search-box">
+            <h4>Lookup Past Tax Invoice</h4>
+            <div class="search-row">
+              <input type="text" [(ngModel)]="returnSearchInvoice" placeholder="Enter Invoice Number (e.g. INV-2026-0089)" />
+              <button class="btn-primary-action" (click)="searchInvoiceForReturn()">
+                <i class="material-icons">search</i> Find Invoice
+              </button>
+            </div>
+          </div>
+
+          <div class="returns-form-card" *ngIf="foundSaleForReturn">
+            <div class="returns-meta-header">
+              <div>
+                <h3>Invoice Details: {{ foundSaleForReturn.invoice }}</h3>
+                <span class="text-muted">Customer: {{ foundSaleForReturn.customerName }} · Date: {{ foundSaleForReturn.timestamp }}</span>
+              </div>
+              <div class="total-tag">Original Total: ₹{{ foundSaleForReturn.total | number }}</div>
+            </div>
+
+            <div class="form-group">
+              <label>Select Item to Return / Exchange:</label>
+              <select [(ngModel)]="selectedItemToReturn">
+                <option *ngFor="let it of foundSaleForReturn.items" [ngValue]="it">
+                  {{ it.product.name }} ({{ it.product.sku }}) - ₹{{ it.product.price }} [Qty Purchased: {{ it.quantity }}]
+                </option>
+              </select>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Return Quantity:</label>
+                <input type="number" [(ngModel)]="returnQuantity" min="1" [max]="selectedItemToReturn?.quantity || 1" />
+              </div>
+              <div class="form-group">
+                <label>Return Reason:</label>
+                <select [(ngModel)]="returnReason">
+                  <option value="Size Mismatch">Size Mismatch / Fit Issue</option>
+                  <option value="Fabric / Weave Defect">Fabric / Weave Defect</option>
+                  <option value="Customer Changed Mind">Customer Changed Mind</option>
+                  <option value="Color Preference">Color Preference</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row-2">
+              <div class="form-group">
+                <label>Refund Settlement Method:</label>
+                <select [(ngModel)]="returnRefundType">
+                  <option value="Store Credit Voucher">Store Credit Voucher (Valid 1 Year)</option>
+                  <option value="Original Payment">Original Payment Tender (Cash/Card)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Supervisor Override PIN (Default: 1234):</label>
+                <input type="password" [(ngModel)]="enteredPin" placeholder="Enter PIN" />
+              </div>
+            </div>
+
+            <div class="return-actions-row">
+              <div class="refund-calc">
+                <span>Calculated Refund Amount:</span>
+                <strong>₹{{ (selectedItemToReturn?.product?.price || 0) * returnQuantity | number }}</strong>
+              </div>
+              <button class="btn-confirm-return" (click)="processItemReturn()">
+                <i class="material-icons">verified</i> Process Return & Issue Credit
+              </button>
+            </div>
+
+            <div class="return-success-banner" *ngIf="returnSuccessMessage">
+              <i class="material-icons">check_circle</i>
+              <span>{{ returnSuccessMessage }}</span>
+            </div>
+          </div>
+
+          <div class="content-sub-section">
+            <h3>Recent Returns & Store Credit Log</h3>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Return ID</th>
+                  <th>Original Invoice</th>
+                  <th>Customer</th>
+                  <th>Product</th>
+                  <th>Quantity</th>
+                  <th>Refund Amount</th>
+                  <th>Refund Type</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let ret of returnsHistory">
+                  <td><strong>{{ ret.returnId }}</strong></td>
+                  <td>{{ ret.originalInvoice }}</td>
+                  <td>{{ ret.customerName }}</td>
+                  <td>{{ ret.productName }} ({{ ret.sku }})</td>
+                  <td>{{ ret.quantity }} pc</td>
+                  <td><strong style="color: #b91c1c;">₹{{ ret.refundAmount | number }}</strong></td>
+                  <td><span class="role-tag">{{ ret.refundType }}</span></td>
+                  <td>{{ ret.timestamp }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5. Multi-Store Catalog & Stock Lookup Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'catalog'">
+        <div class="content-header">
+          <div>
+            <h2>Multi-Store Inventory & SKU Availability</h2>
+            <p class="section-desc">Search item stock across Kolkata Flagship, Salt Lake Warehouse, and Mumbai Hub.</p>
+          </div>
+          <div class="catalog-search-bar">
+            <input type="text" [(ngModel)]="catalogSearchQuery" placeholder="Search by SKU or garment name..." />
+          </div>
+        </div>
+
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Garment Name</th>
+              <th>Category</th>
+              <th>Retail Price</th>
+              <th>This Store (Kolkata)</th>
+              <th>Central Warehouse (Salt Lake)</th>
+              <th>Mumbai Hub</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let prod of searchedCatalog">
+              <td><span class="code-badge">{{ prod.sku }}</span></td>
+              <td><strong>{{ prod.name }}</strong></td>
+              <td><span class="category-tag">{{ prod.category }}</span></td>
+              <td>₹{{ prod.price | number }}</td>
+              <td>
+                <strong [style.color]="prod.stock > 5 ? '#15803d' : '#b91c1c'">
+                  {{ prod.stock }} pcs
+                </strong>
+              </td>
+              <td>{{ prod.warehouseStock }} pcs</td>
+              <td>{{ prod.mumbaiStock }} pcs</td>
+              <td>
+                <button class="btn-primary-action" style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" (click)="addProductToCart(prod); activeTab = 'terminal'">
+                  + Add to Cart
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 6. Cash Drawer & Shift Float Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'shift'">
+        <div class="content-header">
+          <div>
+            <h2>Cash Drawer & Shift Float Management</h2>
+            <p class="section-desc">Track opening cash float, register cash top-ups, and petty cash expenses.</p>
+          </div>
+        </div>
+
+        <div class="drawer-stats-grid">
+          <div class="stat-card">
+            <h4>Shift Opening Float</h4>
+            <div class="stat-val">₹{{ shiftOpeningFloat | number }}</div>
+            <small>Base drawer float on shift start</small>
+          </div>
+          <div class="stat-card highlight">
+            <h4>Current Cash in Drawer</h4>
+            <div class="stat-val">₹{{ totalCashInDrawer | number }}</div>
+            <small>Float + Cash Sales + Net Float Entries</small>
+          </div>
+        </div>
+
+        <div class="float-entry-box">
+          <h4>Record Petty Cash In / Out</h4>
+          <div class="float-form-row">
+            <select [(ngModel)]="newFloatType">
+              <option value="CASH_IN">Cash In (+ Float Top-up)</option>
+              <option value="CASH_OUT">Cash Out (- Petty Expense)</option>
+            </select>
+            <input type="number" [(ngModel)]="newFloatAmount" placeholder="Amount in ₹" min="1" />
+            <input type="text" [(ngModel)]="newFloatReason" placeholder="Reason (e.g. Paper rolls, Tea expense)" />
+            <button class="btn-primary-action" (click)="addFloatEntry()">
+              <i class="material-icons">save</i> Record Entry
+            </button>
+          </div>
+        </div>
+
+        <div class="content-sub-section">
+          <h3>Today's Float Movements Journal</h3>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Movement Type</th>
+                <th>Amount (₹)</th>
+                <th>Reason / Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let entry of floatEntries">
+                <td>{{ entry.timestamp }}</td>
+                <td>
+                  <span class="role-tag" [class.earned]="entry.type === 'CASH_IN'">
+                    {{ entry.type === 'CASH_IN' ? '+ CASH IN' : '- CASH OUT' }}
+                  </span>
+                </td>
+                <td>
+                  <strong [style.color]="entry.type === 'CASH_IN' ? '#15803d' : '#b91c1c'">
+                    {{ entry.type === 'CASH_IN' ? '+' : '-' }}₹{{ entry.amount | number }}
+                  </strong>
+                </td>
+                <td>{{ entry.reason }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
     </div>
   </div>
 </div>
 
-<!-- Receipt Print Modal -->
+<!-- 80mm Thermal Receipt Print Modal -->
 <div class="admin-modal receipt-modal" *ngIf="checkoutComplete">
   <div class="modal-card receipt-card">
-    <div class="receipt-header">
-      <h2>NK FASHIONS</h2>
-      <p>Luxury Designer Boutique</p>
-      <p>Park Street, Kolkata</p>
-    </div>
-    
-    <div class="receipt-meta">
-      <div><strong>Invoice:</strong> {{ completedInvoice }}</div>
-      <div><strong>Date:</strong> 2026-08-28</div>
-      <div><strong>Cashier:</strong> Suhana Das (Register Counter 01)</div>
-      <div><strong>Client:</strong> {{ selectedCustomer }}</div>
-    </div>
-    
-    <div class="receipt-divider"></div>
-    
-    <div class="receipt-items">
-      <div class="receipt-item-row" *ngFor="let item of cartItems">
-        <span class="item-name">{{ item.product.name }}</span>
-        <span class="item-qty">x{{ item.quantity }}</span>
-        <span class="item-total">Rs. {{ (item.product.price * item.quantity) - item.discount | number }}</span>
+    <div class="thermal-receipt">
+      <div class="receipt-header">
+        <h2>NK FASHIONS</h2>
+        <p class="store-subtitle">Luxury Indian Wear & Contemporary Designer Studio</p>
+        <p class="store-address">12A Park Street, Kolkata, WB - 700016</p>
+        <p class="gstin">GSTIN: 19AAACN8390L1ZU</p>
       </div>
+      
+      <div class="receipt-meta">
+        <div><strong>Tax Invoice:</strong> {{ completedInvoice }}</div>
+        <div><strong>Date:</strong> {{ receiptToPrint?.timestamp || '2026-08-28 17:45' }}</div>
+        <div><strong>Register:</strong> POS-01 (Cashier: Suhana Das)</div>
+        <div><strong>Customer:</strong> {{ selectedCustomer }}</div>
+      </div>
+      
+      <div class="receipt-divider"></div>
+      
+      <div class="receipt-items">
+        <div class="receipt-item-row header">
+          <span>Item</span>
+          <span>Qty</span>
+          <span>Amount</span>
+        </div>
+        <div class="receipt-item-row" *ngFor="let item of (receiptToPrint?.items || cartItems)">
+          <span class="item-name">{{ item.product.name }} ({{ item.product.sku }})</span>
+          <span class="item-qty">x{{ item.quantity }}</span>
+          <span class="item-total">₹{{ (item.product.price * item.quantity) - item.discount | number }}</span>
+        </div>
+      </div>
+      
+      <div class="receipt-divider"></div>
+      
+      <div class="receipt-totals">
+        <div class="receipt-total-row">
+          <span>SUBTOTAL:</span>
+          <span>₹{{ receiptToPrint?.total || getSubtotal() | number }}</span>
+        </div>
+        <div class="receipt-total-row">
+          <span>INCLUDED GST (12%):</span>
+          <span>₹{{ receiptToPrint?.taxAmount || getTaxAmount() | number }}</span>
+        </div>
+        <div class="receipt-total-row grand">
+          <span>GRAND TOTAL PAID:</span>
+          <span>₹{{ receiptToPrint?.total || getSubtotal() | number }}</span>
+        </div>
+        <div class="receipt-total-row">
+          <span>TENDER TYPE:</span>
+          <span>{{ receiptToPrint?.paymentMethod || paymentMethod }}</span>
+        </div>
+      </div>
+      
+      <div class="barcode-simulation">
+        <div class="barcode-lines">||| | |||| || |||||| | |||| |||</div>
+        <span class="barcode-text">{{ completedInvoice }}</span>
+      </div>
+
+      <p class="receipt-thankyou">Exchange within 7 days with original tag and invoice.<br>Thank you for shopping at NK Fashions!</p>
     </div>
-    
-    <div class="receipt-divider"></div>
-    
-    <div class="receipt-totals">
-      <div class="receipt-total-row">
-        <span>SUBTOTAL:</span>
-        <span>Rs. {{ getSubtotal() | number }}</span>
-      </div>
-      <div class="receipt-total-row">
-        <span>TAX (GST 12%):</span>
-        <span>Included</span>
-      </div>
-      <div class="receipt-total-row grand">
-        <span>GRAND TOTAL PAID:</span>
-        <span>Rs. {{ getSubtotal() | number }}</span>
-      </div>
-    </div>
-    
-    <p class="receipt-thankyou">Thank you for shopping at NK Fashions! Visit again.</p>
     
     <div class="modal-actions">
-      <button type="button" class="btn-save" (click)="nextTransaction()">CLOSE & NEXT SALE</button>
+      <button type="button" class="btn-save" (click)="nextTransaction()">CLOSE & START NEXT SALE</button>
     </div>
   </div>
 </div>
